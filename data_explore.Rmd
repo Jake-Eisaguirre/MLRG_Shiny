@@ -7,5 +7,64 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+library(here)
+library(tidyverse)
+library(janitor)
+library(sf)
+library(lubridate)
+```
+
+# VES data
+```{r}
+ves_data <- read_csv(here("data", "VES.csv")) %>% 
+  clean_names()
+
+clean_ves_data <- ves_data %>% 
+  dplyr::select(c(id_1, utme, utmn, wilderness, visit_date, visit_status, duration, species, visual_life_stage, 
+                  visual_animal_state, count)) %>% 
+    mutate(visit_date = year(visit_date)) %>% 
+  rename(id = id_1,
+         date = visit_date)
+```
+
+# bd_load data
+```{r}
+bd_data <- read_csv(here("data", "bd_load.csv")) %>% 
+  clean_names()
+
+clean_bd_data <- bd_data %>% 
+  dplyr::select(id_1, utme_11, utmn_12, wilderness, visit_date, visit_status, duration, species, bd_load) %>% 
+  mutate(visit_date = year(visit_date)) %>% 
+  rename(id = id_1,
+         utme = utme_11,
+         utmn = utmn_12,
+         date = visit_date)
+
+
+
+```
+
+
+```{r}
+
+test <- clean_ves_data %>% 
+  filter(id_1 == 10411) %>% 
+  group_by(visual_life_stage, visit_date, utme, utmn, id_1, species)
+
+ggplot(data = test, aes(y = count, x = visual_life_stage)) +
+  geom_col()
+
+```
+
+
+```{r}
+
+spat_data <- clean_ves_data %>% 
+  filter(wilderness == "yosemite") %>% 
+  st_as_sf(coords = c("utme", "utmn"), crs = 4326)
+
+plot(spat_data$geometry)
+
 ```
 
