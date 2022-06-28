@@ -5,7 +5,7 @@ if (!require(librarian)){
 
 # librarian downloads, if not already downloaded, and reads in needed packages
 
-librarian::shelf(shiny, tidyverse, here, janitor, sf)
+librarian::shelf(shiny, tidyverse, here, janitor, sf, lubridate, leaflet)
 
 
 #Data read in
@@ -21,6 +21,9 @@ ves <- ves_data %>%
   rename(id = id_1,
          date = visit_date)
 
+ui_date_ves <- unique(ves$date)
+ui_date_map <- unique(ves$date)
+
 # bd_load data
 bd_data <- read_csv(here("data", "bd_load.csv")) %>% 
   clean_names()
@@ -33,3 +36,6 @@ bd <- bd_data %>%
          utmn = utmn_12,
          date = visit_date)
 
+ui_date_bd <- unique(bd$date)
+
+#wilderness <- unique(ves$wilderness)

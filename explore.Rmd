@@ -1,7 +1,7 @@
 ---
-title: "data_exploration"
+title: "explore"
 author: "Jake Eisaguirre"
-date: "6/27/2022"
+date: "6/28/2022"
 output: html_document
 ---
 
@@ -13,6 +13,8 @@ library(tidyverse)
 library(janitor)
 library(sf)
 library(lubridate)
+library(leaflet)
+library(sp)
 ```
 
 # VES data
@@ -49,22 +51,43 @@ clean_bd_data <- bd_data %>%
 ```{r}
 
 test <- clean_ves_data %>% 
-  filter(id_1 == 10411) %>% 
-  group_by(visual_life_stage, visit_date, utme, utmn, id_1, species)
+  filter(id == 10411,
+         visual_life_stage == "adult",
+         date == 2019)
 
-ggplot(data = test, aes(y = count, x = visual_life_stage)) +
+ggplot(data = test, aes(y = count, x = species)) +
   geom_col()
 
 ```
 
 
 ```{r}
+sf_ves <- st_as_sf(clean_ves_data, coords = c('utme', 'utmn'), crs = "+proj=utm +zone=11")
 
-spat_data <- clean_ves_data %>% 
-  filter(wilderness == "yosemite") %>% 
-  st_as_sf(coords = c("utme", "utmn"), crs = 4326)
+leaf_ves = st_transform(sf_ves, crs = "+proj=longlat +ellps=WGS84 +datum=WGS84")
 
-plot(spat_data$geometry)
 
+coord <- leaf_ves %>% 
+  mutate(long = st_coordinates(.)[,1],
+         lat = st_coordinates(.)[,2]) %>% 
+  as.data.frame()
 ```
 
+
+```{r}
+
+leaf_bd <- clean_bd_data %>% 
+  filter(wilderness == "yosemite",
+        date == "2019")
+
+leaf_test <- coord %>% 
+  filter(wilderness == "yosemite",
+         date == "2019")
+
+leaflet() %>% 
+  addProviderTiles("Esri.WorldImagery") %>% 
+  addCircleMarkers(lng = leaf_test$long, lat = leaf_test$lat, popup = paste("Site:", leaf_test$id, "<br>",
+                                                                            "Bd Load:", leaf_bd$bd_load),
+                   color = "blue", radius = 1)
+
+```

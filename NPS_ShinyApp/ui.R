@@ -13,23 +13,56 @@ ui <- fluidPage(
                
                tabPanel("Home", icon = icon("info-circle")),
                
-               tabPanel(title = "VES", icon = icon("frog"),
+               
+               tabPanel(title = "Site Map", icon = icon("globe-asia"),
                         
+                        sidebarLayout(
+                                
+                            sidebarPanel(
+                                
+                                selectInput(inputId = "site_year",
+                                            label = "First, select a Year",
+                                            choices = sort(ui_date_map, decreasing = T),
+                                            multiple = F,
+                                            selectize = T),
+                                
+                                selectInput(inputId = "wilderness",
+                                            label = "Now, select a wilderness",
+                                            choices = unique(ves$wilderness),
+                                            multiple = T,
+                                            selectize = T)),
+                                
+                    mainPanel(leafletOutput(outputId = "site_map")))
+                    
+                    ),
+               
+               
+               tabPanel(title = "VES", icon = icon("frog"),
                         
                         sidebarLayout(
                         
                             sidebarPanel(
                             
                                 selectInput(inputId = "ves_date",
-                                      label = "Select a Year",
-                                      choices = sort(ves$date, decreasing = T),
+                                      label = "First, select a Year",
+                                      choices = sort(ui_date_ves, decreasing = T),
                                       multiple = F,
-                                      selectize = T)),
+                                      selectize = T),
+                                
+                                selectInput(inputId = "wilderness",
+                                           label = "Now, select a wilderness",
+                                           choices = unique(ves$wilderness),
+                                           multiple = T,
+                                           selectize = T),
+                                
+                                selectInput(inputId = "live_stage",
+                                            label = "Finally, select life stage",
+                                            choices = unique(ves$visual_life_stage))),
                         
-                        mainPanel(plotOutput(outputId = "ves_plots"))
+                        mainPanel(plotOutput(outputId = "ves_plots")))
                             
-                            
-                        )),
+                        ),
+               
                
                tabPanel(title = "Bd Load", icon = icon("bacterium"),
                         
@@ -38,22 +71,20 @@ ui <- fluidPage(
                             sidebarPanel(
                                 
                                 selectInput(inputId = "bd_date",
-                                            label = "Select a Year",
-                                            choices = sort(bd$date, decreasing = T),
+                                            label = "First, select a Year",
+                                            choices = sort(ui_date_bd, decreasing = T),
                                             multiple = F,
+                                            selectize = T),
+                                
+                                selectInput(inputId = "wilderness",
+                                            label = "Now, select a wilderness",
+                                            choices = unique(bd$wilderness),
+                                            multiple = T,
                                             selectize = T)),
                         
-                        mainPanel = plotOutput(outputId = "bd_plots")
+                        mainPanel(plotOutput(outputId = "bd_plots")))
                             
-                        ))),
+                        )
     
     
-    
-    
-    
-    
-    
-    
-    
-    
-)
+))
