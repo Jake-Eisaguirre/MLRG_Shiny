@@ -81,8 +81,7 @@ leaf_bd <- clean_bd_data %>%
         date == "2019")
 
 leaf_test <- coord %>% 
-  filter(wilderness == "yosemite",
-         date == "2019")
+  filter(wilderness == "yosemite")
 
 leaflet() %>% 
   addProviderTiles("Esri.WorldImagery") %>% 

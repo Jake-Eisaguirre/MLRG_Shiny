@@ -1,26 +1,22 @@
-#
-# This is the server logic of a Shiny web application. You can run the
-# application by clicking 'Run App' above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
+source(here("NPs_ShinyApp", "global.R"))
 
-library(shiny)
-
-# Define server logic required to draw a histogram
-shinyServer(function(input, output) {
-
-    output$distPlot <- renderPlot({
-
-        # generate bins based on input$bins from ui.R
-        x    <- faithful[, 2]
-        bins <- seq(min(x), max(x), length.out = input$bins + 1)
-
-        # draw the histogram with the specified number of bins
-        hist(x, breaks = bins, col = 'darkgray', border = 'white')
-
+# leaflet base map
+server <- function(input, output, session){
+    
+    #create leaflet base map
+    output$site_map <- renderLeaflet({
+    leaflet() %>% 
+        addProviderTiles("Esri.WorldImagery") %>% 
+        addMouseCoordinates() %>% 
+        setView(lng = -118.734441, lat = 37.433288, zoom = 7) %>% 
+        addMeasure(
+                position = "bottomleft",
+                primaryLengthUnit = "feet",
+                primaryAreaUnit = "sqfeet",
+                activeColor = "#3D535D",
+                completedColor = "#7D4479") 
     })
-
-})
+    
+    
+    
+}

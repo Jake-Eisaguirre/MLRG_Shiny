@@ -30,9 +30,13 @@ ui <- fluidPage(
                                             label = "Now, select a wilderness",
                                             choices = unique(ves$wilderness),
                                             multiple = T,
-                                            selectize = T)),
+                                            selectize = T),
                                 
-                    mainPanel(leafletOutput(outputId = "site_map")))
+                                checkboxGroupButtons(inputId = "clear_1",
+                                                     label = "Remove Selection",
+                                                     choices = c("Clear"))),
+                                
+                    mainPanel(leafletOutput(outputId = "site_map", width = 900, height = 500)))
                     
                     ),
                

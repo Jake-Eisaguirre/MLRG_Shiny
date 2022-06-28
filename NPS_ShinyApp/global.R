@@ -5,7 +5,7 @@ if (!require(librarian)){
 
 # librarian downloads, if not already downloaded, and reads in needed packages
 
-librarian::shelf(shiny, tidyverse, here, janitor, sf, lubridate, leaflet)
+librarian::shelf(shiny, tidyverse, here, janitor, sf, lubridate, leaflet, shinyWidgets, leafem)
 
 
 #Data read in
