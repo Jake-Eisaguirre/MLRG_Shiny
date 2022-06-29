@@ -17,13 +17,15 @@ server <- function(input, output, session){
     
     #species list per site id
     
-    species_list_reac <- reactive({
+    ramu <- reactive({
         
         data %>% 
             group_by(id, date) %>% 
             filter(species == "ramu",
                    date == input$site_year, wilderness == input$wilderness)
-    })    
+    })
+    
+   
     
     
     # leaflet base map
@@ -42,7 +44,12 @@ server <- function(input, output, session){
             addCircleMarkers(data = data_reactive(), lng = ~long, lat = ~lat,  color = "blue", radius = 1, layerId = ~id,
                              popup = paste("Year:", data_reactive()$date, "<br>",
                                            "Site:", data_reactive()$id, "<br>", 
-                                           "Bd Load:", round(data_reactive()$bd, 2), "<br>"))
+                                           "Bd Load:", round(data_reactive()$bd, 2), "<br>",
+                                           "Ramu count:", ramu()$count, "<br>",
+                                           "Hyre count:",
+                                           "Bubo count:",
+                                           "Tato count:",
+                                           "Buca count:"))
         
     })
     
