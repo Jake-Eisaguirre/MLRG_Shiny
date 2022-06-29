@@ -22,15 +22,16 @@ ui <- fluidPage(
                                 
                                 selectInput(inputId = "site_year",
                                             label = "First, select a Year",
-                                            choices = sort(ui_date_map, decreasing = T),
+                                            choices = sort(unique(data$date), decreasing = T),
                                             multiple = F,
                                             selectize = T),
                                 
                                 selectInput(inputId = "wilderness",
                                             label = "Now, select a wilderness",
                                             choices = unique(ves$wilderness),
-                                            multiple = T,
-                                            selectize = T),
+                                            multiple = F,
+                                            selectize = T,
+                                            selected = "yosemite"),
                                 
                                 checkboxGroupButtons(inputId = "clear_1",
                                                      label = "Remove Selection",
