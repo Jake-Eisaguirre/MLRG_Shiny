@@ -19,6 +19,7 @@ data <- read_csv(here("data", "shiny_data.csv")) %>%
 ui_date_ves <- unique(data$date)
 ui_date_map <- unique(data$date)
 
+
 #UI choices for BD
 ui_date_bd <- unique(data$date)
 

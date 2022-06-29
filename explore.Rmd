@@ -19,7 +19,7 @@ library(sp)
 
 # VES data
 ```{r}
-ves_data <- read_csv(here("data", "VES.csv")) %>% 
+ves_data <- read_csv(here("data", "ves.csv")) %>% 
   clean_names()
 
 clean_ves_data <- ves_data %>% 
@@ -28,7 +28,8 @@ clean_ves_data <- ves_data %>%
     mutate(visit_date = year(visit_date)) %>% 
   rename(id = id_1,
          date = visit_date) %>% 
-  filter(visual_animal_state == "alive")
+  filter(visual_animal_state == "alive",
+         visual_life_stage == "adult")
 
 
 sf_ves <- st_as_sf(clean_ves_data, coords = c('utme', 'utmn'), crs = "+proj=utm +zone=11")
@@ -40,14 +41,18 @@ ves <- leaf_ves %>%
   mutate(long = st_coordinates(.)[,1],
          lat = st_coordinates(.)[,2]) %>% 
   as.data.frame() %>% 
-  dplyr::select(!c(geometry))
+  dplyr::select(!c(geometry)) %>% 
+  group_by(id, date, species, visual_life_stage, visual_animal_state, lat, long, ) %>% 
+  summarise(count = sum(count))
+
+write_csv(ves, here("data", "ves_data.csv"))
 
 
 ```
 
 # bd_load data
 ```{r}
-bd_data <- read_csv(here("data", "bd_load.csv")) %>% 
+bd_data <- read_csv(here("data", "bd.csv")) %>% 
   clean_names()
 
 clean_bd_data <- bd_data %>% 
@@ -67,13 +72,13 @@ bd <- leaf_bd %>%
   mutate(long = st_coordinates(.)[,1],
          lat = st_coordinates(.)[,2]) %>% 
   as.data.frame() %>% 
-  dplyr::select(!c(geometry))
+  dplyr::select(!c(geometry)) %>% 
+  group_by(id, date, species, lat, long, wilderness) %>% 
+  summarise(bd = mean(bd_load))
 
+write_csv(bd, here("data", "bd_data.csv"))
 
-shiny_data <- left_join(bd, ves) %>% 
-  group_by(id, wilderness, date, species, lat, long, visual_life_stage) %>% 
-  summarise(bd_load = mean(bd_load),
-            count = sum(count))
+shiny_data <- left_join(bd, ves)
 
 write.csv(shiny_data, here("data", "shiny_data.csv"))
 
@@ -82,14 +87,9 @@ write.csv(shiny_data, here("data", "shiny_data.csv"))
 
 ```{r}
 
-test <- clean_ves_data %>% 
-  filter(id == 10411,
-         visual_life_stage == "adult",
-         date == 2019)
-
-ggplot(data = test, aes(y = count, x = species)) +
-  geom_col()
-
+spec <- shiny_data %>% 
+  group_by(id, date) %>% 
+  filter(visual_life_stage == "adult")
 ```
 
 

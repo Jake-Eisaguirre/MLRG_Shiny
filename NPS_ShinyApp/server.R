@@ -13,14 +13,16 @@ server <- function(input, output, session){
             dplyr::filter(date == input$site_year, wilderness == input$wilderness)
     })
     
+
+    
     #species list per site id
     
     species_list_reac <- reactive({
         
         data %>% 
             group_by(id, date) %>% 
-            summarise(species = species) %>% 
-            dplyr::filter(date == input$site_year)
+            filter(species == "ramu",
+                   date == input$site_year, wilderness == input$wilderness)
     })    
     
     
@@ -40,8 +42,7 @@ server <- function(input, output, session){
             addCircleMarkers(data = data_reactive(), lng = ~long, lat = ~lat,  color = "blue", radius = 1, layerId = ~id,
                              popup = paste("Year:", data_reactive()$date, "<br>",
                                            "Site:", data_reactive()$id, "<br>", 
-                                           "Bd Load:", round(data_reactive()$bd_load, 2), "<br>",
-                                           "Unique Species:", species_list_reac()$species, "<br>"))
+                                           "Bd Load:", round(data_reactive()$bd, 2), "<br>"))
         
     })
     
@@ -60,6 +61,32 @@ server <- function(input, output, session){
         }else{
             barplot(rnorm(10), col=rgb(0.1,0.4,0.9,0.3))
         }
+    })
+    
+    
+    #reactive df for VES
+    
+    ves_reac <- reactive({
+        
+        data %>% 
+            dplyr::filter(date == input$ves_date, wilderness == input$wilderness_1, 
+                          id == input$site, species == input$ves_species)
+    })
+    
+    observe({
+        updateSelectInput(session, inputId = "date", choices = ves_reac()$id)
+        updateSelectInput(session, inputId = "wilderness_1", choices = ves_reac()$wilderness)
+    })
+    
+    
+    # bar plot 
+    
+    output$ves_plots = renderPlot({
+        
+        ggplot(data = ves_reac(), aes(x = visual_life_stage, y = count)) +
+            geom_col() +
+            theme_minimal()
+            
     })
     
 }

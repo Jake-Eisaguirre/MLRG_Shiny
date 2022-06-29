@@ -28,7 +28,7 @@ ui <- fluidPage(
                                 
                                 selectInput(inputId = "wilderness",
                                             label = "Now, select a wilderness",
-                                            choices = unique(ves$wilderness),
+                                            choices = unique(data$wilderness),
                                             multiple = F,
                                             selectize = T,
                                             selected = "yosemite"),
@@ -54,15 +54,23 @@ ui <- fluidPage(
                                       multiple = F,
                                       selectize = T),
                                 
-                                selectInput(inputId = "wilderness",
-                                           label = "Now, select a wilderness",
-                                           choices = unique(ves$wilderness),
-                                           multiple = T,
-                                           selectize = T),
+                                selectInput(inputId = "wilderness_1",
+                                           label = "Then, select a wilderness",
+                                           choices = unique(data$wilderness),
+                                           multiple = F,
+                                           selectize = T,
+                                           selected = "yosemite"),
                                 
-                                selectInput(inputId = "live_stage",
-                                            label = "Finally, select life stage",
-                                            choices = unique(ves$visual_life_stage))),
+                                selectInput(inputId = "site",
+                                            label = "Now, select site",
+                                            choices = unique(data$id)),
+                                
+                                selectInput(inputId = "ves_species",
+                                            label = "Finally, select a species",
+                                            choices = unique(data$species),
+                                            multiple = F,
+                                            selected = "ramu",
+                                            selectize = T)),
                         
                         mainPanel(plotOutput(outputId = "ves_plots")))
                             
@@ -83,7 +91,7 @@ ui <- fluidPage(
                                 
                                 selectInput(inputId = "wilderness",
                                             label = "Now, select a wilderness",
-                                            choices = unique(bd$wilderness),
+                                            choices = unique(data$wilderness),
                                             multiple = T,
                                             selectize = T)),
                         
