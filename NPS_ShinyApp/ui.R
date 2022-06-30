@@ -21,7 +21,7 @@ ui <- fluidPage(
                         img(src = "nsf_logo.png", align = "right", height = "120", width = "120")))),
     
     
-    navbarPage("",
+    navbarPage("", inverse = T,
                
                tabPanel("Home", icon = icon("info-circle"),
                         fluidPage(

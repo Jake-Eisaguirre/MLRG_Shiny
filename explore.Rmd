@@ -119,8 +119,48 @@ leaf_test <- coord %>%
 
 leaflet() %>% 
   addProviderTiles("Esri.WorldImagery") %>% 
-  addCircleMarkers(lng = leaf_test$long, lat = leaf_test$lat, popup = paste("Site:", leaf_test$id, "<br>",
-                                                                            "Bd Load:", leaf_bd$bd_load),
-                   color = "blue", radius = 1)
+  addPolygons(data = wilderness_shape)
 
 ```
+
+```{r}
+
+yos <- read_sf(here("data", "Yosemite", "yosemite.shp")) %>% 
+  select(c(NAME_ABBRE, geometry)) %>% 
+  rename(name = NAME_ABBRE)
+
+sk <- read_sf(here("data", "seq_king", "Sequoia_Kings_Canyon.shp")) %>% 
+  select(c(NAME_ABBRE, geometry)) %>% 
+  rename(name = NAME_ABBRE)
+
+troot <- read_sf(here("data", "Golden_Trout", "Golden_Trout.shp")) %>% 
+  select(c(NAME_ABBRE, geometry)) %>% 
+  rename(name = NAME_ABBRE)
+
+john <- read_sf(here("data", "John_Muir", "John_Muir.shp")) %>% 
+  select(c(NAME_ABBRE, geometry)) %>% 
+  rename(name = NAME_ABBRE)
+
+hoov <- read_sf(here("data", "Hoover", "Hoover.shp")) %>% 
+  select(c(NAME_ABBRE, geometry)) %>% 
+  rename(name = NAME_ABBRE)
+
+des <- read_sf(here("data", "Desolation", "Desolation.shp")) %>% 
+  select(c(NAME_ABBRE, geometry)) %>% 
+  rename(name = NAME_ABBRE)
+
+
+
+adam <- read_sf(here("data", "Ansel_Adams", "Ansel_Adams.shp")) %>% 
+  select(c(NAME_ABBRE, geometry)) %>% 
+  rename(name = NAME_ABBRE)
+
+wilderness_shape <- bind_rows(yos, sk, troot, john, hoov, des, adam)
+
+wilderness_shape = st_transform(wilderness_shape, crs = "+proj=longlat +ellps=WGS84 +datum=WGS84") %>% 
+  rename(yosemite = Yosemite)
+
+st_write(wilderness_shape, here("data", "wilderness_shapes", "wilderness.shp"))
+
+```
+

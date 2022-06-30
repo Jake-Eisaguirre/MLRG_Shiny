@@ -11,6 +11,13 @@ server <- function(input, output, session){
             dplyr::filter(date == input$site_year, wilderness == input$wilderness, species == input$species)
     })
     
+    #reactive shape file for wilderness outlines
+    
+    shape_reactive <- reactive({
+        
+        shape %>% 
+            dplyr::filter(name == input$wilderness)
+    })
 
     
 
@@ -34,7 +41,8 @@ server <- function(input, output, session){
                                            "Wilderness:", data_reactive()$wilderness, "<br>",
                                            paste(data_reactive()$species), "Bd Load:", round(data_reactive()$bd, 2), "<br>",
                                            paste(data_reactive()$species), "count:", data_reactive()$count, "<br>"),
-                             popupOptions(closeOnClick = T))
+                             popupOptions(closeOnClick = T)) %>% 
+            addPolylines(data = shape_reactive()$geometry)
         
     })
     
