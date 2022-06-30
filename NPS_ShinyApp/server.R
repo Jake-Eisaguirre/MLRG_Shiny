@@ -3,38 +3,25 @@ source(here("NPs_ShinyApp", "global.R"))
 
 server <- function(input, output, session){
     
-    data_of_click <- reactiveValues(clickedMarker=NULL)
-    
 
     #reactive bd map data frame filtering on year and wilderness
     data_reactive <- reactive({
         
         data %>% 
-            dplyr::filter(date == input$site_year, wilderness == input$wilderness)
+            dplyr::filter(date == input$site_year, wilderness == input$wilderness, species == input$species)
     })
     
 
     
-    #species list per site id
+
     
-    ramu <- reactive({
-        
-        data %>% 
-            group_by(id, date) %>% 
-            filter(species == "ramu",
-                   date == input$site_year, wilderness == input$wilderness)
-    })
-    
-   
-    
-    
-    # leaflet base map
+    # leaflet map
     output$site_map <- renderLeaflet({
         
         leaflet() %>% 
             addProviderTiles("Esri.WorldImagery") %>% 
             addMouseCoordinates() %>% 
-            setView(lng = -118.734441, lat = 37.433288, zoom = 7) %>% 
+            setView(lng = -119.36697, lat = 37.923288, zoom = 7) %>% 
             addMeasure(
                 position = "bottomleft",
                 primaryLengthUnit = "feet",
@@ -44,32 +31,16 @@ server <- function(input, output, session){
             addCircleMarkers(data = data_reactive(), lng = ~long, lat = ~lat,  color = "blue", radius = 1, layerId = ~id,
                              popup = paste("Year:", data_reactive()$date, "<br>",
                                            "Site:", data_reactive()$id, "<br>", 
-                                           "Bd Load:", round(data_reactive()$bd, 2), "<br>",
-                                           "Ramu count:", ramu()$count, "<br>",
-                                           "Hyre count:",
-                                           "Bubo count:",
-                                           "Tato count:",
-                                           "Buca count:"))
+                                           "Wilderness:", data_reactive()$wilderness, "<br>",
+                                           paste(data_reactive()$species), "Bd Load:", round(data_reactive()$bd, 2), "<br>",
+                                           paste(data_reactive()$species), "count:", data_reactive()$count, "<br>"))
         
     })
     
-    #store the click
-    observeEvent(input$map_marker_click, (
-        
-        data_of_click$clickedMarker <- input$map_marker_click
-    ))
-    
-    output$plot = renderPlot({
-        
-        my_place = data_of_click$clickedMarker$id
-        if(is.null(my_place)){my_place="place1"}
-        if(my_place == "place1"){
-            plot(rnorm(1000), col=rgb(0.9,0.4,0.1,0.3), cex=3, pch=20)
-        }else{
-            barplot(rnorm(10), col=rgb(0.1,0.4,0.9,0.3))
-        }
+    observeEvent(input$site_year, {
+        updateSelectInput(session, inputId = "wilderness", choices = unique(data$wilderness[data$date == input$site_year]), selected = "yosemite")
     })
-    
+
     
     #reactive df for VES
     
@@ -80,10 +51,7 @@ server <- function(input, output, session){
                           id == input$site, species == input$ves_species)
     })
     
-    observe({
-        updateSelectInput(session, inputId = "date", choices = ves_reac()$id)
-        updateSelectInput(session, inputId = "wilderness_1", choices = ves_reac()$wilderness)
-    })
+  
     
     
     # bar plot 
@@ -95,6 +63,11 @@ server <- function(input, output, session){
             theme_minimal()
             
     })
+    
+    observeEvent(input$wilderness_1, {
+        updateSelectInput(session, inputId = "site", choices = unique(data$id[data$wilderness == input$wilderness_1]), selected = "yosemite")
+    })
+    
     
 }
     

@@ -3,15 +3,28 @@ source(here("NPs_ShinyApp", "global.R"))
 
 ui <- fluidPage(
     
+    theme = bs_theme(bootswatch = "sandstone"),
     
     
+    titlePanel(""),
     
-    titlePanel("NPS Amphib Data"),
+    fluidPage(
+        fluidRow(column(8,
+                        h1("National Park Service Amphibian Monitoring App - RIBBiTR ")),
+                 column(4,
+                        img(src = "nps.png", align = "right", height = "150", width = "150" ),
+                        img(src = "ribbitr.png", align = "right", height = "150", width = "180")))),
     
     
     navbarPage("",
                
-               tabPanel("Home", icon = icon("info-circle")),
+               tabPanel("Home", icon = icon("info-circle"),
+                        fluidPage(
+                            h1("Disclaimer"),
+                                fluidRow(
+                                    column(12, p("This web-based application was created in collaboration with the Resilience Institute Bridging Biological Training and Research (RIBBiTR) and National Park Service (NPS). The data presented within this application contains sensitive species locations and under no circumstances shall this data or user login be shared outside these organizations. "))
+                                    )
+                        )),
                
                
                tabPanel(title = "Site Map", icon = icon("globe-asia"),
@@ -28,14 +41,15 @@ ui <- fluidPage(
                                 
                                 selectInput(inputId = "wilderness",
                                             label = "Now, select a wilderness",
-                                            choices = unique(data$wilderness),
+                                            choices = sort(unique(data$wilderness), decreasing = T),
                                             multiple = F,
                                             selectize = T,
-                                            selected = "yosemite"),
+                                            selected = "Yosemite"),
                                 
-                                checkboxGroupButtons(inputId = "clear_1",
-                                                     label = "Remove Selection",
-                                                     choices = c("Clear"))),
+                                radioButtons(inputId = "species",
+                                                   label = "Finally, select a species",
+                                                   choices = unique(data$species),
+                                                   selected = "ramu")),
                                 
                     mainPanel(leafletOutput(outputId = "site_map", width = 900, height = 500)))
                     
