@@ -15,7 +15,7 @@ server <- function(input, output, session){
     
 
     
-    # leaflet map
+    # leaflet map with date, species, and site as reactive 
     output$site_map <- renderLeaflet({
         
         leaflet() %>% 
@@ -38,6 +38,7 @@ server <- function(input, output, session){
         
     })
     
+    # observe events to update wilderness and years based on selection for leaflet map
     observeEvent(input$site_year, {
         updateSelectInput(session, inputId = "wilderness", choices = unique(data$wilderness[data$date == input$site_year]), selected = "yosemite")
     })

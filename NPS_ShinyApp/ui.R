@@ -7,17 +7,7 @@ ui <- fluidPage(
     
     #includeCSS(here("NPS_ShinyApp/theme.css")),
     
-    theme = bs_theme(bootswatch = "sandstone",
-                     bg = "#506e57", # green background
-                     fg = "#f0f2f0", # cream text foreground
-                     primary = "#a9a9a9", # hyperlinks
-                     secondary = "#506e57", # messages
-                     success = "#506e57", # operation succeeded
-                     info = "#506e57", # light blue from bar
-                     warning = "#C3512C",# yellow
-                     danger = "#FACE00", # orange red
-                     base_font = font_google("Open Sans"), 
-                     heading_font = font_google("Source Sans Pro")),
+    theme = theme,
     
     
     titlePanel(""),
@@ -38,7 +28,7 @@ ui <- fluidPage(
                             fluidRow(
                                 h1(strong("Disclaimer"), style = "font-size:20px;"),
                                 
-                                    column(12, p("This web-based application was created in collaboration with the Resilience Institute Bridging Biological Training and Research (",tags$a(href = "https://ribbitr.com/", "RIBBiTR"), ") and National Park Service (NPS). The data presented within this application contains sensitive species locations and under no circumstances shall this data or user login be shared outside these organizations. "))),
+                                    column(12, p("This web-based application was created in collaboration with the Resilience Institute Bridging Biological Training and Research (",tags$a(href = "https://ribbitr.com/", "RIBBiTR"),") and National Park Service (",tags$a(href = "https://www.nps.gov/index.htm", "NPS"),"). The data presented within this application contains sensitive species locations and under no circumstances shall this data or user login be shared outside these organizations. "))),
                             
                             fluidRow(
                                 h1(strong("Intended Use"),style = "font-size:20px;"),
@@ -47,7 +37,7 @@ ui <- fluidPage(
                             
                             fluidRow(
                                 h1(strong("Data Collection"),style = "font-size:20px;"),
-                                    column(12, p("The data presented in this application is part of a long term and ongoing effort to monitor high altitude Sierra Nevada amphibian populations and the amphibian response to the infectious disease Chytridiomycosis. Species counts were summed to an annual site level and Bd load was averaged to an annual site level. All data presented is for the “Adult” visual life stage. A distance tool was incorporated at the bottom left of the map for researchers to gauge distance between sites."))),
+                                    column(12, p("The data presented in this application is part of a long term and ongoing effort to monitor high altitude Sierra Nevada amphibian populations and the amphibian response to the infectious disease Chytridiomycosis. Species counts were summed to an annual site level and Bd load was averaged to an annual site level. All data presented is for the “Adult” visual life stage. A distance tool was incorporated at the bottom left of the site map for researchers to gauge distance between sites."))),
                             fluidRow(
                                 column(12, align = "center",
                                        div(style = "display: inline;",
@@ -103,7 +93,7 @@ ui <- fluidPage(
                             
                                 selectInput(inputId = "ves_date",
                                       label = "First, select a Year",
-                                      choices = sort(ui_date_ves, decreasing = T),
+                                      choices = sort(unique(data$date), decreasing = T),
                                       multiple = F,
                                       selectize = T),
                                 
@@ -138,7 +128,7 @@ ui <- fluidPage(
                                 
                                 selectInput(inputId = "bd_date",
                                             label = "First, select a Year",
-                                            choices = sort(ui_date_bd, decreasing = T),
+                                            choices = sort(unique(data$date), decreasing = T),
                                             multiple = F,
                                             selectize = T),
                                 

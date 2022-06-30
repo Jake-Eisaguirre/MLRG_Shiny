@@ -9,18 +9,19 @@ librarian::shelf(shiny, tidyverse, here, janitor, sf, lubridate, leaflet, shinyW
 
 
 #Data read in
-
-# VES data
 data <- read_csv(here("data", "shiny_data.csv")) %>% 
   clean_names()
 
 
-#UI choices for VES
-ui_date_ves <- unique(data$date)
-ui_date_map <- unique(data$date)
-
-
-#UI choices for BD
-ui_date_bd <- unique(data$date)
-
-#wilderness <- unique(ves$wilderness)
+# themeing
+theme <- bs_theme(
+  bg = "#b2d1b9", # green background
+  fg = "#2d302e", # cream text foreground
+  primary = "#0417c2", # hyperlinks
+  secondary = "#506e57", # messages
+  success = "#506e57", # operation succeeded
+  info = "#506e57", # light blue from bar
+  warning = "#C3512C",# yellow
+  danger = "#FACE00", # orange red
+  base_font = font_google("Open Sans"), 
+  heading_font = font_google("Source Sans Pro"))
