@@ -29,17 +29,23 @@ server <- function(input, output, session){
                 activeColor = "#3D535D",
                 completedColor = "#7D4479") %>% 
             addCircleMarkers(data = data_reactive(), lng = ~long, lat = ~lat,  color = "blue", radius = 1, layerId = ~id,
-                             popup = paste("Year:", data_reactive()$date, "<br>",
-                                           "Site:", data_reactive()$id, "<br>", 
+                             popup = paste("<B>Year:", data_reactive()$date, "<br>",
+                                           "Site:", data_reactive()$id, "(", paste(round(data$lat, 3)), ",", paste(round(data$long, 3)), ")", "<br>", 
                                            "Wilderness:", data_reactive()$wilderness, "<br>",
                                            paste(data_reactive()$species), "Bd Load:", round(data_reactive()$bd, 2), "<br>",
-                                           paste(data_reactive()$species), "count:", data_reactive()$count, "<br>"))
+                                           paste(data_reactive()$species), "count:", data_reactive()$count, "<br>"),
+                             popupOptions(closeOnClick = T))
         
     })
     
     observeEvent(input$site_year, {
         updateSelectInput(session, inputId = "wilderness", choices = unique(data$wilderness[data$date == input$site_year]), selected = "yosemite")
     })
+    
+    observeEvent(input$species, {
+        updateSelectInput(session, inputId = "site_year", choices = sort(unique(data$date[data$species == input$species]),  decreasing = T))
+    })
+    
 
     
     #reactive df for VES
