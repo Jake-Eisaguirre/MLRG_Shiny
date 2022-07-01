@@ -10,7 +10,7 @@ librarian::shelf(shiny, tidyverse, here, janitor, sf, lubridate, leaflet, shinyW
 
 #Data read in
 data <- read_csv(here("data", "shiny_data.csv")) %>% 
-  clean_names()
+  clean_names() 
 
 #read in wilderness shape files
 shape <- read_sf(here("data", "wilderness_shapes", "wilderness.shp"))
