@@ -15,6 +15,46 @@ library(sf)
 library(lubridate)
 library(leaflet)
 library(sp)
+library(RPostgreSQL)
+library(rstudioapi)
+library(DBI)
+library(RPostgres)
+```
+
+# postres download
+```{r}
+
+dsn_database = ""   # Specify the name of your Database
+# Specify host name e.g.:"aws-us-east-1-portal.4.dblayer.com"
+dsn_hostname = ""  
+dsn_port = ""                # Specify your port number. e.g. 98939
+dsn_uid = ""         # Specify your username. e.g. "admin"
+dsn_pwd =         # Specify your password. e.g. "xxx"
+
+
+tryCatch({
+    drv <- dbDriver("PostgreSQL")
+    print("Connecting to Database…")
+    connec <- dbConnect(drv, 
+                 dbname = dsn_database,
+                 host = dsn_hostname, 
+                 port = dsn_port,
+                 user = dsn_uid, 
+                 password = dsn_pwd)
+    print("Database Connected!")
+    },
+    error=function(cond) {
+            print("Unable to connect to Database.")
+    })
+
+
+con = dbConnect(dbDriver(""),
+                host = "",
+                port = "",
+                dbname = "",
+                user = "",
+                password = "")
+
 ```
 
 # VES data

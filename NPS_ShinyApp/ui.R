@@ -28,7 +28,7 @@ ui <- fluidPage(
                             fluidRow(
                                 h1(strong("Disclaimer"), style = "font-size:20px;"),
                                 
-                                    column(12, p("This web-based application was created in collaboration with the Resilience Institute Bridging Biological Training and Research (",tags$a(href = "https://ribbitr.com/", "RIBBiTR"),") and National Park Service (",tags$a(href = "https://www.nps.gov/index.htm", "NPS"),"). The data presented within this application contains sensitive species locations and under no circumstances shall this data or user login be shared outside these organizations. "))),
+                                    column(12, p("This web-based application was created in collaboration with the National Park Service (",tags$a(href = "https://www.nps.gov/index.htm", "NPS"),") and the Resilience Institute Bridging Biological Training and Research (",tags$a(href = "https://ribbitr.com/", "RIBBiTR"),"), funded by the National Science Foundation (",tags$a(href ="https://www.nsf.gov/", "NSF"),"). The data presented within this application contains sensitive species locations and under no circumstances shall this data or user login be shared outside these organizations. "))),
                             
                             fluidRow(
                                 h1(strong("Intended Use"),style = "font-size:20px;"),
