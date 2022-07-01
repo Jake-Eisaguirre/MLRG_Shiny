@@ -129,7 +129,11 @@ yos <- read_sf(here("data", "Yosemite", "yosemite.shp")) %>%
   select(c(NAME_ABBRE, geometry)) %>% 
   rename(name = NAME_ABBRE)
 
-sk <- read_sf(here("data", "seq_king", "Sequoia_Kings_Canyon.shp")) %>% 
+seq <- read_sf(here("data", "seq_king", "Sequoia_Kings_Canyon.shp")) %>% 
+  select(c(NAME_ABBRE, geometry)) %>% 
+  rename(name = NAME_ABBRE)
+
+king <- read_sf(here("data", "seq_king", "Sequoia_Kings_Canyon.shp")) %>% 
   select(c(NAME_ABBRE, geometry)) %>% 
   rename(name = NAME_ABBRE)
 
@@ -155,10 +159,15 @@ adam <- read_sf(here("data", "Ansel_Adams", "Ansel_Adams.shp")) %>%
   select(c(NAME_ABBRE, geometry)) %>% 
   rename(name = NAME_ABBRE)
 
-wilderness_shape <- bind_rows(yos, sk, troot, john, hoov, des, adam)
+wilderness_shape <- bind_rows(yos, seq, king, troot, john, hoov, des, adam)
 
-wilderness_shape = st_transform(wilderness_shape, crs = "+proj=longlat +ellps=WGS84 +datum=WGS84") %>% 
-  rename(yosemite = Yosemite)
+wild_names <- data.frame(names = c("yosemite", "kings_canyon", "sequoia", "golden_trout", 
+                                  "john_muir", "hoover", "desolation", "ansel_adams"))
+
+wilderness_shape <- bind_cols(wilderness_shape, wild_names) %>% 
+  select(!c(name))
+
+wilderness_shape = st_transform(wilderness_shape, crs = "+proj=longlat +ellps=WGS84 +datum=WGS84")
 
 st_write(wilderness_shape, here("data", "wilderness_shapes", "wilderness.shp"))
 

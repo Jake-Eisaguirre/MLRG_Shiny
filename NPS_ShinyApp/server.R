@@ -16,7 +16,7 @@ server <- function(input, output, session){
     shape_reactive <- reactive({
         
         shape %>% 
-            dplyr::filter(name == input$wilderness)
+            dplyr::filter(names == input$wilderness)
     })
 
     
@@ -35,25 +35,35 @@ server <- function(input, output, session){
                 primaryAreaUnit = "sqfeet",
                 activeColor = "#3D535D",
                 completedColor = "#7D4479") %>% 
-            addCircleMarkers(data = data_reactive(), lng = ~long, lat = ~lat,  color = "blue", radius = 1, layerId = ~id,
+            addCircleMarkers(data = data_reactive(), lng = ~long, lat = ~lat,  color = "blue", radius = 1, 
+                             layerId = ~id, label = paste(data_reactive()$id),
                              popup = paste("<B>Year:", data_reactive()$date, "<br>",
                                            "Site:", data_reactive()$id, "(", paste(round(data$lat, 3)), ",", paste(round(data$long, 3)), ")", "<br>", 
                                            "Wilderness:", data_reactive()$wilderness, "<br>",
                                            paste(data_reactive()$species), "Bd Load:", round(data_reactive()$bd, 2), "<br>",
                                            paste(data_reactive()$species), "count:", data_reactive()$count, "<br>"),
                              popupOptions(closeOnClick = T)) %>% 
-            addPolylines(data = shape_reactive()$geometry)
+            addPolylines(data = shape_reactive()$geometry, color = "green", dashArray = T, opacity = 0.9, weight = 1.9,
+                         label = paste(shape_reactive()$names),
+                         popup = paste("<B>Wilderness Totals <br>",
+                                       "Wilderness:", data_reactive()$wilderness, "<br>",
+                                       paste(data_reactive()$species), "mean Bd Load:", round(mean(data_reactive()$bd, na.rm = T), 2), "<br>",
+                                       paste(data_reactive()$species), "count:", sum(data_reactive()$count, na.rm = T)
+                                       ))
         
     })
     
     # observe events to update wilderness and years based on selection for leaflet map
-    observeEvent(input$site_year, {
-        updateSelectInput(session, inputId = "wilderness", choices = unique(data$wilderness[data$date == input$site_year]), selected = "yosemite")
+    observeEvent(c(input$site_year, input$wilderness), {
+        updateRadioButtons(session, inputId = "species", 
+                          choices = unique(data$species[data$date == input$site_year & data$wilderness == input$wilderness]))
+       
     })
     
-    observeEvent(input$species, {
-        updateSelectInput(session, inputId = "site_year", choices = sort(unique(data$date[data$species == input$species]),  decreasing = T))
+    observeEvent(input$site_year, {
+      updateSelectInput(session, inputId = "wilderness", choices = unique(data$wilderness[data$date == input$site_year]), selected = "yosemite")
     })
+    
     
 
     
