@@ -56,6 +56,12 @@ con = dbConnect(dbDriver(""),
                 password = "")
 
 ```
+```{r}
+t <- data %>%
+            dplyr::filter(date >= 2020, date <= 2021, wilderness == "kings_canyon", 
+                          species == "ramu", visual_life_stage == "adult")
+```
+
 
 # VES data
 ```{r}
@@ -68,8 +74,7 @@ clean_ves_data <- ves_data %>%
     mutate(visit_date = year(visit_date)) %>% 
   rename(id = id_1,
          date = visit_date) %>% 
-  filter(visual_animal_state == "alive",
-         visual_life_stage == "adult")
+  filter(visual_animal_state == "alive")
 
 
 sf_ves <- st_as_sf(clean_ves_data, coords = c('utme', 'utmn'), crs = "+proj=utm +zone=11")

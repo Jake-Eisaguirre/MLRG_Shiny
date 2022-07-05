@@ -5,12 +5,12 @@ if (!require(librarian)){
 
 # librarian downloads, if not already downloaded, and reads in needed packages
 
-librarian::shelf(shiny, tidyverse, here, janitor, sf, lubridate, leaflet, shinyWidgets, leafem, bslib, thematic)
+librarian::shelf(shiny, tidyverse, here, janitor, sf, lubridate, leaflet, shinyWidgets, leafem, bslib, thematic, shinymanager)
 
 
 #Data read in
 data <- read_csv(here("data", "shiny_data.csv")) %>% 
-  clean_names() 
+  select(!1)
 
 #read in wilderness shape files
 shape <- read_sf(here("data", "wilderness_shapes", "wilderness.shp"))
@@ -28,3 +28,34 @@ theme <- bs_theme(
   danger = "#FACE00", # orange red
   base_font = font_google("Open Sans"), 
   heading_font = font_google("Source Sans Pro"))
+
+inactivity <- "function idleTimer() {
+var t = setTimeout(logout, 120000);
+window.onmousemove = resetTimer; // catches mouse movements
+window.onmousedown = resetTimer; // catches mouse movements
+window.onclick = resetTimer;     // catches mouse clicks
+window.onscroll = resetTimer;    // catches scrolling
+window.onkeypress = resetTimer;  //catches keyboard actions
+
+function logout() {
+window.close();  //close the window
+}
+
+function resetTimer() {
+clearTimeout(t);
+t = setTimeout(logout, 120000);  // time is in milliseconds (1000 is 1 second)
+}
+}
+idleTimer();"
+
+
+# data.frame with credentials info
+credentials <- data.frame(
+  user = c("admin", "roland_knapp", "victor", "benoit"),
+  password = c("ilovefrogs123!", "rana_muscosa1324!", "12345", "azerty"),
+  # comment = c("alsace", "auvergne", "bretagne"), %>% 
+  stringsAsFactors = FALSE
+)
+
+
+

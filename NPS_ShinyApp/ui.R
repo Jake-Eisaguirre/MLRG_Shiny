@@ -1,9 +1,12 @@
 source(here("NPs_ShinyApp", "global.R"))
 
 
-
+#secure_app(head_auth = tags$script(inactivity), 
 
 ui <- fluidPage(
+
+    
+    
     
     #includeCSS(here("NPS_ShinyApp/theme.css")),
     
@@ -61,24 +64,26 @@ ui <- fluidPage(
                                 
                             sidebarPanel(
                                 
-                                selectInput(inputId = "site_year",
-                                            label = "First, select a Year",
-                                            choices = sort(unique(data$date), decreasing = T),
-                                            multiple = F,
-                                            selectize = T,
-                                            selected = max(unique(data$date))),
+                                sliderInput(inputId = "site_year",
+                                            label = "Select a Year",
+                                            min = min(data$date), max = max(data$date), 
+                                            value =  c(max(data$date) -1, max(data$date)),
+                                            sep = ""),
                                 
                                 selectInput(inputId = "wilderness",
-                                            label = "Now, select a wilderness",
+                                            label = "Select a wilderness",
                                             choices = sort(unique(data$wilderness), decreasing = T),
                                             multiple = F,
-                                            selectize = T,
-                                            selected = "Yosemite"),
+                                            selectize = T),
                                 
                                 radioButtons(inputId = "species",
-                                                   label = "Finally, select a species",
+                                                   label = "Select a species",
                                                    choices = unique(data$species),
-                                                   selected = "ramu")),
+                                                   selected = "ramu"),
+                                radioButtons(inputId = "stage",
+                                             label = "Select a life stage",
+                                             choices = unique(data$visual_life_stage),
+                                             selected = "adult")),
                                 
                     mainPanel(leafletOutput(outputId = "site_map", width = 900, height = 500)))
                     
