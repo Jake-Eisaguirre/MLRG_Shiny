@@ -50,7 +50,14 @@ idleTimer();"
 
 
 # data.frame with credentials info
+credentials <- data.frame(
+  user = c("admin", "roland_knapp", "victor", "benoit"),
+  password = c("ilovefrogs123!", "rana_muscosa1324!", "12345", "azerty"),
+  # comment = c("alsace", "auvergne", "bretagne"), %>% 
+  stringsAsFactors = FALSE
+)
 
 
+t
 
 
