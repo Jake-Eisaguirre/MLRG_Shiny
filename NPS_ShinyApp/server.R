@@ -45,7 +45,7 @@ server <- function(input, output, session){
                              popupOptions(closeOnClick = T)) %>% 
             addPolylines(data = shape_reactive()$geometry, color = "green", dashArray = T, opacity = 0.9, weight = 1.9,
                          label = paste(shape_reactive()$names),
-                         popup = paste("<B>Wilderness Totals <br>",
+                         popup = paste("<B> Annual Wilderness Totals <br>",
                                        "Wilderness:", data_reactive()$wilderness, "<br>",
                                        paste(data_reactive()$species), "mean Bd Load:", round(mean(data_reactive()$bd, na.rm = T), 2), "<br>",
                                        paste(data_reactive()$species), "count:", sum(data_reactive()$count, na.rm = T)
@@ -61,7 +61,7 @@ server <- function(input, output, session){
     })
     
     observeEvent(input$site_year, {
-      updateSelectInput(session, inputId = "wilderness", choices = unique(data$wilderness[data$date == input$site_year]), selected = "yosemite")
+      updateSelectInput(session, inputId = "wilderness", choices = unique(data$wilderness[data$date == input$site_year]))
     })
     
     
