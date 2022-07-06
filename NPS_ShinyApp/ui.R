@@ -72,7 +72,7 @@ ui <- fluidPage(
                                 
                                 pickerInput(inputId = "wilderness",
                                             label = "Select a wilderness",
-                                            choices = sort(unique(data$wilderness), decreasing = T),
+                                            choices = sort(unique(data$wilderness)),
                                             multiple = F,
                                             selected = ""),
                                 
@@ -85,7 +85,10 @@ ui <- fluidPage(
                                             label = "Select a life stage",
                                             choices = unique(data$visual_life_stage),
                                             selected = "",
-                                            multiple = F)),
+                                            multiple = F),
+                                checkboxGroupButtons(inputId = "clear",
+                                                     label = "Reset Selection",
+                                                     choices = c("Clear"))),
                                 
                     mainPanel(leafletOutput(outputId = "site_map", width = 900, height = 500)))
                     

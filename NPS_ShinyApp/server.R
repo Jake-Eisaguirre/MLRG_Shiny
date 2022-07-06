@@ -81,22 +81,27 @@ server <- function(input, output, session){
     observeEvent(input$site_year, {
       
       updatePickerInput(session, inputId = "wilderness", 
-                        choices = unique(data$wilderness[data$date == input$site_year[1:2]]))
+                        choices = unique(data$wilderness[data$date %in% input$site_year[1:2]]))
     })
     
-    observeEvent(c(input$site_year, input$wilderness), ignoreInit = TRUE, {
+    observeEvent(input$wilderness, ignoreInit = TRUE, {
       
       updatePickerInput(session, inputId = "species", 
-                          choices = unique(data$species[data$date == input$site_year[1:2] & data$wilderness == input$wilderness]))
+                          choices = unique(data$species[data$date %in% input$site_year[1:2] & data$wilderness == input$wilderness]))
        
     })
     
-    observeEvent(c(input$site_year, input$wilderness, input$species),ignoreInit = TRUE, {
+    observeEvent(input$species,ignoreInit = TRUE, {
       
       updatePickerInput(session, inputId = "stage", 
-                        choices = unique(data$visual_life_stage[data$date == input$site_year[1:2] & data$wilderness == input$wilderness 
+                        choices = unique(data$visual_life_stage[data$date %in% input$site_year[1:2] 
+                                                                & data$wilderness == input$wilderness 
                                                                 & data$species == input$species]))
-   
+    })
+    
+    
+    observeEvent(input$clear, {
+      updateCheckboxGroupButtons(session, inputId = c("year", "wilderness", "species"), selected = "")
     })
   
     
