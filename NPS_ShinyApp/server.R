@@ -80,23 +80,27 @@ server <- function(input, output, session){
     # observe events to update wilderness and years based on selection for leaflet map
     observeEvent(input$site_year, {
       
-      updateSelectInput(session, inputId = "wilderness", choices = unique(data$wilderness[data$date == input$site_year]))
+      updatePickerInput(session, inputId = "wilderness", 
+                        choices = unique(data$wilderness[data$date == input$site_year[1:2]]))
     })
     
-    observeEvent(c(input$site_year, input$wilderness), {
+    observeEvent(c(input$site_year, input$wilderness), ignoreInit = TRUE, {
       
-        updateRadioButtons(session, inputId = "species", 
-                          choices = unique(data$species[data$date == input$site_year & data$wilderness == input$wilderness]))
+      updatePickerInput(session, inputId = "species", 
+                          choices = unique(data$species[data$date == input$site_year[1:2] & data$wilderness == input$wilderness]))
        
+    })
+    
+    observeEvent(c(input$site_year, input$wilderness, input$species),ignoreInit = TRUE, {
+      
+      updatePickerInput(session, inputId = "stage", 
+                        choices = unique(data$visual_life_stage[data$date == input$site_year[1:2] & data$wilderness == input$wilderness 
+                                                                & data$species == input$species]))
+   
     })
   
     
-    observeEvent(c(input$site_year, input$wilderness, input$species), {
-      updateRadioButtons(session, inputId = "stage", 
-                         choices = unique(data$visual_life_stage[data$date == input$site_year & data$wilderness == input$wilderness
-                                                                 & data$species == input$species]))
-    })
-    
+
 
     
     

@@ -58,6 +58,11 @@ credentials <- data.frame(
 )
 
 
-test
+credentials <- data.frame(
+  user = c("admin", "roland_knapp", "victor", "benoit"),
+  password = c("#", "#", "12345", "azerty"),
+  # comment = c("alsace", "auvergne", "bretagne"), %>% 
+  stringsAsFactors = FALSE
+)
 
 

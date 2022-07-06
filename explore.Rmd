@@ -21,26 +21,26 @@ library(DBI)
 library(RPostgres)
 ```
 
-# postres download
+# db connection
 ```{r}
 
-dsn_database = ""   # Specify the name of your Database
-# Specify host name e.g.:"aws-us-east-1-portal.4.dblayer.com"
-dsn_hostname = ""  
-dsn_port = ""                # Specify your port number. e.g. 98939
-dsn_uid = ""         # Specify your username. e.g. "admin"
-dsn_pwd =         # Specify your password. e.g. "xxx"
+
+
+drv = dbDriver("Postgres")
+host = "anura.eri.ucsb.edu"
+port = "5432"
+dbname = "jake"
 
 
 tryCatch({
-    drv <- dbDriver("PostgreSQL")
+    drv <- dbDriver("Postgres")
     print("Connecting to Database…")
-    connec <- dbConnect(drv, 
-                 dbname = dsn_database,
-                 host = dsn_hostname, 
-                 port = dsn_port,
-                 user = dsn_uid, 
-                 password = dsn_pwd)
+    connection <- dbConnect(drv, 
+                 dbname = dbname,
+                 host = host, 
+                 port = port,
+                 user = askForPassword("user name"), 
+                 password = askForPassword("password"))
     print("Database Connected!")
     },
     error=function(cond) {
@@ -48,31 +48,34 @@ tryCatch({
     })
 
 
-con = dbConnect(dbDriver(""),
-                host = "",
-                port = "",
-                dbname = "",
-                user = "",
-                password = "")
+
 
 ```
-```{r}
-t <- data %>%
-            dplyr::filter(date >= 2020, date <= 2021, wilderness == "kings_canyon", 
-                          species == "ramu", visual_life_stage == "adult")
+# VES sql query
+```{sql ves_data, connection=connection, output.var = "ves_data"}
+
+-- script for VES data
+select *
+from site s 
+join visit v on s.id = v.site_id 
+join survey s2 on v.id = s2.visit_id 
+join visual_survey vs on s2.id = vs.survey_id;
+
+
 ```
 
 
-# VES data
+
+# VES data wrangling
 ```{r}
-ves_data <- read_csv(here("data", "ves.csv")) %>% 
-  clean_names()
+#ves_data <- read_csv(here("data", "ves.csv")) %>% 
+#  clean_names()
 
 clean_ves_data <- ves_data %>% 
-  dplyr::select(c(id_1, utme, utmn, wilderness, visit_date, species, visual_life_stage, 
+  dplyr::select(c(id, utme, utmn, wilderness, visit_date, species, visual_life_stage, 
                   visual_animal_state, count)) %>% 
     mutate(visit_date = year(visit_date)) %>% 
-  rename(id = id_1,
+  rename(id = id,
          date = visit_date) %>% 
   filter(visual_animal_state == "alive")
 
@@ -90,22 +93,38 @@ ves <- leaf_ves %>%
   group_by(id, date, species, visual_life_stage, visual_animal_state, lat, long, ) %>% 
   summarise(count = sum(count))
 
-write_csv(ves, here("data", "ves_data.csv"))
+#write_csv(ves, here("data", "ves_data.csv"))
 
 
 ```
 
+# Bd sql query
+```{sql bd_data, connection=connection, output.var = "bd_data"}
+
+-- script of BD load
+select *
+from site s 
+join visit v on s.id = v.site_id 
+join survey s2 on v.id = s2.visit_id 
+join capture_survey cs on s2.id = cs.survey_id  
+join bd_load bl on cs.swab_id = bl.sample_id 
+
+
+
+```
+
+
 # bd_load data
 ```{r}
-bd_data <- read_csv(here("data", "bd.csv")) %>% 
-  clean_names()
+# bd_data <- read_csv(here("data", "bd.csv")) %>% 
+#   clean_names()
 
 clean_bd_data <- bd_data %>% 
-  dplyr::select(id_1, utme_11, utmn_12, wilderness, visit_date, species, bd_load) %>% 
+  dplyr::select(id, utme, utmn, wilderness, visit_date, species, bd_load) %>% 
   mutate(visit_date = year(visit_date)) %>% 
-  rename(id = id_1,
-         utme = utme_11,
-         utmn = utmn_12,
+  rename(id = id,
+         utme = utme,
+         utmn = utmn,
          date = visit_date)
 
 sf_bd <- st_as_sf(clean_bd_data, coords = c('utme', 'utmn'), crs = "+proj=utm +zone=11")
@@ -121,11 +140,11 @@ bd <- leaf_bd %>%
   group_by(id, date, species, lat, long, wilderness) %>% 
   summarise(bd = mean(bd_load))
 
-write_csv(bd, here("data", "bd_data.csv"))
+#write_csv(bd, here("data", "bd_data.csv"))
 
 shiny_data <- left_join(bd, ves)
 
-write.csv(shiny_data, here("data", "shiny_data.csv"))
+#write.csv(shiny_data, here("data", "shiny_data.csv"))
 
 ```
 

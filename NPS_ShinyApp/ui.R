@@ -65,25 +65,27 @@ ui <- fluidPage(
                             sidebarPanel(
                                 
                                 sliderInput(inputId = "site_year",
-                                            label = "Select a Year",
+                                            label = "Select an annual range",
                                             min = min(data$date), max = max(data$date), 
                                             value =  c(max(data$date) -1, max(data$date)),
                                             sep = ""),
                                 
-                                selectInput(inputId = "wilderness",
+                                pickerInput(inputId = "wilderness",
                                             label = "Select a wilderness",
                                             choices = sort(unique(data$wilderness), decreasing = T),
                                             multiple = F,
-                                            selectize = T),
+                                            selected = ""),
                                 
-                                radioButtons(inputId = "species",
-                                                   label = "Select a species",
-                                                   choices = unique(data$species),
-                                                   selected = "ramu"),
-                                radioButtons(inputId = "stage",
-                                             label = "Select a life stage",
-                                             choices = unique(data$visual_life_stage),
-                                             selected = "adult")),
+                                pickerInput(inputId = "species",
+                                            label = "Select a species",
+                                            choices = unique(data$species),
+                                            selected = "",
+                                            multiple = F),
+                                pickerInput(inputId = "stage",
+                                            label = "Select a life stage",
+                                            choices = unique(data$visual_life_stage),
+                                            selected = "",
+                                            multiple = F)),
                                 
                     mainPanel(leafletOutput(outputId = "site_map", width = 900, height = 500)))
                     
