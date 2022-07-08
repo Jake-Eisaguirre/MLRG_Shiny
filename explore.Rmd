@@ -150,7 +150,7 @@ bd <- leaf_bd %>%
 
 write_csv(bd, here("data", "bd_data.csv"))
 
-shiny_data <- left_join(bd, ves)
+shiny_data <- left_join(ves,bd)
 
 write.csv(shiny_data, here("data", "shiny_data.csv"))
 

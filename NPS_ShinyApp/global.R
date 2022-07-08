@@ -11,8 +11,7 @@ librarian::shelf(shiny, tidyverse, here, janitor, sf, lubridate, leaflet, shinyW
 
 #Bd and VES combined data read in
 data <- read_csv(here("data", "shiny_data.csv")) %>% 
-  select(!1) %>% 
-  drop_na()
+  select(!1)
 
 #Bd data read in
 bd_data <- read_csv(here("data", "bd_data.csv"))

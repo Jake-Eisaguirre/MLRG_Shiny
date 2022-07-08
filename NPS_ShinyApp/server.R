@@ -9,7 +9,7 @@ server <- function(input, output, session){
   #  reactiveValuesToList(result_auth)
  # })
 
-    #reactive bd map data frame filtering on year and wilderness
+    #reactive ves map data frame filtering on year, wilderness, species, and life stage
     data_reactive <- reactive({
       
       
@@ -22,6 +22,21 @@ server <- function(input, output, session){
       
       
     })
+    
+    #ractive bd map data filtering on year, wilderness, species, and life stage
+    data_reactive_bd <- reactive({
+      
+      
+      bd_data %>%
+        group_by(id) %>% 
+        dplyr::filter(date >= input$site_year[1], date <= input$site_year[2], wilderness == input$wilderness, 
+                      species == input$species) %>% 
+        mutate(mean_bd = mean(bd),
+               bd = bd)
+      
+      
+    })
+    
     
     #reactive shape file for wilderness outlines
     
@@ -50,7 +65,7 @@ server <- function(input, output, session){
                 activeColor = "#3D535D",
                 completedColor = "#7D4479") %>% 
             addCircleMarkers(data = data_reactive(), lng = ~long, lat = ~lat,  color = "blue", radius = 1, 
-                             layerId = ~id, label = paste(data_reactive()$id),
+                             layerId = ~id, label = paste('Site:', data_reactive()$id),
                              popup = paste("<B>Year:",input$site_year[1], "-", input$site_year[2], "<br>",
                                            
                                            "Site:", data_reactive()$id, "(", paste(round(data$lat, 3)), 
@@ -64,7 +79,7 @@ server <- function(input, output, session){
                              
                              popupOptions(closeOnClick = T)) %>% 
             addPolylines(data = shape_reactive()$geometry, color = "green", dashArray = T, opacity = 0.9, weight = 1.9,
-                         label = paste(shape_reactive()$names),
+                         label = paste("Wilderness:", shape_reactive()$names),
                          popup = paste("<B>", input$site_year[1], "-", input$site_year[2], "Wilderness Totals <br>",
                                        
                                        "Wilderness:", data_reactive()$wilderness, "<br>",
@@ -81,23 +96,24 @@ server <- function(input, output, session){
     observeEvent(input$site_year, {
       
       updatePickerInput(session, inputId = "wilderness", 
-                        choices = unique(data$wilderness[data$date %in% input$site_year[1:2]]))
+                        choices = unique(ves_data$wilderness[ves_data$date %in% input$site_year[1:2]]),
+                        selected = "yosemite")
     })
     
     observeEvent(input$wilderness, {
       
       updatePickerInput(session, inputId = "species", 
-                          choices = unique(data$species[data$date %in% input$site_year[1:2] 
-                                                        & data$wilderness == input$wilderness]))
+                          choices = unique(ves_data$species[ves_data$date %in% input$site_year[1:2] 
+                                                        & ves_data$wilderness == input$wilderness]))
        
     })
     
     observeEvent(input$species, {
       
       updatePickerInput(session, inputId = "stage", 
-                        choices = unique(data$visual_life_stage[data$date %in% input$site_year[1:2] 
-                                                                & data$wilderness == input$wilderness 
-                                                                & data$species == input$species]))
+                        choices = unique(ves_data$visual_life_stage[ves_data$date %in% input$site_year[1:2] 
+                                                                & ves_data$wilderness == input$wilderness 
+                                                                & ves_data$species == input$species]))
     })
     
     
@@ -128,10 +144,13 @@ server <- function(input, output, session){
     output$ves_plots = renderPlot({
       
       
-      ggplot(data = ves_reac(), aes(x = visual_life_stage, y = count)) +
+      ggplot(data = ves_reac(), aes(x = visual_life_stage, y = count, fill = visual_life_stage)) +
         geom_col() +
         theme_minimal() +
-        scale_x_discrete("Visual Life Stage", limits=c("adult", "subadult", "tadpole"))
+        scale_x_discrete("Visual Life Stage", limits=c("adult", "subadult", "tadpole")) +
+        geom_text(aes(label = paste("count:", ves_reac()$count)), vjust = -0.5) +
+        ylab("Count") +
+        scale_fill_manual(values = c("adult" = "green", "subadult" = "blue", "tadpole" = "red"))
       
 
             
@@ -142,7 +161,8 @@ server <- function(input, output, session){
     observeEvent(input$ves_date, {
       
       updatePickerInput(session, inputId = "wilderness_1", 
-                        choices = unique(ves_data$wilderness[ves_data$date %in% input$ves_date[1:2]]))
+                        choices = unique(ves_data$wilderness[ves_data$date %in% input$ves_date[1:2]]), 
+                        selected = "yosemite")
     })
     
     observeEvent(input$wilderness_1, {
