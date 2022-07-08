@@ -87,7 +87,8 @@ server <- function(input, output, session){
     observeEvent(input$wilderness, {
       
       updatePickerInput(session, inputId = "species", 
-                          choices = unique(data$species[data$date %in% input$site_year[1:2] & data$wilderness == input$wilderness]))
+                          choices = unique(data$species[data$date %in% input$site_year[1:2] 
+                                                        & data$wilderness == input$wilderness]))
        
     })
     
@@ -112,9 +113,11 @@ server <- function(input, output, session){
     ves_reac <- reactive({
       
       
-        ves_data %>% 
-            dplyr::filter(date == input$ves_date, wilderness == input$wilderness_1, 
-                          id == input$site, species == input$ves_species)
+        ves_data %>%            
+        group_by(visual_life_stage) %>% 
+            dplyr::filter(date %in% input$ves_date[1:2],
+                          wilderness == input$wilderness_1, species == input$ves_species, id %in% input$id) 
+            
     })
     
   
@@ -139,23 +142,23 @@ server <- function(input, output, session){
     observeEvent(input$ves_date, {
       
       updatePickerInput(session, inputId = "wilderness_1", 
-                        choices = unique(ves_data$wilderness[data$date %in% input$ves_date[1:2]]))
+                        choices = unique(ves_data$wilderness[ves_data$date %in% input$ves_date[1:2]]))
     })
     
     observeEvent(input$wilderness_1, {
       
       updatePickerInput(session, inputId = "ves_species", 
-                        choices = unique(data$species[data$date %in% input$ves_date[1:2] 
-                                                      & data$wilderness == input$wilderness_1]))
+                        choices = unique(ves_data$species[ves_data$date %in% input$ves_date[1:2] 
+                                                      & ves_data$wilderness == input$wilderness_1]))
       
     })
     
     observeEvent(input$ves_species, {
       
-      updatePickerInput(session, inputId = "site", 
-                        choices = unique(data$id[data$date %in% input$ves_date[1:2] 
-                                                                & data$wilderness == input$wilderness_1 
-                                                                & data$species == input$ves_species]))
+      updatePickerInput(session, inputId = "id", 
+                        choices = unique(ves_data$id[ves_data$date %in% input$ves_date[1:2] 
+                                                                & ves_data$wilderness == input$wilderness_1 
+                                                                & ves_data$species == input$ves_species]))
     })
     
 }
