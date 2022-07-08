@@ -64,6 +64,13 @@ join visual_survey vs on s2.id = vs.survey_id;
 
 ```
 
+# read in wilderness shape to add wilderness name per location for VES
+```{r}
+
+shape <- read_sf(here("data", "wilderness_shapes", "wilderness.shp")) %>% 
+  st_transform(crs = 4326)
+
+```
 
 
 # VES data wrangling
@@ -90,10 +97,11 @@ ves <- leaf_ves %>%
          lat = st_coordinates(.)[,2]) %>% 
   as.data.frame() %>% 
   dplyr::select(!c(geometry)) %>% 
-  group_by(id, date, species, visual_life_stage, visual_animal_state, lat, long, ) %>% 
+  group_by(id, date, species, visual_life_stage, visual_animal_state, lat, long, wilderness ) %>% 
   summarise(count = sum(count))
 
-#write_csv(ves, here("data", "ves_data.csv"))
+
+write_csv(ves, here("data", "ves_data.csv"))
 
 
 ```
@@ -140,11 +148,11 @@ bd <- leaf_bd %>%
   group_by(id, date, species, lat, long, wilderness) %>% 
   summarise(bd = mean(bd_load))
 
-#write_csv(bd, here("data", "bd_data.csv"))
+write_csv(bd, here("data", "bd_data.csv"))
 
 shiny_data <- left_join(bd, ves)
 
-#write.csv(shiny_data, here("data", "shiny_data.csv"))
+write.csv(shiny_data, here("data", "shiny_data.csv"))
 
 ```
 

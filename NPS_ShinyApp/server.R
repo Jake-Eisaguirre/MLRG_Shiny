@@ -84,14 +84,14 @@ server <- function(input, output, session){
                         choices = unique(data$wilderness[data$date %in% input$site_year[1:2]]))
     })
     
-    observeEvent(input$wilderness, ignoreInit = TRUE, {
+    observeEvent(input$wilderness, {
       
       updatePickerInput(session, inputId = "species", 
                           choices = unique(data$species[data$date %in% input$site_year[1:2] & data$wilderness == input$wilderness]))
        
     })
     
-    observeEvent(input$species,ignoreInit = TRUE, {
+    observeEvent(input$species, {
       
       updatePickerInput(session, inputId = "stage", 
                         choices = unique(data$visual_life_stage[data$date %in% input$site_year[1:2] 
@@ -100,10 +100,6 @@ server <- function(input, output, session){
     })
     
     
-    observeEvent(input$clear, {
-      updateCheckboxGroupButtons(session, inputId = c("year", "wilderness", "species"), selected = "")
-    })
-  
     
 
 
@@ -116,7 +112,7 @@ server <- function(input, output, session){
     ves_reac <- reactive({
       
       
-        data %>% 
+        ves_data %>% 
             dplyr::filter(date == input$ves_date, wilderness == input$wilderness_1, 
                           id == input$site, species == input$ves_species)
     })
@@ -129,20 +125,38 @@ server <- function(input, output, session){
     output$ves_plots = renderPlot({
       
       
-        ggplot(data = ves_reac(), aes(x = visual_life_stage, y = count)) +
-            geom_col() +
-            theme_minimal()
+      ggplot(data = ves_reac(), aes(x = visual_life_stage, y = count)) +
+        geom_col() +
+        theme_minimal() +
+        scale_x_discrete("Visual Life Stage", limits=c("adult", "subadult", "tadpole"))
+      
+
             
+    })
+    
+    
+    # observe events to update wilderness and years based on selection for leaflet map
+    observeEvent(input$ves_date, {
+      
+      updatePickerInput(session, inputId = "wilderness_1", 
+                        choices = unique(ves_data$wilderness[data$date %in% input$ves_date[1:2]]))
     })
     
     observeEvent(input$wilderness_1, {
       
-        updateSelectInput(session, inputId = "site", choices = unique(data$id[data$wilderness == input$wilderness_1]), selected = "yosemite")
+      updatePickerInput(session, inputId = "ves_species", 
+                        choices = unique(data$species[data$date %in% input$ves_date[1:2] 
+                                                      & data$wilderness == input$wilderness_1]))
+      
     })
     
-
- 
-    
+    observeEvent(input$ves_species, {
+      
+      updatePickerInput(session, inputId = "site", 
+                        choices = unique(data$id[data$date %in% input$ves_date[1:2] 
+                                                                & data$wilderness == input$wilderness_1 
+                                                                & data$species == input$ves_species]))
+    })
     
 }
     

@@ -8,9 +8,9 @@ ui <- fluidPage(
     
     
     
-    #includeCSS(here("NPS_ShinyApp/theme.css")),
+    includeCSS(here("NPS_ShinyApp/theme.css")),
     
-    theme = theme,
+    #theme = theme,
     
     
     titlePanel(""),
@@ -67,7 +67,7 @@ ui <- fluidPage(
                                 sliderInput(inputId = "site_year",
                                             label = "Select an annual range",
                                             min = min(data$date), max = max(data$date), 
-                                            value =  c(max(data$date) -1, max(data$date)),
+                                            value =  c(max(data$date), max(data$date)),
                                             sep = ""),
                                 
                                 pickerInput(inputId = "wilderness",
@@ -85,10 +85,7 @@ ui <- fluidPage(
                                             label = "Select a life stage",
                                             choices = unique(data$visual_life_stage),
                                             selected = "",
-                                            multiple = F),
-                                checkboxGroupButtons(inputId = "clear",
-                                                     label = "Reset Selection",
-                                                     choices = c("Clear"))),
+                                            multiple = F)),
                                 
                     mainPanel(leafletOutput(outputId = "site_map", width = 900, height = 500)))
                     
@@ -101,29 +98,26 @@ ui <- fluidPage(
                         
                             sidebarPanel(
                             
-                                selectInput(inputId = "ves_date",
-                                      label = "First, select a Year",
-                                      choices = sort(unique(data$date), decreasing = T),
-                                      multiple = F,
-                                      selectize = T),
+                                sliderInput(inputId = "ves_date",
+                                            label = "Select an annual range",
+                                            min = min(ves_data$date), max = max(ves_data$date), 
+                                            value =  c(max(ves_data$date), max(ves_data$date)),
+                                            sep = ""),
                                 
-                                selectInput(inputId = "wilderness_1",
+                                pickerInput(inputId = "wilderness_1",
                                            label = "Then, select a wilderness",
-                                           choices = unique(data$wilderness),
+                                           choices = unique(ves_data$wilderness),
                                            multiple = F,
-                                           selectize = T,
                                            selected = "yosemite"),
-                                
-                                selectInput(inputId = "site",
-                                            label = "Now, select site",
-                                            choices = unique(data$id)),
-                                
-                                selectInput(inputId = "ves_species",
+                                pickerInput(inputId = "ves_species",
                                             label = "Finally, select a species",
-                                            choices = unique(data$species),
+                                            choices = unique(ves_data$species),
                                             multiple = F,
-                                            selected = "ramu",
-                                            selectize = T)),
+                                            selected = "ramu"),
+                                pickerInput(inputId = "site",
+                                            label = "Now, select site",
+                                            choices = unique(ves_data$id),
+                                            multiple = F)),
                         
                         mainPanel(plotOutput(outputId = "ves_plots")))
                             
