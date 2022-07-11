@@ -3,11 +3,11 @@ source(here("NPs_ShinyApp", "global.R"))
 
 server <- function(input, output, session){
   
-  #result_auth <- secure_server(check_credentials = check_credentials(credentials))
+  result_auth <- secure_server(check_credentials = check_credentials(credentials))
   
-  #output$res_auth <- renderPrint({
-  #  reactiveValuesToList(result_auth)
- # })
+  output$res_auth <- renderPrint({
+    reactiveValuesToList(result_auth)
+  })
 
     #reactive ves map data frame filtering on year, wilderness, species, and life stage
     data_reactive <- reactive({
@@ -179,6 +179,32 @@ server <- function(input, output, session){
                         choices = unique(ves_data$id[ves_data$date %in% input$ves_date[1:2] 
                                                                 & ves_data$wilderness == input$wilderness_1 
                                                                 & ves_data$species == input$ves_species]))
+    })
+    
+    bd_reac <- reactive({
+      
+      bd_data %>% 
+        dplyr::filter(date %in% input$bd_date[1:2]) %>% 
+        group_by(wilderness) %>% 
+        summarise(mean_bd = round(mean(bd), 2 )) %>% 
+        mutate(csum = rev(cumsum(rev(mean_bd))), 
+               pos = mean_bd/2 + lead(csum, 1),
+               pos = if_else(is.na(pos), mean_bd/2, pos))
+      
+    })
+    
+    output$bd_plots <- renderPlot({
+      
+      ggplot(data = bd_reac(), aes(x = "", y = mean_bd, fill = wilderness)) +
+        geom_bar(stat = "identity", width =20, color = "black")+
+        coord_polar("y", start = 0) +
+        theme_void() +
+        geom_label_repel(data = bd_reac(),
+                         aes(y = pos, label = mean_bd),
+                         size = 4.5, nudge_x = 20, show.legend = FALSE) +
+        theme(legend.position = "bottom",
+              title = element_text(face = "bold")) +
+        ggtitle(paste(input$bd_date[1], "-", input$bd_date[2], "Wilderness Bd Load"))
     })
     
 }

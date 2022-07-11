@@ -1,12 +1,10 @@
 source(here("NPs_ShinyApp", "global.R"))
 
 
-#secure_app(head_auth = tags$script(inactivity), 
+#secure_app(head_auth = tags$script(inactivity),
 
-ui <- fluidPage(
+ui <-  fluidPage(
 
-    
-    
     
     includeCSS(here("NPS_ShinyApp/theme.css")),
     
@@ -130,17 +128,11 @@ ui <- fluidPage(
                             
                             sidebarPanel(
                                 
-                                selectInput(inputId = "bd_date",
-                                            label = "First, select a Year",
-                                            choices = sort(unique(data$date), decreasing = T),
-                                            multiple = F,
-                                            selectize = T),
-                                
-                                selectInput(inputId = "wilderness",
-                                            label = "Now, select a wilderness",
-                                            choices = unique(data$wilderness),
-                                            multiple = T,
-                                            selectize = T)),
+                                sliderInput(inputId = "bd_date",
+                                            label = "Select an annual range",
+                                            min = min(bd_data$date), max = max(bd_data$date), 
+                                            value =  c(max(bd_data$date), max(bd_data$date)),
+                                            sep = "")),
                         
                         mainPanel(plotOutput(outputId = "bd_plots")))
                             

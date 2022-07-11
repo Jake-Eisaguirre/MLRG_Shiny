@@ -5,7 +5,7 @@ if (!require(librarian)){
 
 # librarian downloads, if not already downloaded, and reads in needed packages
 
-librarian::shelf(shiny, tidyverse, here, shinyWidgets, leafem, bslib, thematic, shinymanager, leaflet)
+librarian::shelf(shiny, tidyverse, here, shinyWidgets, leafem, bslib, thematic, shinymanager, leaflet, ggrepel)
 
 
 #Bd and VES combined data read in
@@ -55,20 +55,7 @@ t = setTimeout(logout, 120000);  // time is in milliseconds (1000 is 1 second)
 idleTimer();"
 
 
-# data.frame with credentials info
-credentials <- data.frame(
-  user = c("admin", "roland_knapp", "victor", "benoit"),
-  password = c("ilovefrogs123!", "rana_muscosa1324!", "12345", "azerty"),
-  # comment = c("alsace", "auvergne", "bretagne"), %>% 
-  stringsAsFactors = FALSE
-)
 
 
-credentials <- data.frame(
-  user = c("admin", "roland_knapp", "victor", "benoit"),
-  password = c("#", "#", "12345", "azerty"),
-  # comment = c("alsace", "auvergne", "bretagne"), %>% 
-  stringsAsFactors = FALSE
-)
 
 
