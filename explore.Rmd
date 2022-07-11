@@ -137,7 +137,7 @@ clean_bd_data <- bd_data %>%
 
 sf_bd <- st_as_sf(clean_bd_data, coords = c('utme', 'utmn'), crs = "+proj=utm +zone=11")
 
-leaf_bd = st_transform(sf_bd, crs = "+proj=longlat +ellps=WGS84 +datum=WGS84")
+leaf_bd = st_transform(sf_bd, crs = "+proj=longlat +ellps=WGS84 +datum=WGS84") 
 
 
 bd <- leaf_bd %>% 
