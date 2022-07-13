@@ -70,7 +70,7 @@ ui <-  fluidPage(
                                 
                                 pickerInput(inputId = "wilderness",
                                             label = "Select a wilderness",
-                                            choices = sort(unique(data$wilderness)),
+                                            choices = unique(data$wilderness),
                                             multiple = F,
                                             selected = "yosemite"),
                                 
@@ -131,8 +131,27 @@ ui <-  fluidPage(
                                 sliderInput(inputId = "bd_date",
                                             label = "Select an annual range",
                                             min = min(bd_data$date), max = max(bd_data$date), 
-                                            value =  c(max(bd_data$date), max(bd_data$date)),
-                                            sep = "")),
+                                            value =  c((max(bd_data$date) - 5), max(bd_data$date)),
+                                            sep = ""),
+                                pickerInput(inputId = "wilderness_2",
+                                            label = "Select a wilderness",
+                                            choices = unique(bd_data$wilderness),
+                                            multiple = F,
+                                            selected = ""),
+                                pickerInput(inputId = "bd_species",
+                                            label = "Select a species",
+                                            choices = unique(bd_data$species),
+                                            multiple = F,
+                                            selected = "ramu"),
+                                pickerInput(inputId = "stage",
+                                            label = "Select a life stage",
+                                            choices = unique(bd_data$capture_life_stage),
+                                            selected = "adult",
+                                            multiple = F),
+                                pickerInput(inputId = "bd_id",
+                                            label = "select site",
+                                            choices = unique(bd_data$id),
+                                            multiple = F)),
                         
                         mainPanel(plotOutput(outputId = "bd_plots")))
                             

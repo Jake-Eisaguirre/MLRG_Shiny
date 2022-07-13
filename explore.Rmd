@@ -110,4 +110,14 @@ wilderness_shape = st_transform(wilderness_shape, crs = "+proj=longlat +ellps=WG
 st_write(wilderness_shape, here("data", "wilderness_shapes", "wilderness.shp"))
 
 ```
+```{r}
+
+t <- bd_data %>% 
+  filter(date %in% c(2016:2021), wilderness == "yosemite", species == "ramu", capture_life_stage == "adult", id == "70449")
+
+ggplot(data = t) +
+  geom_line(aes(x=date, y = bd)) +
+  geom_point(aes(x=date, y = bd))
+
+```
 

@@ -181,31 +181,62 @@ server <- function(input, output, session){
                                                                 & ves_data$species == input$ves_species]))
     })
     
+    
+    
+    
+    
     bd_reac <- reactive({
       
       bd_data %>% 
-        dplyr::filter(date %in% input$bd_date[1:2]) %>% 
-        group_by(wilderness) %>% 
-        summarise(mean_bd = round(mean(bd), 2 )) %>% 
-        mutate(csum = rev(cumsum(rev(mean_bd))), 
-               pos = mean_bd/2 + lead(csum, 1),
-               pos = if_else(is.na(pos), mean_bd/2, pos))
+        group_by(date) %>% 
+        dplyr::filter(date %in% input$bd_date[1:2], wilderness == input$wilderness_2, species == input$bd_species, 
+                      capture_life_stage == input$stage, id == input$bd_id) 
       
     })
     
+    
     output$bd_plots <- renderPlot({
       
-      ggplot(data = bd_reac(), aes(x = "", y = mean_bd, fill = wilderness)) +
-        geom_bar(stat = "identity", width =20, color = "black")+
-        coord_polar("y", start = 0) +
-        theme_void() +
-        geom_label_repel(data = bd_reac(),
-                         aes(y = pos, label = mean_bd),
-                         size = 4.5, nudge_x = 20, show.legend = FALSE) +
-        theme(legend.position = "bottom",
-              title = element_text(face = "bold")) +
-        ggtitle(paste(input$bd_date[1], "-", input$bd_date[2], "Wilderness Bd Load"))
+      ggplot(data = bd_reac()) +
+        geom_point(aes(x = date, y = bd)) +
+        xlim(c(input$bd_date[1:2]))
     })
+    
+    
+    observeEvent(input$bd_date, {
+      
+      updatePickerInput(session, inputId = "wilderness_2", 
+                        choices = unique(bd_data$wilderness[bd_data$date %in% input$bd_date[1:2]]), 
+                        selected = "yosemite")
+    })
+    
+    
+    observeEvent(input$wilderness_2, {
+      
+      updatePickerInput(session, inputId = "bd_species", 
+                        choices = unique(bd_data$species[bd_data$date %in% input$bd_date[1:2] 
+                                                          & bd_data$wilderness == input$wilderness_2]))
+      
+    })
+    
+    observeEvent(input$bd_species, {
+      
+      updatePickerInput(session, inputId = "stage", 
+                        choices = unique(bd_data$capture_life_stage[bd_data$date %in% input$bd_date[1:2] 
+                                                     & bd_data$wilderness == input$wilderness_2 
+                                                     & bd_data$species == input$bd_species]))
+    })
+    
+    observeEvent(input$stage, {
+      
+      updatePickerInput(session, inputId = "bd_id",
+                        choices = unique(bd_data$id[bd_data$date %in% input$bd_date[1:2] 
+                                                    & bd_data$wilderness == input$wilderness_2 
+                                                    & bd_data$species == input$bd_species
+                                                    & bd_data$capture_life_stage == input$stage]))
+    })
+    
+    
     
 }
     

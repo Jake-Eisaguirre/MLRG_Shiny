@@ -55,6 +55,7 @@ t = setTimeout(logout, 120000);  // time is in milliseconds (1000 is 1 second)
 idleTimer();"
 
 
+clean_wilderness_names <- c("Kings Canyon", "Sequoia", "John Muir", "Golden Trout", "Hoover", "None", "Yosemite", "Desolation")
 
 
 
