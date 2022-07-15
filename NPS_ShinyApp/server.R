@@ -13,12 +13,11 @@ server <- function(input, output, session){
     data_reactive <- reactive({
       
       
-        data %>%
+        ves_data %>%
             dplyr::filter(date >= input$site_year[1], date <= input$site_year[2], wilderness == input$wilderness, 
                           species == input$species, visual_life_stage == input$stage) %>% 
         group_by(id) %>% 
-        mutate(sum_count = sum(count),
-               mean_bd = mean(bd))
+        mutate(sum_count = sum(count))
       
       
     })
@@ -29,9 +28,9 @@ server <- function(input, output, session){
       
       bd_data %>%
         group_by(id) %>% 
-        dplyr::filter(date >= input$site_year[1], date <= input$site_year[2], wilderness == input$wilderness, 
-                      species == input$species) %>% 
-        mutate(mean_bd = mean(bd),
+        dplyr::filter(date %in% input$site_year[1:2], wilderness == input$wilderness, 
+                      species == input$species, visual_life_stage == input$stage) %>% 
+        mutate(med_bd = median(bd),
                bd = bd)
       
       
@@ -73,7 +72,7 @@ server <- function(input, output, session){
                                            
                                            "Wilderness:", data_reactive()$wilderness, "<br>",
                                            
-                                           data_reactive()$species, "Bd Load:", round(data_reactive()$mean_bd, 2), "<br>",
+                                           data_reactive_bd()$species, "median Bd Load:", round(data_reactive_bd()$bd, 2), "<br>",
                                            
                                            data_reactive()$visual_life_stage, data_reactive()$species, "count:", data_reactive()$sum_count, "<br>"),
                              
@@ -84,8 +83,8 @@ server <- function(input, output, session){
                                        
                                        "Wilderness:", data_reactive()$wilderness, "<br>",
                                        
-                                       "adult", paste(data_reactive()$species), 
-                                             "mean Bd Load:", round(mean(data_reactive()$mean_bd, na.rm = T), 2), "<br>",
+                                       "adult", paste(data_reactive_bd()$species), 
+                                             "average median Bd Load:", round(mean(data_reactive_bd()$med_bd, na.rm = T), 2), "<br>",
                                        
                                        paste(data_reactive()$visual_life_stage ,paste(data_reactive()$species), 
                                             "count:", sum(data_reactive()$count, na.rm = T))))
@@ -129,10 +128,11 @@ server <- function(input, output, session){
     ves_reac <- reactive({
       
       
-        ves_data %>%            
-        group_by(visual_life_stage) %>% 
+        ves_data %>%
             dplyr::filter(date %in% input$ves_date[1:2],
-                          wilderness == input$wilderness_1, species == input$ves_species, id %in% input$id) 
+                          wilderness == input$wilderness_1, species == input$ves_species, id == input$id) %>% 
+        group_by(visual_life_stage) %>% 
+        summarise(count = sum(count))
             
     })
     
@@ -147,10 +147,10 @@ server <- function(input, output, session){
       ggplot(data = ves_reac(), aes(x = visual_life_stage, y = count, fill = visual_life_stage)) +
         geom_col() +
         theme_minimal() +
-        scale_x_discrete("Visual Life Stage", limits=c("adult", "subadult", "tadpole")) +
+        scale_x_discrete("Visual Life Stage", limits=c("adult", "subadult", "tadpole", "eggmass")) +
         geom_text(aes(label = paste("count:", ves_reac()$count)), vjust = -0.5) +
         ylab("Count") +
-        scale_fill_manual(values = c("adult" = "green", "subadult" = "blue", "tadpole" = "red"))
+        scale_fill_manual(values = c("adult" = "green", "subadult" = "blue", "tadpole" = "red", "eggmass" = "purple"))
       
 
             
@@ -188,10 +188,9 @@ server <- function(input, output, session){
     bd_reac <- reactive({
       
       bd_data %>% 
-        group_by(date) %>% 
-        dplyr::filter(date %in% input$bd_date[1:2], wilderness == input$wilderness_2, species == input$bd_species, 
-                      capture_life_stage == input$stage, id == input$bd_id) 
-      
+        dplyr::filter(date %in% input$bd_date, 
+                      wilderness == input$wilderness_2, species == input$bd_species, 
+                      visual_life_stage == input$stage, id == input$bd_id)
     })
     
     
@@ -222,7 +221,7 @@ server <- function(input, output, session){
     observeEvent(input$bd_species, {
       
       updatePickerInput(session, inputId = "stage", 
-                        choices = unique(bd_data$capture_life_stage[bd_data$date %in% input$bd_date[1:2] 
+                        choices = unique(bd_data$visual_life_stage[bd_data$date %in% input$bd_date[1:2] 
                                                      & bd_data$wilderness == input$wilderness_2 
                                                      & bd_data$species == input$bd_species]))
     })
@@ -233,7 +232,7 @@ server <- function(input, output, session){
                         choices = unique(bd_data$id[bd_data$date %in% input$bd_date[1:2] 
                                                     & bd_data$wilderness == input$wilderness_2 
                                                     & bd_data$species == input$bd_species
-                                                    & bd_data$capture_life_stage == input$stage]))
+                                                    & bd_data$visual_life_stage == input$stage]))
     })
     
     

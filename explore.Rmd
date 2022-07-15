@@ -113,11 +113,45 @@ st_write(wilderness_shape, here("data", "wilderness_shapes", "wilderness.shp"))
 ```{r}
 
 t <- bd_data %>% 
-  filter(date %in% c(2016:2021), wilderness == "yosemite", species == "ramu", capture_life_stage == "adult", id == "70449")
+  filter(date %in% c(2016:2021), wilderness == "yosemite", species == "ramu", visual_life_stage == "adult", id == "70449")
 
 ggplot(data = t) +
   geom_line(aes(x=date, y = bd)) +
   geom_point(aes(x=date, y = bd))
+
+
+a <- bd_data %>% 
+        dplyr::filter(date >= 2016 & date <= 2021, wilderness == "yosemite", species == "ramu", 
+                      visual_life_stage == "adult", id == "70499")
+
+dput <- bd_data %>% 
+  select(!c(lat, long))
+
+dump(dput)
+
+a <- ves_data %>% 
+  filter(date %in% c(2010:2021),
+         wilderness == "yosemite",
+         species == "ramu",
+         id == 70449) %>%
+  group_by(visual_life_stage) %>% 
+  summarise(count = sum(count))
+  
+
+dput(dput)
+```
+```{r}
+
+bd_data <- structure(list(id = c(10008, 10008,10008), date = c(2018,2019,2020), species = c("ramu", "ramu", "ramu"),
+                          wilderness = c("yosemite", "yosemite", "yosemite"), visual_life_stage = c("adult", "adult", "adult"),
+                          bd = c(1,2,3)))
+
+v <- ves_data %>% 
+  filter(date %in% c(2016:2021),
+         wilderness == "yosemite",
+         species == "ramu",
+         visual_life_stage == "adult") %>% 
+  mutate(count = sum(count))
 
 ```
 
