@@ -113,7 +113,9 @@ st_write(wilderness_shape, here("data", "wilderness_shapes", "wilderness.shp"))
 ```{r}
 
 t <- bd_data %>% 
-  filter(date %in% c(2016:2021), wilderness == "yosemite", species == "ramu", visual_life_stage == "adult", id == "70449")
+  filter(date %in% c(2018:2021), wilderness == "yosemite", species == "ramu", visual_life_stage == "adult", id == "70449") %>% 
+  group_by() %>% 
+  mutate(med_bd = median(bd))
 
 ggplot(data = t) +
   geom_line(aes(x=date, y = bd)) +

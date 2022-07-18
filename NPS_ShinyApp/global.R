@@ -24,7 +24,7 @@ shape <- read_sf(here("data", "wilderness_shapes", "wilderness.shp"))
 
 # themeing
 theme <- bs_theme(
-  bg = "#b2d1b9", # green background
+  bg = "#b6f0c3", # green background
   fg = "#2d302e", # cream text foreground
   primary = "#0417c2", # hyperlinks
   secondary = "#506e57", # messages

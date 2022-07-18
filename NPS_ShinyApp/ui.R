@@ -38,7 +38,7 @@ ui <-  fluidPage(
                             
                             fluidRow(
                                 h1(strong("Data Collection"),style = "font-size:20px;"),
-                                    column(12, p("The data presented in this application is part of a long term and ongoing effort to monitor high altitude Sierra Nevada amphibian populations and the amphibian response to the infectious disease Chytridiomycosis. Species counts were summed to an annual site level and Bd load was averaged to an annual site level. All data presented is for the “Adult” visual life stage. A distance tool was incorporated at the bottom left of the site map for researchers to gauge distance between sites."))),
+                                    column(12, p("The data presented in this application is part of a long term and ongoing effort to monitor high altitude Sierra Nevada amphibian populations and the amphibian response to the infectious disease Chytridiomycosis. Species counts were summed to an annual site level with the natural log of Bd loads presetented as site level and wilderness level median Bd loads. A distance tool was incorporated at the bottom left of the site map for researchers to gauge distance between sites."))),
                             fluidRow(
                                 column(12, align = "center",
                                        div(style = "display: inline;",
@@ -64,24 +64,24 @@ ui <-  fluidPage(
                                 
                                 sliderInput(inputId = "site_year",
                                             label = "Select an annual range",
-                                            min = min(data$date), max = max(data$date), 
-                                            value =  c(max(data$date), max(data$date)),
+                                            min = min(ves_data$date), max = max(ves_data$date), 
+                                            value =  c(max(ves_data$date), max(ves_data$date)),
                                             sep = ""),
                                 
                                 pickerInput(inputId = "wilderness",
                                             label = "Select a wilderness",
-                                            choices = unique(data$wilderness),
+                                            choices = unique(ves_data$wilderness),
                                             multiple = F,
                                             selected = "yosemite"),
                                 
                                 pickerInput(inputId = "species",
                                             label = "Select a species",
-                                            choices = unique(data$species),
+                                            choices = unique(ves_data$species),
                                             selected = "ramu",
                                             multiple = F),
                                 pickerInput(inputId = "stage",
                                             label = "Select a life stage",
-                                            choices = unique(data$visual_life_stage),
+                                            choices = unique(ves_data$visual_life_stage),
                                             selected = "adult",
                                             multiple = F)),
                                 
@@ -103,21 +103,21 @@ ui <-  fluidPage(
                                             sep = ""),
                                 
                                 pickerInput(inputId = "wilderness_1",
-                                           label = "Then, select a wilderness",
+                                           label = "Select a wilderness",
                                            choices = unique(ves_data$wilderness),
                                            multiple = F,
-                                           selected = ""),
+                                           selected = "yosemite"),
                                 pickerInput(inputId = "ves_species",
-                                            label = "Finally, select a species",
+                                            label = "Select a species",
                                             choices = unique(ves_data$species),
                                             multiple = F,
                                             selected = "ramu"),
                                 pickerInput(inputId = "id",
-                                            label = "Now, select site",
+                                            label = "Select site",
                                             choices = unique(ves_data$id),
                                             multiple = F)),
                         
-                        mainPanel(plotOutput(outputId = "ves_plots")))
+                        mainPanel(plotOutput(outputId = "ves_plots", width = 900, height = 500)))
                             
                         ),
                
@@ -131,13 +131,13 @@ ui <-  fluidPage(
                                 sliderInput(inputId = "bd_date",
                                             label = "Select an annual range",
                                             min = min(bd_data$date), max = max(bd_data$date), 
-                                            value =  c(max(bd_data$date), max(bd_data$date)),
+                                            value =  c(max(bd_data$date) - 5, max(bd_data$date)),
                                             sep = ""),
                                 pickerInput(inputId = "wilderness_2",
                                             label = "Select a wilderness",
                                             choices = unique(bd_data$wilderness),
                                             multiple = F,
-                                            selected = ""),
+                                            selected = "yosemite"),
                                 pickerInput(inputId = "bd_species",
                                             label = "Select a species",
                                             choices = unique(bd_data$species),
@@ -151,9 +151,10 @@ ui <-  fluidPage(
                                 pickerInput(inputId = "bd_id",
                                             label = "select site",
                                             choices = unique(bd_data$id),
-                                            multiple = F)),
+                                            multiple = F,
+                                            selected = '70550')),
                         
-                        mainPanel(plotOutput(outputId = "bd_plots")))
+                        mainPanel(plotOutput(outputId = "bd_plots", width = 900, height = 500)))
                             
                         )
     
