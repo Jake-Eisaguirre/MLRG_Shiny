@@ -9,7 +9,7 @@ librarian::shelf(shiny, tidyverse, here, shinyWidgets, leafem, bslib, thematic, 
 
 
 #Bd and VES combined data read in
-data <- read_csv(here("data", "shiny_data.csv")) %>% 
+data <- read_csv(here("data", "bd_plot.csv")) %>% 
   select(!1)
 
 #Bd data read in
@@ -20,6 +20,11 @@ ves_data <- read_csv(here("data", "ves_data.csv"))
 
 #read in wilderness shape files
 shape <- read_sf(here("data", "wilderness_shapes", "wilderness.shp"))
+
+# read in bd_plot data with month_year
+bd_plot <- read_csv(here("data", "bd_plot.csv")) %>% 
+  mutate(month_year = as.character(month_year))
+
 
 
 # themeing
