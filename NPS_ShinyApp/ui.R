@@ -114,8 +114,8 @@ ui <-  fluidPage(
                                 pickerInput(inputId = "id",
                                             label = "Select site",
                                             choices = unique(ves_data$id),
-                                            multiple = F),
-                                options = pickerOptions(title = "Select Variable")),
+                                            multiple = F,
+                                            options = pickerOptions(title = "Select Variable"))),
                             
                         
                         mainPanel(plotOutput(outputId = "ves_plots", width = 900, height = 500)))

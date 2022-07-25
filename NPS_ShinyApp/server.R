@@ -28,9 +28,11 @@ server <- function(input, output, session){
   
       
       bd_data %>%
+        group_by(id, date, wilderness, species, visual_life_stage) %>% 
         dplyr::filter(date <= input$site_year[2] & date >= input$site_year[1], wilderness == input$wilderness, 
                       species == input$species, visual_life_stage == input$stage) %>% 
-        mutate(med_bd = mean(bd))
+        mutate(med_bd = mean(bd),
+               bd = bd)
       
       
     })
@@ -77,7 +79,7 @@ server <- function(input, output, session){
                                            
                                            "Wilderness:", data_reactive()$wilderness, "<br>",
                                            
-                                           data_reactive_bd()$species, "median log(Bd) Load:", round(data_reactive_bd()$bd, 2), "<br>",
+                                           data_reactive_bd()$species, "median log(Bd) Load:", data_reactive_bd()$bd, "<br>",
                                            
                                            data_reactive()$visual_life_stage, data_reactive()$species, "count:", data_reactive()$sum_count, "<br>"),
                              
@@ -125,13 +127,13 @@ server <- function(input, output, session){
     
     
     
-
-
-    
-    
+ 
 
     
-    #reactive df for VES
+    
+
+    
+# reactive ves plot all below
     
     ves_reac <- reactive({
 
@@ -148,26 +150,35 @@ server <- function(input, output, session){
   
     
     
-    # bar plot 
+
     
     output$ves_plots = renderPlot({
       
+      if(input$wilderness_1 < 0 && input$ves_species < 0 && input$id < 0) {
+        validate("Please select a wilderness, species, and site ID")
+      }
       
-      validate(
-        need(input$wilderness_1, "Please select a wilderness & species"),
-        need(input$ves_species, "Please select a species"))
+      if(input$wilderness_1 > 1 && input$ves_species < 0 && input$id < 0){
+        validate("Please select a species and site ID")
+      }
+      
+      if(input$wilderness_1 > 1 && input$ves_species > 0 && input$id < 0){
+        validate("Please select a site ID")
+      }
+      
  
       
       ggplot(data = ves_reac(), aes(x = visual_life_stage, y = count, fill = visual_life_stage)) +
         geom_col() +
-        theme_minimal() +
+        theme_classic() +
         scale_x_discrete("Visual Life Stage", limits=c("adult", "subadult", "tadpole", "eggmass")) +
-        geom_text(aes(label = paste("count:", ves_reac()$count)), vjust = -0.5) +
+        scale_y_continuous(expand = c(0,0)) +
+        geom_label(aes(label = paste("count:", ves_reac()$count)), vjust = 1.2, fill = "grey90") +
         ylab("Count") +
         scale_fill_manual(values = c("adult" = "green", "subadult" = "blue", "tadpole" = "red", "eggmass" = "purple"),
                           name = "Visual Life Stage") +
         ggtitle(paste(input$ves_date[1], "-", input$ves_date[2], input$ves_species, "Annual Count")) +
-        theme(plot.title = element_text(hjust = 0.5))
+        theme(plot.title = element_text(hjust = 0.5, vjust = 3))
       
 
             
@@ -175,7 +186,7 @@ server <- function(input, output, session){
     
     
     # observe events to update wilderness and years based on selection for leaflet map
-    observeEvent(input$ves_date, {
+    observeEvent(input$ves_date, ignoreInit = T, {
       
       updatePickerInput(session, inputId = "wilderness_1", 
                         choices = unique(ves_data$wilderness[ves_data$date <= input$ves_date[2] 
@@ -203,7 +214,7 @@ server <- function(input, output, session){
     
     
     
-    
+ # bd reactive time series plot all below   
     bd_reac <- reactive({
 
       
@@ -214,27 +225,43 @@ server <- function(input, output, session){
       
     })
     
+    
+    
     output$bd_plots <- renderPlot({
       
-      validate(
-        need(input$wilderness_2, "Please select a wilderness & species"),
-        need(input$bd_species, "Please select a species"),
-        need(input$stage_bd, "Please select a life stage"),
-        need(input$bd_id, "Please select a site ID"))
-
+      if(input$wilderness_2 < 0 && input$bd_species < 0 && input$stage_bd < 0 && input$bd_id < 0) {
+        validate("Please select a wilderness, species, life stage, and site ID")
+      }
       
-      ggplot(data = bd_reac(), aes(x = date, y = bd)) +
+      
+      if(input$wilderness_2 > 0 && input$bd_species < 0 && input$stage_bd < 0 && input$bd_id < 0) {
+        validate("Please select a species, life stage, and site ID")
+      }
+      
+      
+      if(input$wilderness_2 > 0 && input$bd_species > 0 && input$stage_bd < 0 && input$bd_id < 0) {
+        validate("Please select a life stage and site ID")
+      }
+      
+      
+      if(input$wilderness_2 > 0 && input$bd_species > 0 && input$stage_bd > 0 && input$bd_id < 0) {
+        validate("Please select a site ID")
+      }
+      
+      
+      
+      ggplot(data = bd_reac(), aes(x = month_year, y = bd, group = 1)) +
         geom_point() +
-        geom_line(aes(x=date, y = bd)) +
-        xlim(c(input$bd_date[1:2])) +
+        geom_smooth(se = F) +
         ylab("Median log(Bd)") +
         xlab("Year") +
         ggtitle(paste(input$bd_date[1], "-", input$bd_date[2], input$bd_species, "Median Log(Bd)")) +
         geom_text_repel(aes(label = paste(round(bd_reac()$bd, 3)))) +
-        theme_minimal() +
+        theme_classic() +
         theme(plot.title = element_text(hjust = 0.5))
     
     })
+    
     
     observeEvent(input$bd_date, {
       
@@ -250,7 +277,7 @@ server <- function(input, output, session){
                                                           & bd_data$date >= input$bd_date[1] 
                                                           & bd_data$wilderness == input$wilderness_2]))
       
-    })
+    }) 
     
     observeEvent(input$bd_species, {
 
