@@ -3,7 +3,7 @@ source(here("NPS_ShinyApp", "creds.R"))
 
 
 
-ui <-  secure_app(head_auth = tags$script(inactivity), 
+ui <-  secure_app(
                   
     
     fluidPage(tags$head(
