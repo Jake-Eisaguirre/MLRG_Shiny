@@ -1,9 +1,15 @@
 source(here("NPs_ShinyApp", "global.R"))
 
 
-#secure_app(head_auth = tags$script(inactivity),
 
-ui <-  fluidPage(
+
+ui <-  secure_app(head_auth = tags$script(inactivity), fluidPage(tags$head(
+    tags$style(HTML("
+      .shiny-output-error-validation {
+        color: #ff0000;
+        font-weight: bold;
+      }
+    "))),
 
     
     includeCSS(here("NPS_ShinyApp/theme.css")),
@@ -38,7 +44,7 @@ ui <-  fluidPage(
                             
                             fluidRow(
                                 h1(strong("Data Collection"),style = "font-size:20px;"),
-                                    column(12, p("The data presented in this application is part of a long term and ongoing effort to monitor high altitude Sierra Nevada amphibian populations and the amphibian response to the infectious disease Chytridiomycosis. Species counts were summed to an annual site level with the natural log of Bd loads presetented as site level and wilderness level median Bd loads. A distance tool was incorporated at the bottom left of the site map for researchers to gauge distance between sites."))),
+                                    column(12, p("The data presented in this application is part of a long term and ongoing effort to monitor high altitude Sierra Nevada amphibian populations and the amphibian response to the infectious disease Chytridiomycosis. Species counts were summed to an annual site level with the natural log of Bd loads presetented at site level and wilderness level median Bd loads. A distance tool was incorporated at the bottom left of the site map for researchers to gauge distance between sites."))),
                             fluidRow(
                                 column(12, align = "center",
                                        div(style = "display: inline;",
@@ -56,7 +62,7 @@ ui <-  fluidPage(
                         )),
                
                
-               tabPanel(title = "Site Map", icon = icon("globe-asia"),
+               tabPanel(title = "Site Map", icon = icon("globe"),
                         
                         sidebarLayout(
                                 
@@ -112,10 +118,11 @@ ui <-  fluidPage(
                                             multiple = F,
                                             options = pickerOptions(title = "Select Variable")),
                                 pickerInput(inputId = "id",
-                                            label = "Select site",
+                                            label = "Select a site",
                                             choices = unique(ves_data$id),
                                             multiple = F,
-                                            options = pickerOptions(title = "Select Variable"))),
+                                            options = pickerOptions(title = "Select Variable")),
+                                tableOutput("ves_counts")),
                             
                         
                         mainPanel(plotOutput(outputId = "ves_plots", width = 900, height = 500)))
@@ -152,14 +159,15 @@ ui <-  fluidPage(
                                             selected = "",
                                             options = pickerOptions(title = "Select Variable")),
                                 pickerInput(inputId = "bd_id",
-                                            label = "select site",
+                                            label = "select a site",
                                             choices = unique(bd_data$id),
                                             multiple = F,
-                                            options = pickerOptions(title = "Select Variable"))),
+                                            options = pickerOptions(title = "Select Variable")),
+                                tableOutput("bd_counts")),
                         
                         mainPanel(plotOutput(outputId = "bd_plots", width = 900, height = 500)))
                             
                         )
     
     
-))
+)))

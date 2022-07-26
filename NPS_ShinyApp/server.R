@@ -14,10 +14,13 @@ server <- function(input, output, session){
       
       
         ves_data %>%
+        left_join(bd_data) %>% 
             dplyr::filter(date <= input$site_year[2] & date >= input$site_year[1], wilderness == input$wilderness, 
                           species == input$species, visual_life_stage == input$stage) %>% 
-        group_by(id, wilderness, species, visual_life_stage) %>% 
-        mutate(sum_count = sum(count))
+        group_by(id, wilderness, species, visual_life_stage, date) %>% 
+        mutate(sum_count = sum(count),
+               med = mean(bd),
+               bd = bd)
       
       
     })
@@ -28,11 +31,12 @@ server <- function(input, output, session){
   
       
       bd_data %>%
-        group_by(id, date, wilderness, species, visual_life_stage) %>% 
         dplyr::filter(date <= input$site_year[2] & date >= input$site_year[1], wilderness == input$wilderness, 
                       species == input$species, visual_life_stage == input$stage) %>% 
+        group_by(id, date, species, visual_life_stage) %>% 
         mutate(med_bd = mean(bd),
-               bd = bd)
+                  bd = bd,
+                  id = order(id, decreasing = T))
       
       
     })
@@ -54,16 +58,23 @@ server <- function(input, output, session){
     output$site_map <- renderLeaflet({
       
       
-      validate(
-        need(input$wilderness, "Please select a wilderness"),
-        need(input$species, "Please select a species"),
-        need(input$stage, "Please select a life stage"))
+      if(input$wilderness < 0 && input$species < 0 && input$stage < 0) {
+        validate("Please select a wilderness, species, and life stage")
+      }
+      
+      if(input$wilderness > 0 && input$species < 0 && input$stage < 0){
+        validate("Please select a species and life stage")
+      }
+      
+      if(input$wilderness > 0 && input$species > 0 && input$stage < 0){
+        validate("Please select a life stage")
+      }
       
       
         leaflet() %>% 
             addProviderTiles("Esri.WorldImagery") %>% 
             addMouseCoordinates() %>% 
-            setView(lng = -119.36697, lat = 37.923288, zoom = 7) %>% 
+            setView(lng = -119.36697, lat = 37.3, zoom = 7) %>% 
             addMeasure(
                 position = "bottomleft",
                 primaryLengthUnit = "feet",
@@ -79,7 +90,7 @@ server <- function(input, output, session){
                                            
                                            "Wilderness:", data_reactive()$wilderness, "<br>",
                                            
-                                           data_reactive_bd()$species, "median log(Bd) Load:", data_reactive_bd()$bd, "<br>",
+                                           data_reactive_bd()$species, "median log(Bd) Load:", data_reactive()$bd, "<br>",
                                            
                                            data_reactive()$visual_life_stage, data_reactive()$species, "count:", data_reactive()$sum_count, "<br>"),
                              
@@ -92,7 +103,7 @@ server <- function(input, output, session){
                                        "Wilderness:", data_reactive()$wilderness, "<br>",
                                        
                                        "adult", paste(data_reactive_bd()$species), 
-                                             "median wilderness log(Bd) Load:", round(mean(data_reactive_bd()$med_bd), 2), "<br>",
+                                             "median wilderness log(Bd) Load:", round(mean(data_reactive_bd()$bd), 2), "<br>",
                                        
                                        paste(data_reactive()$visual_life_stage ,paste(data_reactive()$species), 
                                             "count:", sum(data_reactive()$count))))
@@ -143,7 +154,9 @@ server <- function(input, output, session){
             dplyr::filter(date <= input$ves_date[2] & date >= input$ves_date[1],
                           wilderness == input$wilderness_1, species == input$ves_species, id == input$id) %>% 
         group_by(visual_life_stage) %>% 
-        summarise(count = sum(count))
+        summarise(count = sum(count)) %>% 
+        mutate("Visual Life Stage" = visual_life_stage,
+               Count = count)
             
     })
     
@@ -158,24 +171,24 @@ server <- function(input, output, session){
         validate("Please select a wilderness, species, and site ID")
       }
       
-      if(input$wilderness_1 > 1 && input$ves_species < 0 && input$id < 0){
+      if(input$wilderness_1 > 0 && input$ves_species < 0 && input$id < 0){
         validate("Please select a species and site ID")
       }
       
-      if(input$wilderness_1 > 1 && input$ves_species > 0 && input$id < 0){
+      if(input$wilderness_1 > 0 && input$ves_species > 0 && input$id < 0){
         validate("Please select a site ID")
       }
       
  
       
-      ggplot(data = ves_reac(), aes(x = visual_life_stage, y = count, fill = visual_life_stage)) +
+      ggplot(data = ves_reac(), aes(x = visual_life_stage, y = Count, fill = visual_life_stage)) +
         geom_col() +
         theme_classic() +
-        scale_x_discrete("Visual Life Stage", limits=c("adult", "subadult", "tadpole", "eggmass")) +
+        scale_x_discrete("Visual Life Stage", limits=c("Adult", "Subadult", "Tadpole", "Eggmass")) +
         scale_y_continuous(expand = c(0,0)) +
-        geom_label(aes(label = paste("count:", ves_reac()$count)), vjust = 1.2, fill = "grey90") +
+        geom_label(aes(label = paste("Count:", ves_reac()$Count)), vjust = 1.0, fill = "grey90") +
         ylab("Count") +
-        scale_fill_manual(values = c("adult" = "green", "subadult" = "blue", "tadpole" = "red", "eggmass" = "purple"),
+        scale_fill_manual(values = c("Adult" = "green", "Subadult" = "blue", "Tadpole" = "red", "Eggmass" = "purple"),
                           name = "Visual Life Stage") +
         ggtitle(paste(input$ves_date[1], "-", input$ves_date[2], input$ves_species, "Annual Count")) +
         theme(plot.title = element_text(hjust = 0.5, vjust = 3))
@@ -184,9 +197,16 @@ server <- function(input, output, session){
             
     })
     
+    output$ves_counts = renderTable({
+      
+      ves_reac() %>% 
+        select("Visual Life Stage", Count)
+      
+      })
+    
     
     # observe events to update wilderness and years based on selection for leaflet map
-    observeEvent(input$ves_date, ignoreInit = T, {
+    observeEvent(input$ves_date, {
       
       updatePickerInput(session, inputId = "wilderness_1", 
                         choices = unique(ves_data$wilderness[ves_data$date <= input$ves_date[2] 
@@ -218,14 +238,16 @@ server <- function(input, output, session){
     bd_reac <- reactive({
 
       
-      bd_data %>% 
+      bd_plot %>% 
         dplyr::filter((date <= input$bd_date[2] & date >= input$bd_date[1]), 
                       wilderness == input$wilderness_2, species == input$bd_species, 
-                      visual_life_stage == input$stage_bd, id == input$bd_id)
+                      visual_life_stage == input$stage_bd, id == input$bd_id) %>% 
+        mutate("Year Month" = month_year,
+               "Log(Bd) Load" = bd)
       
     })
     
-    
+
     
     output$bd_plots <- renderPlot({
       
@@ -260,6 +282,13 @@ server <- function(input, output, session){
         theme_classic() +
         theme(plot.title = element_text(hjust = 0.5))
     
+    })
+    
+    output$bd_counts = renderTable({
+      
+      bd_reac() %>% 
+        select("Year Month", "Log(Bd) Load")
+      
     })
     
     
@@ -300,34 +329,6 @@ server <- function(input, output, session){
     })
     
 
-    
-    
-    # observeEvent(input$bd_date, {
-    #   
-    #   updatePickerInput(session, inputId = "wilderness_2", 
-    #                     choices = unique(bd_data$wilderness[bd_data$date <= input$bd_date[2]
-    #                                                         & bd_data$date >= input$bd_date[1]]))
-    # })
-    # 
-    # 
-    # observeEvent(input$wilderness_2, {
-    #   
-    #   updatePickerInput(session, inputId = "bd_species", 
-    #                     choices = unique(bd_data$species[bd_data$date <= input$bd_date[2]
-    #                                                      & bd_data$date >= input$bd_date[1] 
-    #                                                      & bd_data$wilderness == input$wilderness_2]))
-    #   
-    # })
-    # 
-    # observeEvent(input$bd_species, {
-    #   
-    #   updatePickerInput(session, inputId = "stage", 
-    #                     choices = unique(bd_data$visual_life_stage[bd_data$date <= input$bd_date[2]
-    #                                                                & bd_data$date >= input$bd_date[1] 
-    #                                                                & bd_data$wilderness == input$wilderness_2 
-    #                                                                & bd_data$species == input$bd_species]))
-    # })
-    # 
 
     
     

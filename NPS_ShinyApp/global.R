@@ -5,7 +5,7 @@ if (!require(librarian)){
 
 # librarian downloads, if not already downloaded, and reads in needed packages
 
-librarian::shelf(shiny, tidyverse, here, shinyWidgets, leafem, bslib, thematic, shinymanager, leaflet, ggrepel, sf)
+librarian::shelf(shiny, tidyverse, here, shinyWidgets, leafem, bslib, thematic, shinymanager, leaflet, ggrepel, sf, stringr,fontawesome)
 
 
 #Bd and VES combined data read in
@@ -19,26 +19,26 @@ bd_data <- read_csv(here("data", "bd_data.csv"))
 ves_data <- read_csv(here("data", "ves_data.csv")) 
 
 #read in wilderness shape files
-shape <- read_sf(here("data", "wilderness_shapes", "wilderness.shp"))
+shape <- read_sf(here("data", "wilderness_shapes", "wilderness.shp")) %>% 
+  mutate(names = gsub("_", " ", names),
+         names = str_to_title(names))
 
 # read in bd_plot data with month_year
-bd_plot <- read_csv(here("data", "bd_plot.csv")) %>% 
-  mutate(month_year = as.character(month_year))
+bd_plot <- read_csv(here("data", "bd_plot.csv"))
 
 
-
-# themeing
-theme <- bs_theme(
-  bg = "#b6f0c3", # green background
-  fg = "#2d302e", # cream text foreground
-  primary = "#0417c2", # hyperlinks
-  secondary = "#506e57", # messages
-  success = "#506e57", # operation succeeded
-  info = "#506e57", # light blue from bar
-  warning = "#C3512C",# yellow
-  danger = "#FACE00", # orange red
-  base_font = font_google("Open Sans"), 
-  heading_font = font_google("Source Sans Pro"))
+# # themeing
+# theme <- bs_theme(
+#   bg = "#b6f0c3", # green background
+#   fg = "#2d302e", # cream text foreground
+#   primary = "#0417c2", # hyperlinks
+#   secondary = "#506e57", # messages
+#   success = "#506e57", # operation succeeded
+#   info = "#506e57", # light blue from bar
+#   warning = "#C3512C",# yellow
+#   danger = "#FACE00", # orange red
+#   base_font = font_google("Open Sans"), 
+#   heading_font = font_google("Source Sans Pro"))
 
 inactivity <- "function idleTimer() {
 var t = setTimeout(logout, 120000);
@@ -60,7 +60,6 @@ t = setTimeout(logout, 120000);  // time is in milliseconds (1000 is 1 second)
 idleTimer();"
 
 
-clean_wilderness_names <- c("Kings Canyon", "Sequoia", "John Muir", "Golden Trout", "Hoover", "None", "Yosemite", "Desolation")
 
 
 
