@@ -1,5 +1,5 @@
 source(here("NPs_ShinyApp", "global.R"))
-
+source(here("NPS_ShinyApp", "creds.R"))
 
 server <- function(input, output, session){
   
@@ -90,7 +90,7 @@ server <- function(input, output, session){
                                            
                                            "Wilderness:", data_reactive()$wilderness, "<br>",
                                            
-                                           data_reactive_bd()$species, "median log(Bd) Load:", data_reactive()$bd, "<br>",
+                                           data_reactive_bd()$species, "median log(Bd) Load:", round(data_reactive()$bd, 2), "<br>",
                                            
                                            data_reactive()$visual_life_stage, data_reactive()$species, "count:", data_reactive()$sum_count, "<br>"),
                              

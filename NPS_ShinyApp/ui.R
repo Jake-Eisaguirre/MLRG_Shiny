@@ -1,15 +1,19 @@
 source(here("NPs_ShinyApp", "global.R"))
+source(here("NPS_ShinyApp", "creds.R"))
 
 
 
-
-ui <-  secure_app(head_auth = tags$script(inactivity), fluidPage(tags$head(
+ui <-  secure_app(head_auth = tags$script(inactivity), 
+                  
+    
+    fluidPage(tags$head(
+    
+    
+    
     tags$style(HTML("
       .shiny-output-error-validation {
         color: #ff0000;
-        font-weight: bold;
-      }
-    "))),
+        font-weight: bold;}"))),
 
     
     includeCSS(here("NPS_ShinyApp/theme.css")),
