@@ -17,7 +17,7 @@ server <- function(input, output, session){
         left_join(bd_data) %>% 
             dplyr::filter(date <= input$site_year[2] & date >= input$site_year[1], wilderness == input$wilderness, 
                           species == input$species, visual_life_stage == input$stage) %>% 
-        group_by(id, wilderness, species, visual_life_stage, date) %>% 
+        group_by(id, wilderness, species, visual_life_stage) %>% 
         mutate(sum_count = sum(count),
                med = mean(bd),
                bd = bd)
@@ -33,7 +33,7 @@ server <- function(input, output, session){
       bd_data %>%
         dplyr::filter(date <= input$site_year[2] & date >= input$site_year[1], wilderness == input$wilderness, 
                       species == input$species, visual_life_stage == input$stage) %>% 
-        group_by(id, date, species, visual_life_stage) %>% 
+        group_by(id, species, visual_life_stage) %>% 
         mutate(med_bd = mean(bd),
                   bd = bd,
                   id = order(id, decreasing = T))
@@ -90,7 +90,7 @@ server <- function(input, output, session){
                                            
                                            "Wilderness:", data_reactive()$wilderness, "<br>",
                                            
-                                           data_reactive_bd()$species, "median log(Bd) Load:", round(data_reactive()$bd, 2), "<br>",
+                                           data_reactive_bd()$species, "median log(Bd) Load:", round(data_reactive()$med, 2), "<br>",
                                            
                                            data_reactive()$visual_life_stage, data_reactive()$species, "count:", data_reactive()$sum_count, "<br>"),
                              

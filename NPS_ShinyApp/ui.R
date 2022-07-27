@@ -94,7 +94,7 @@ ui <-  secure_app(head_auth = tags$script(inactivity),
                                             options = pickerOptions(title = "Select Variable"),
                                             multiple = F)),
                                 
-                    mainPanel(leafletOutput(outputId = "site_map", width = 900, height = 500)))
+                    mainPanel(withSpinner(leafletOutput(outputId = "site_map", width = 900, height = 500))))
                     
                     ),
                
@@ -129,7 +129,7 @@ ui <-  secure_app(head_auth = tags$script(inactivity),
                                 tableOutput("ves_counts")),
                             
                         
-                        mainPanel(plotOutput(outputId = "ves_plots", width = 900, height = 500)))
+                        mainPanel(withSpinner(plotOutput(outputId = "ves_plots", width = 900, height = 500))))
                             
                         ),
                
@@ -169,7 +169,7 @@ ui <-  secure_app(head_auth = tags$script(inactivity),
                                             options = pickerOptions(title = "Select Variable")),
                                 tableOutput("bd_counts")),
                         
-                        mainPanel(plotOutput(outputId = "bd_plots", width = 900, height = 500)))
+                        mainPanel(withSpinner(plotOutput(outputId = "bd_plots", width = 900, height = 500))))
                             
                         )
     
