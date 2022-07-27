@@ -66,39 +66,6 @@ ui <-  secure_app(head_auth = tags$script(inactivity),
                         )),
                
                
-               tabPanel(title = "Site Map", icon = icon("globe"),
-                        
-                        sidebarLayout(
-                                
-                            sidebarPanel(
-                                
-                                sliderInput(inputId = "site_year",
-                                            label = "Select an annual range",
-                                            min = min(ves_data$date), max = max(ves_data$date), 
-                                            value =  c(max(ves_data$date), max(ves_data$date)),
-                                            sep = ""),
-                                
-                                pickerInput(inputId = "wilderness",
-                                            label = "Select a wilderness",
-                                            choices = unique(ves_data$wilderness),
-                                            multiple = F,
-                                            options = pickerOptions(title = "Select Variable")),
-                                pickerInput(inputId = "species",
-                                            label = "Select a species",
-                                            choices = unique(ves_data$species),
-                                            options = pickerOptions(title = "Select Variable"),
-                                            multiple = F),
-                                pickerInput(inputId = "stage",
-                                            label = "Select a life stage",
-                                            choices = unique(ves_data$visual_life_stage),
-                                            options = pickerOptions(title = "Select Variable"),
-                                            multiple = F)),
-                                
-                    mainPanel(withSpinner(leafletOutput(outputId = "site_map", width = 900, height = 500))))
-                    
-                    ),
-               
-               
                tabPanel(title = "VES", icon = icon("frog"),
                         
                         sidebarLayout(
@@ -110,7 +77,6 @@ ui <-  secure_app(head_auth = tags$script(inactivity),
                                             min = min(ves_data$date), max = max(ves_data$date), 
                                             value =  c(max(ves_data$date), max(ves_data$date)),
                                             sep = ""),
-                                
                                 pickerInput(inputId = "wilderness_1",
                                            label = "Select a wilderness",
                                            choices = unique(ves_data$wilderness),
@@ -128,7 +94,6 @@ ui <-  secure_app(head_auth = tags$script(inactivity),
                                             options = pickerOptions(title = "Select Variable")),
                                 tableOutput("ves_counts")),
                             
-                        
                         mainPanel(withSpinner(plotOutput(outputId = "ves_plots", width = 900, height = 500))))
                             
                         ),
@@ -171,7 +136,37 @@ ui <-  secure_app(head_auth = tags$script(inactivity),
                         
                         mainPanel(withSpinner(plotOutput(outputId = "bd_plots", width = 900, height = 500))))
                             
-                        )
+                        ),
+               
+               tabPanel(title = "Site Map", icon = icon("globe"),
+                        
+                        sidebarLayout(
+                          
+                          sidebarPanel(
+                            sliderInput(inputId = "site_year",
+                                        label = "Select an annual range",
+                                        min = min(ves_data$date), max = max(ves_data$date), 
+                                        value =  c(max(ves_data$date), max(ves_data$date)),
+                                        sep = ""),
+                            pickerInput(inputId = "wilderness",
+                                        label = "Select a wilderness",
+                                        choices = unique(ves_data$wilderness),
+                                        multiple = F,
+                                        options = pickerOptions(title = "Select Variable")),
+                            pickerInput(inputId = "species",
+                                        label = "Select a species",
+                                        choices = unique(ves_data$species),
+                                        options = pickerOptions(title = "Select Variable"),
+                                        multiple = F),
+                            pickerInput(inputId = "stage",
+                                        label = "Select a life stage",
+                                        choices = unique(ves_data$visual_life_stage),
+                                        options = pickerOptions(title = "Select Variable"),
+                                        multiple = F)),
+                          
+                          mainPanel(withSpinner(leafletOutput(outputId = "site_map", width = 900, height = 500))))
+                        
+               )
     
     
 )))

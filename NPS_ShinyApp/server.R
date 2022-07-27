@@ -51,7 +51,7 @@ server <- function(input, output, session){
             dplyr::filter(names == input$wilderness)
     })
 
-    
+  
 
     
     # leaflet map with date, species, and site as reactive 
@@ -61,53 +61,53 @@ server <- function(input, output, session){
       if(input$wilderness < 0 && input$species < 0 && input$stage < 0) {
         validate("Please select a wilderness, species, and life stage")
       }
-      
+
       if(input$wilderness > 0 && input$species < 0 && input$stage < 0){
         validate("Please select a species and life stage")
       }
-      
+
       if(input$wilderness > 0 && input$species > 0 && input$stage < 0){
         validate("Please select a life stage")
       }
+
       
-      
-        leaflet() %>% 
-            addProviderTiles("Esri.WorldImagery") %>% 
-            addMouseCoordinates() %>% 
-            setView(lng = -119.36697, lat = 37.3, zoom = 7) %>% 
-            addMeasure(
-                position = "bottomleft",
-                primaryLengthUnit = "feet",
-                primaryAreaUnit = "sqfeet",
-                activeColor = "#3D535D",
-                completedColor = "#7D4479") %>% 
-            addCircleMarkers(data = data_reactive(), lng = ~long, lat = ~lat,  color = "blue", radius = 1, 
+      leaflet() %>% 
+        addProviderTiles("Esri.WorldImagery") %>% 
+        addMouseCoordinates() %>% 
+        setView(lng = -119.36697, lat = 37.3, zoom = 7) %>% 
+        addMeasure(
+          position = "bottomleft",
+          primaryLengthUnit = "feet",
+          primaryAreaUnit = "sqfeet",
+          activeColor = "#3D535D",
+          completedColor = "#7D4479") %>%
+        addCircleMarkers(data = data_reactive(), lng = ~long, lat = ~lat,  color = "blue", radius = 1,
                              layerId = ~id, label = paste('Site:', data_reactive()$id),
                              popup = paste("<B>Year:",input$site_year[1], "-", input$site_year[2], "<br>",
-                                           
-                                           "Site:", data_reactive()$id, "(", paste(round(ves_data$lat, 3)), 
-                                                    ",", paste(round(ves_data$long, 3)), ")", "<br>", 
-                                           
+
+                                           "Site:", data_reactive()$id, "(", paste(round(ves_data$lat, 3)),
+                                                    ",", paste(round(ves_data$long, 3)), ")", "<br>",
+
                                            "Wilderness:", data_reactive()$wilderness, "<br>",
-                                           
+
                                            data_reactive_bd()$species, "median log(Bd) Load:", round(data_reactive()$med, 2), "<br>",
-                                           
+
                                            data_reactive()$visual_life_stage, data_reactive()$species, "count:", data_reactive()$sum_count, "<br>"),
-                             
-                             popupOptions(closeOnClick = T)) %>% 
-          
+
+                             popupOptions(closeOnClick = T)) %>%
+
             addPolylines(data = shape_reactive()$geometry, color = "green", dashArray = T, opacity = 0.9, weight = 1.9,
                          label = paste("Wilderness:", shape_reactive()$names),
                          popup = paste("<B>", input$site_year[1], "-", input$site_year[2], "Wilderness Totals <br>",
-                                       
+
                                        "Wilderness:", data_reactive()$wilderness, "<br>",
-                                       
-                                       "adult", paste(data_reactive_bd()$species), 
+
+                                       "adult", paste(data_reactive_bd()$species),
                                              "median wilderness log(Bd) Load:", round(mean(data_reactive_bd()$bd), 2), "<br>",
-                                       
-                                       paste(data_reactive()$visual_life_stage ,paste(data_reactive()$species), 
+
+                                       paste(data_reactive()$visual_life_stage ,paste(data_reactive()$species),
                                             "count:", sum(data_reactive()$count))))
-        
+
     })
     
     # observe events to update wilderness and years based on selection for leaflet map
