@@ -14,7 +14,6 @@ server <- function(input, output, session){
       
       
         ves_data %>%
-        left_join(bd_data) %>% 
             dplyr::filter(date <= input$site_year[2] & date >= input$site_year[1], wilderness == input$wilderness, 
                           species == input$species, visual_life_stage == input$stage) %>% 
         group_by(id, wilderness, species, visual_life_stage) %>% 
@@ -90,9 +89,9 @@ server <- function(input, output, session){
 
                                            "Wilderness:", data_reactive()$wilderness, "<br>",
 
-                                           data_reactive_bd()$species, "median log(Bd) Load:", round(data_reactive()$med, 2), "<br>",
+                                           data_reactive_bd()$species, "Median log(Bd) Load:", round(data_reactive()$med, 2), "<br>",
 
-                                           data_reactive()$visual_life_stage, data_reactive()$species, "count:", data_reactive()$sum_count, "<br>"),
+                                           data_reactive()$visual_life_stage, data_reactive()$species, "Count:", data_reactive()$sum_count, "<br>"),
 
                              popupOptions(closeOnClick = T)) %>%
 
@@ -102,11 +101,11 @@ server <- function(input, output, session){
 
                                        "Wilderness:", data_reactive()$wilderness, "<br>",
 
-                                       "adult", paste(data_reactive_bd()$species),
-                                             "median wilderness log(Bd) Load:", round(mean(data_reactive_bd()$bd), 2), "<br>",
+                                       paste(data_reactive_bd()$visual_life_stage), paste(data_reactive_bd()$species),
+                                             "Median Wilderness log(Bd) Load:", round(mean(data_reactive_bd()$bd), 2), "<br>",
 
                                        paste(data_reactive()$visual_life_stage ,paste(data_reactive()$species),
-                                            "count:", sum(data_reactive()$count))))
+                                            "Count:", sum(data_reactive()$count))))
 
     })
     
@@ -276,11 +275,12 @@ server <- function(input, output, session){
         geom_point() +
         geom_smooth(se = F) +
         ylab("Median log(Bd)") +
-        xlab("Year") +
+        xlab("Date") +
         ggtitle(paste(input$bd_date[1], "-", input$bd_date[2], input$bd_species, "Median Log(Bd)")) +
         geom_text_repel(aes(label = paste(round(bd_reac()$bd, 3)))) +
         theme_classic() +
-        theme(plot.title = element_text(hjust = 0.5))
+        theme(plot.title = element_text(hjust = 0.5),
+              axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
     
     })
     

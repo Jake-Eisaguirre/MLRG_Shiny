@@ -48,7 +48,7 @@ ui <-  secure_app(head_auth = tags$script(inactivity),
                             
                             fluidRow(
                                 h1(strong("Data Collection"),style = "font-size:20px;"),
-                                    column(12, p("The data presented in this application is part of a long term and ongoing effort to monitor high altitude Sierra Nevada amphibian populations and the amphibian response to the infectious disease Chytridiomycosis. Species counts were summed to an annual site level with the natural log of Bd loads presetented at site level and wilderness level median Bd loads. A distance tool was incorporated at the bottom left of the site map for researchers to gauge distance between sites."))),
+                                    column(12, p("The data presented in this application is part of a long term and ongoing effort to monitor high altitude Sierra Nevada amphibian populations and the amphibian response to the infectious disease Chytridiomycosis. Species counts were summed to an annual site level and Bd loads are presetented as median log(Bd) loads. A distance tool was incorporated at the bottom left of the site map for researchers to gauge distance between sites."))),
                             fluidRow(
                                 column(12, align = "center",
                                        div(style = "display: inline;",
@@ -162,7 +162,8 @@ ui <-  secure_app(head_auth = tags$script(inactivity),
                                         label = "Select a life stage",
                                         choices = unique(ves_data$visual_life_stage),
                                         options = pickerOptions(title = "Select Variable"),
-                                        multiple = F)),
+                                        multiple = F),
+                            h5("*Please be patient, map rendering can be delayed dependent on inputs*")),
                           
                           mainPanel(withSpinner(leafletOutput(outputId = "site_map", width = 900, height = 500))))
                         

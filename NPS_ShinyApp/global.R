@@ -6,7 +6,7 @@ if (!require(librarian)){
 # librarian downloads, if not already downloaded, and reads in needed packages
 
 librarian::shelf(shiny, tidyverse, here, shinyWidgets, leafem, bslib, thematic, shinymanager, leaflet, ggrepel, sf, stringr,fontawesome,
-                 shinycssloaders)
+                 shinycssloaders, shinydashboardPlus)
 
 
 #Bd and VES combined data read in
@@ -17,7 +17,8 @@ data <- read_csv(here("data", "bd_plot.csv")) %>%
 bd_data <- read_csv(here("data", "bd_data.csv"))
 
 #ves data read in
-ves_data <- read_csv(here("data", "ves_data.csv")) 
+ves_data <- read_csv(here("data", "ves_data.csv")) %>% 
+  left_join(bd_data)
 
 #read in wilderness shape files
 shape <- read_sf(here("data", "wilderness_shapes", "wilderness.shp")) %>% 
