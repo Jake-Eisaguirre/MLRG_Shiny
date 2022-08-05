@@ -40,6 +40,5 @@ vignettes/*.pdf
 
 data/
 .global.R
-data_download.Rmd
 .Renviron
 creds.R

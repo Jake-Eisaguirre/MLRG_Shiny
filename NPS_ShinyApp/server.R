@@ -1,4 +1,4 @@
-source(here("NPs_ShinyApp", "global.R"))
+source(here("NPS_ShinyApp", "global.R"))
 source(here("NPS_ShinyApp", "creds.R"))
 
 server <- function(input, output, session){

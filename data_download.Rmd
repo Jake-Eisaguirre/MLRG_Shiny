@@ -1,0 +1,201 @@
+---
+title: "data_download_and_wrangling"
+author: "Jake Eisaguirre"
+date: "7/11/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# once a year January 
+```{r}
+if (!require(librarian)){
+  install.packages("librarian")
+  library(librarian)
+}
+
+# librarian downloads, if not already downloaded, and reads in needed packages
+
+librarian::shelf(tidyverse, here, janitor, sf, lubridate, RPostgres, rstudioapi)
+```
+
+
+# db connection
+```{r}
+
+
+
+drv = dbDriver("Postgres")
+
+tryCatch({
+    drv <- dbDriver("Postgres")
+    print("Connecting to Database…")
+    connection <- dbConnect(drv, 
+                 dbname = Sys.getenv("dbname"),
+                 host = Sys.getenv("host"), 
+                 port = Sys.getenv("port"),
+                 user = Sys.getenv("user"), 
+                 password = Sys.getenv("password"))
+    print("Database Connected!")
+    },
+    error=function(cond) {
+            print("Unable to connect to Database.")
+    })
+
+
+
+
+```
+# VES sql query
+```{sql ves_data, connection=connection, output.var = "ves_data"}
+
+-- script for VES data
+select *
+from site s 
+join visit v on s.id = v.site_id 
+join survey s2 on v.id = s2.visit_id 
+join visual_survey vs on s2.id = vs.survey_id;
+
+
+```
+
+# read in wilderness shape to add wilderness name per location for VES
+```{r}
+
+shape <- read_sf(here("data", "wilderness_shapes", "wilderness.shp")) %>% 
+  st_transform(crs = 4326)
+
+```
+
+
+# VES data wrangling
+```{r}
+#ves_data <- read_csv(here("data", "ves.csv")) %>% 
+#  clean_names()
+
+# select desired columns and pull out month and year as new columns
+clean_ves <- ves_data %>% 
+  dplyr::select(c(id, utme, utmn, wilderness, visit_date, species, visual_life_stage, 
+                  visual_animal_state, count)) %>% 
+    mutate(date = year(visit_date),
+           month = month(visit_date)) %>% 
+  filter(visual_animal_state == "alive") %>% 
+  mutate(month_year = paste(month, date, sep ="/"))
+
+# pull out only desolation wilderness due to zone 10 coords
+des_cords <- clean_ves %>% 
+  filter(wilderness == "desolation")
+
+des_sf <- st_as_sf(des_cords, coords = c('utme', 'utmn'), crs = "+proj=utm +zone=10")
+des_ves = st_transform(des_sf, crs = "+proj=longlat +ellps=WGS84 +datum=WGS84")
+
+# now do rest of wildernesses in zone 11 coords
+clean_ves_data <- clean_ves %>% 
+  filter(!wilderness %in% c("desolation", "none"))
+  
+sf_ves <- st_as_sf(clean_ves_data, coords = c('utme', 'utmn'), crs = "+proj=utm +zone=11")
+leaf_ves = st_transform(sf_ves, crs = "+proj=longlat +ellps=WGS84 +datum=WGS84")
+
+# bind desolation back to all the main df
+des_bind <- rbind(leaf_ves, des_ves)
+
+# pull out geometries as standard lat long columns
+ves <- des_bind %>% 
+  mutate(long = st_coordinates(.)[,1],
+         lat = st_coordinates(.)[,2]) %>% 
+  as.data.frame() %>% 
+  dplyr::select(!c(geometry)) %>% 
+  mutate(wilderness = gsub("_", " ", wilderness),
+         wilderness = str_to_title(wilderness),
+         visual_life_stage = str_to_title(visual_life_stage),
+         species = str_to_title(species)) %>% 
+  group_by(id, date, species, visual_life_stage, visual_animal_state, lat, long, wilderness ) %>% 
+  summarise(count = sum(count))
+
+
+write_csv(ves, here("data", "ves_data.csv"))
+
+
+```
+
+# Bd sql query
+```{sql bd_data, connection=connection, output.var = "bd_data"}
+
+-- script of BD load
+select *
+from site s 
+join visit v on s.id = v.site_id 
+join survey s2 on v.id = s2.visit_id 
+join capture_survey cs on s2.id = cs.survey_id  
+join bd_load bl on cs.swab_id = bl.sample_id 
+
+
+
+```
+
+
+# bd_load data
+```{r}
+# bd_data <- read_csv(here("data", "bd.csv")) %>% 
+#   clean_names()
+
+clean_bd <- bd_data %>% 
+  dplyr::select(id, utme, utmn, wilderness, visit_date, species, capture_life_stage, bd_load) %>% 
+  mutate(date = year(visit_date),
+         month = month(visit_date),
+         bd_load = log(bd_load + 1),
+         month_year = format(visit_date, "%Y-%m")) 
+  
+
+# pull out only desolation wilderness due to zone 10 coords
+des_cords <- clean_bd %>% 
+  filter(wilderness == "desolation")
+
+des_sf <- st_as_sf(des_cords, coords = c('utme', 'utmn'), crs = "+proj=utm +zone=10")
+des_bd = st_transform(des_sf, crs = "+proj=longlat +ellps=WGS84 +datum=WGS84")
+
+# now do rest of wildernesses in zone 11 coords
+clean_bd_data <- clean_bd %>% 
+  filter(!wilderness %in% c("desolation", "none"))
+  
+sf_bd <- st_as_sf(clean_bd_data, coords = c('utme', 'utmn'), crs = "+proj=utm +zone=11")
+leaf_bd = st_transform(sf_bd, crs = "+proj=longlat +ellps=WGS84 +datum=WGS84")
+
+# bind desolation back to all the main df
+des_bind <- rbind(leaf_bd, des_bd)
+
+bd <- des_bind %>% 
+  mutate(long = st_coordinates(.)[,1],
+         lat = st_coordinates(.)[,2]) %>% 
+  as.data.frame() %>% 
+  dplyr::select(!c(geometry)) %>% 
+  rename(visual_life_stage = capture_life_stage) %>% 
+  mutate(wilderness = gsub("_", " ", wilderness),
+         wilderness = str_to_title(wilderness),
+         visual_life_stage = str_to_title(visual_life_stage),
+         species = str_to_title(species)) %>% 
+  group_by(id, date, species, wilderness, visual_life_stage, lat, long) %>% 
+  summarise(bd = median(bd_load)) %>% 
+  ungroup()
+
+write_csv(bd, here("data", "bd_data.csv"))
+
+bd_plot <- des_bind %>% 
+  mutate(long = st_coordinates(.)[,1],
+         lat = st_coordinates(.)[,2]) %>% 
+  as.data.frame() %>% 
+  dplyr::select(!c(geometry)) %>% 
+  rename(visual_life_stage = capture_life_stage) %>% 
+  mutate(wilderness = gsub("_", " ", wilderness),
+         wilderness = str_to_title(wilderness),
+         visual_life_stage = str_to_title(visual_life_stage),
+         species = str_to_title(species)) %>% 
+  group_by(id, date, species, wilderness, visual_life_stage, lat, long, month_year) %>% 
+  summarise(bd = median(bd_load))
+write_csv(bd_plot, here("data", "bd_plot.csv"))
+
+
+```
+
+
