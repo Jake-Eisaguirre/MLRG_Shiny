@@ -80,7 +80,7 @@ server <- function(input, output, session){
           primaryAreaUnit = "sqfeet",
           activeColor = "#3D535D",
           completedColor = "#7D4479") %>%
-        addCircleMarkers(data = data_reactive(), lng = ~long, lat = ~lat,  color = "blue", radius = 1,
+        addCircleMarkers(data = data_reactive(), lng = ~long, lat = ~lat,  color = "#31688e", radius = 1,
                              layerId = ~id, label = paste('Site:', data_reactive()$id),
                              popup = paste("<B>Year:",input$site_year[1], "-", input$site_year[2], "<br>",
 
@@ -95,7 +95,7 @@ server <- function(input, output, session){
 
                              popupOptions(closeOnClick = T)) %>%
 
-            addPolylines(data = shape_reactive()$geometry, color = "green", dashArray = T, opacity = 0.9, weight = 1.9,
+            addPolylines(data = shape_reactive()$geometry, color = "#0d0887", dashArray = T, opacity = 0.9, weight = 1.9,
                          label = paste("Wilderness:", shape_reactive()$names),
                          popup = paste("<B>", input$site_year[1], "-", input$site_year[2], "Wilderness Totals <br>",
 
@@ -187,7 +187,7 @@ server <- function(input, output, session){
         scale_y_continuous(expand = c(0,0)) +
         geom_label(aes(label = paste("Count:", ves_reac()$Count)), vjust = 1.0, fill = "grey90") +
         ylab("Count") +
-        scale_fill_manual(values = c("Adult" = "green", "Subadult" = "blue", "Tadpole" = "red", "Eggmass" = "purple"),
+        scale_fill_manual(values = c("Adult" = "#35b779", "Subadult" = "#fde725", "Tadpole" = "#31688e", "Eggmass" = "#440154"),
                           name = "Visual Life Stage") +
         ggtitle(paste(input$ves_date[1], "-", input$ves_date[2], input$ves_species, "Annual Count")) +
         theme(plot.title = element_text(hjust = 0.5, vjust = 3))
