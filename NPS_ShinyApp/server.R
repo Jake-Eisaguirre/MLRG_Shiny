@@ -190,7 +190,7 @@ server <- function(input, output, session){
         scale_fill_manual(values = c("Adult" = "#35b779", "Subadult" = "#fde725", "Tadpole" = "#31688e", "Eggmass" = "#440154"),
                           name = "Visual Life Stage") +
         ggtitle(paste(input$ves_date[1], "-", input$ves_date[2], input$ves_species, "Annual Count")) +
-        theme(plot.title = element_text(hjust = 0.5, vjust = 3))
+        theme(plot.title = element_text(hjust = 0.5, vjust = 2))
       
 
             
