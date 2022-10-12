@@ -32,11 +32,11 @@ tryCatch({
     drv <- dbDriver("Postgres")
     print("Connecting to Database…")
     connection <- dbConnect(drv, 
-                 dbname = Sys.getenv("dbname"),
-                 host = Sys.getenv("host"), 
-                 port = Sys.getenv("port"),
-                 user = Sys.getenv("user"), 
-                 password = Sys.getenv("password"))
+                 dbname = Sys.getenv("sn_dbname"),
+                 host = Sys.getenv("sn_host"), 
+                 port = Sys.getenv("sn_port"),
+                 user = Sys.getenv("sn_user"), 
+                 password = Sys.getenv("sn_password"))
     print("Database Connected!")
     },
     error=function(cond) {
@@ -110,7 +110,7 @@ ves <- des_bind %>%
          wilderness = str_to_title(wilderness),
          visual_life_stage = str_to_title(visual_life_stage),
          species = str_to_title(species)) %>% 
-  group_by(id, date, species, visual_life_stage, visual_animal_state, lat, long, wilderness ) %>% 
+  group_by(id, date, species, visual_life_stage, visual_animal_state, wilderness, lat, long) %>% 
   summarise(count = sum(count))
 
 
@@ -175,7 +175,7 @@ bd <- des_bind %>%
          wilderness = str_to_title(wilderness),
          visual_life_stage = str_to_title(visual_life_stage),
          species = str_to_title(species)) %>% 
-  group_by(id, date, species, wilderness, visual_life_stage, lat, long) %>% 
+  group_by(id, date, species, wilderness, visual_life_stage) %>% 
   summarise(bd = median(bd_load)) %>% 
   ungroup()
 
@@ -191,7 +191,7 @@ bd_plot <- des_bind %>%
          wilderness = str_to_title(wilderness),
          visual_life_stage = str_to_title(visual_life_stage),
          species = str_to_title(species)) %>% 
-  group_by(id, date, species, wilderness, visual_life_stage, lat, long, month_year) %>% 
+  group_by(id, date, species, visual_life_stage, month_year, lat, long) %>% 
   summarise(bd = median(bd_load))
 write_csv(bd_plot, here("data", "bd_plot.csv"))
 

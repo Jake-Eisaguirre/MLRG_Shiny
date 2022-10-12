@@ -25,21 +25,21 @@ server <- function(input, output, session){
     })
     
     #ractive bd map data filtering on year, wilderness, species, and life stage
-    data_reactive_bd <- reactive({ 
- 
-  
-      
-      bd_data %>%
-        dplyr::filter(date <= input$site_year[2] & date >= input$site_year[1], wilderness == input$wilderness, 
-                      species == input$species, visual_life_stage == input$stage) %>% 
-        group_by(id, species, visual_life_stage) %>% 
-        mutate(med_bd = mean(bd),
-                  bd = bd,
-                  id = order(id, decreasing = T))
-      
-      
-    })
-    
+    # data_reactive_bd <- reactive({ 
+    # 
+    # 
+    #   
+    #   bd_data %>%
+    #     dplyr::filter(date <= input$site_year[2] & date >= input$site_year[1], wilderness == input$wilderness, 
+    #                   species == input$species, visual_life_stage == input$stage) %>% 
+    #     group_by(id, species, visual_life_stage) %>% 
+    #     mutate(med_bd = mean(bd),
+    #               bd = bd,
+    #               id = order(id, decreasing = T))
+    #   
+    #   
+    # })
+    # 
     
     #reactive shape file for wilderness outlines
     
@@ -69,11 +69,12 @@ server <- function(input, output, session){
         validate("Please select a life stage")
       }
 
-      
+      #OpenTopoMap
+      #Esri.WorldTopoMap
       leaflet() %>% 
-        addProviderTiles("Esri.WorldImagery") %>% 
+        addProviderTiles("OpenTopoMap") %>% 
         addMouseCoordinates() %>% 
-        setView(lng = -119.36697, lat = 37.3, zoom = 7) %>% 
+        setView(lng = -119.36697, lat = 37.3, zoom = 7.25) %>% 
         addMeasure(
           position = "bottomleft",
           primaryLengthUnit = "feet",
@@ -89,7 +90,7 @@ server <- function(input, output, session){
 
                                            "Wilderness:", data_reactive()$wilderness, "<br>",
 
-                                           data_reactive_bd()$species, "Median log(Bd) Load:", round(data_reactive()$med, 2), "<br>",
+                                           data_reactive()$species, "Median log(Bd) Load:", round(data_reactive()$med, 2), "<br>",
 
                                            data_reactive()$visual_life_stage, data_reactive()$species, "Count:", data_reactive()$sum_count, "<br>"),
 
@@ -101,8 +102,8 @@ server <- function(input, output, session){
 
                                        "Wilderness:", data_reactive()$wilderness, "<br>",
 
-                                       paste(data_reactive_bd()$visual_life_stage), paste(data_reactive_bd()$species),
-                                             "Median Wilderness log(Bd) Load:", round(mean(data_reactive_bd()$bd), 2), "<br>",
+                                       paste(data_reactive()$visual_life_stage), paste(data_reactive()$species),
+                                             "Median Wilderness log(Bd) Load:", round(data_reactive()$bd, 2), "<br>",
 
                                        paste(data_reactive()$visual_life_stage ,paste(data_reactive()$species),
                                             "Count:", sum(data_reactive()$count))))
@@ -205,7 +206,7 @@ server <- function(input, output, session){
     
     
     # observe events to update wilderness and years based on selection for leaflet map
-    observeEvent(input$ves_date, {
+    observeEvent(input$ves_date, ignoreNULL = T,{
       
       updatePickerInput(session, inputId = "wilderness_1", 
                         choices = unique(ves_data$wilderness[ves_data$date <= input$ves_date[2] 
