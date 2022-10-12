@@ -152,11 +152,10 @@ server <- function(input, output, session){
       
         ves_data %>%
             dplyr::filter(date <= input$ves_date[2] & date >= input$ves_date[1],
-                          wilderness == input$wilderness_1, species == input$ves_species, id == input$id) %>% 
-        group_by(visual_life_stage) %>% 
-        summarise(count = sum(count)) %>% 
-        mutate("Visual Life Stage" = visual_life_stage,
-               Count = count)
+                          wilderness == input$wilderness_1, 
+                          species == input$ves_species, 
+                          id == input$id,
+                          visual_life_stage %in% input$vls)
             
     })
     
@@ -168,39 +167,38 @@ server <- function(input, output, session){
     output$ves_plots = renderPlot({
       
       if(input$wilderness_1 < 0 && input$ves_species < 0 && input$id < 0) {
-        validate("Please select a wilderness, species, and site ID")
+        validate("Please select a wilderness, species, life stage, and site ID")
       }
       
       if(input$wilderness_1 > 0 && input$ves_species < 0 && input$id < 0){
-        validate("Please select a species and site ID")
+        validate("Please select a species, life stage, and site ID")
       }
       
       if(input$wilderness_1 > 0 && input$ves_species > 0 && input$id < 0){
-        validate("Please select a site ID")
+        validate("Please select a life stage and site ID")
       }
-      
  
       
-      ggplot(data = ves_reac(), aes(x = visual_life_stage, y = Count, fill = visual_life_stage)) +
-        geom_col() +
+      ggplot(data = ves_reac(), aes(x = date, y = count, color = visual_life_stage)) +
+        geom_point() +
+        geom_line() +
         theme_classic() +
-        scale_x_discrete("Visual Life Stage", limits=c("Adult", "Subadult", "Tadpole", "Eggmass")) +
-        scale_y_continuous(expand = c(0,0)) +
-        geom_label(aes(label = paste("Count:", ves_reac()$Count)), vjust = 1.0, fill = "grey90") +
         ylab("Count") +
-        scale_fill_manual(values = c("Adult" = "#35b779", "Subadult" = "#fde725", "Tadpole" = "#31688e", "Eggmass" = "#440154"),
-                          name = "Visual Life Stage") +
         ggtitle(paste(input$ves_date[1], "-", input$ves_date[2], input$ves_species, "Annual Count")) +
-        theme(plot.title = element_text(hjust = 0.5, vjust = 2))
-      
-
+        theme(plot.title = element_text(hjust = 0.5, vjust = 1.5)) +
+        scale_color_manual(values = c("Adult" = "#35b779", "Subadult" = "#fde725", "Tadpole" = "#31688e", "Eggmass" = "#440154"),
+                          name = "Visual Life Stage")
             
     })
     
     output$ves_counts = renderTable({
       
       ves_reac() %>% 
-        select("Visual Life Stage", Count)
+        group_by(date, visual_life_stage) %>% 
+        summarise(Count = as.character(sum(count)),
+                  visual_life_stage = visual_life_stage,
+                  date = as.character(date))
+
       
       })
     
@@ -229,6 +227,16 @@ server <- function(input, output, session){
                                                      & ves_data$date >= input$ves_date[1] 
                                                      & ves_data$wilderness == input$wilderness_1 
                                                      & ves_data$species == input$ves_species]))
+    })
+    
+    observeEvent(input$id, {
+      
+      updatePickerInput(session, inputId = "vls", 
+                        choices = unique(ves_data$vls[ves_data$date <= input$ves_date[2] 
+                                                     & ves_data$date >= input$ves_date[1] 
+                                                     & ves_data$wilderness == input$wilderness_1 
+                                                     & ves_data$species == input$ves_species
+                                                     & ves_data$id == input$id]))
     })
     
     

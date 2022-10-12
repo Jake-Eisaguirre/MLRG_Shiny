@@ -150,10 +150,13 @@ bd_data <- structure(list(id = c(10008, 10008,10008), date = c(2018,2019,2020), 
 
 v <- ves_data %>% 
   filter(date %in% c(2016:2021),
-         wilderness == "yosemite",
-         species == "ramu",
-         visual_life_stage == "adult") %>% 
-  mutate(count = sum(count))
+         wilderness == "Yosemite",
+         species == "Ramu",
+         id == "70550",
+         visual_life_stage %in% c("Tadpole", "Adult", "Subadult", "Eggmass")) 
+
+ggplot(data = v, aes(x= date, y = count, fill = visual_life_stage)) +
+  geom_line()
 
 ```
 

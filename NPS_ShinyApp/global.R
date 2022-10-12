@@ -6,7 +6,7 @@ if (!require(librarian)){
 # librarian downloads, if not already downloaded, and reads in needed packages
 
 librarian::shelf(shiny, tidyverse, here, shinyWidgets, leafem, bslib, thematic, shinymanager, leaflet, ggrepel, sf, stringr,fontawesome,
-                 shinycssloaders, shinydashboardPlus)
+                 shinycssloaders, shinydashboardPlus, lubridate)
 
 
 #Bd and VES combined data read in
