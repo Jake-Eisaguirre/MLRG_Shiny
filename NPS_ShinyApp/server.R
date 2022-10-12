@@ -202,10 +202,6 @@ server <- function(input, output, session){
       ves_reac() %>% 
         arrange(visual_life_stage) %>% 
         select(Year, "Visual Life Stage", Count)
-        # group_by(date, 'Visual Life Stage') %>% 
-        # summarise(Count = as.character(sum(Count)),
-        #           Date = as.character(date))
-
       
       })
     
@@ -256,10 +252,15 @@ server <- function(input, output, session){
       
       bd_plot %>% 
         dplyr::filter((date <= input$bd_date[2] & date >= input$bd_date[1]), 
-                      wilderness == input$wilderness_2, species == input$bd_species, 
-                      visual_life_stage == input$stage_bd, id == input$bd_id) %>% 
-        mutate("Year Month" = month_year,
-               "Log(Bd) Load" = bd)
+                      wilderness == input$wilderness_2, 
+                      species == input$bd_species, 
+                      visual_life_stage %in% input$stage_bd, 
+                      id == input$bd_id) %>% 
+        mutate("Year-Month" = month_year,
+               "Log(Bd) Load" = bd,
+               "Visual Life Stage" = visual_life_stage,
+               "Prevalence" = "",
+               bd = round(bd, 2))
       
     })
     
@@ -267,44 +268,44 @@ server <- function(input, output, session){
     
     output$bd_plots <- renderPlot({
       
-      if(input$wilderness_2 < 0 && input$bd_species < 0 && input$stage_bd < 0 && input$bd_id < 0) {
-        validate("Please select a wilderness, species, life stage, and site ID")
+      if(input$wilderness_2 < 0 && input$bd_species < 0 && input$bd_id < 0) {
+        validate("Please select a wilderness, species, and site ID")
       }
       
       
-      if(input$wilderness_2 > 0 && input$bd_species < 0 && input$stage_bd < 0 && input$bd_id < 0) {
-        validate("Please select a species, life stage, and site ID")
+      if(input$wilderness_2 > 0 && input$bd_species < 0 && input$bd_id < 0) {
+        validate("Please select a species and site ID")
       }
       
       
-      if(input$wilderness_2 > 0 && input$bd_species > 0 && input$stage_bd < 0 && input$bd_id < 0) {
-        validate("Please select a life stage and site ID")
-      }
-      
-      
-      if(input$wilderness_2 > 0 && input$bd_species > 0 && input$stage_bd > 0 && input$bd_id < 0) {
+      if(input$wilderness_2 > 0 && input$bd_species > 0 && input$bd_id < 0) {
         validate("Please select a site ID")
       }
       
       
       
       ggplot(data = bd_reac(), aes(x = month_year, y = bd, group = 1)) +
-        geom_point() +
+        geom_point(aes(color = visual_life_stage)) +
         geom_smooth(se = F) +
         ylab("Median log(Bd)") +
-        xlab("Date") +
+        xlab("Year-Month") +
         ggtitle(paste(input$bd_date[1], "-", input$bd_date[2], input$bd_species, "Median Log(Bd)")) +
         geom_text_repel(aes(label = paste(round(bd_reac()$bd, 3)))) +
         theme_classic() +
         theme(plot.title = element_text(hjust = 0.5),
-              axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+              axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 1)) +
+        scale_y_continuous(limits = c(0, max(bd_reac()$bd))) +
+        scale_color_manual(values = c("Adult" = "#35b779", "Subadult" = "#fde725", "Tadpole" = "#31688e", "Eggmass" = "#440154"),
+                           name = "Visual Life Stage") +
+        theme(axis.title.x = element_text(vjust = -2))
     
     })
     
     output$bd_counts = renderTable({
       
       bd_reac() %>% 
-        select("Year Month", "Log(Bd) Load")
+        arrange(visual_life_stage) %>% 
+        select("Year-Month", "Visual Life Stage", "Log(Bd) Load", "Prevalence")
       
     })
     
@@ -327,21 +328,22 @@ server <- function(input, output, session){
     
     observeEvent(input$bd_species, {
 
-      updatePickerInput(session, inputId = "stage_bd",
-                        choices = unique(bd_data$visual_life_stage[bd_data$date <= input$bd_date[2]
+      updatePickerInput(session, inputId = "bd_id",
+                        choices = unique(bd_data$id[bd_data$date <= input$bd_date[2]
                                                      & bd_data$date >= input$bd_date[1]
                                                      & bd_data$wilderness == input$wilderness_2
                                                      & bd_data$species == input$bd_species]))
     })
     
-    observeEvent(input$stage_bd, {
+    observeEvent(input$bd_id, {
 
-      updatePickerInput(session, inputId = "bd_id",
-                        choices = unique(bd_data$id[bd_data$date <= input$bd_date[2]
+      updatePickerInput(session, inputId = "stage_bd",
+                        choices = unique(bd_data$visual_life_stage[bd_data$date <= input$bd_date[2]
                                                     & bd_data$date >= input$bd_date[1]
                                                     & bd_data$wilderness == input$wilderness_2
                                                     & bd_data$species == input$bd_species
-                                                    & bd_data$visual_life_stage == input$stage_bd]))
+                                                    & bd_data$id == input$bd_id]),
+                        selected = unique(ves_data$visual_life_stage))
 
     })
     

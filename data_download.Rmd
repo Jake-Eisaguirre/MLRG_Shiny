@@ -191,7 +191,7 @@ bd_plot <- des_bind %>%
          wilderness = str_to_title(wilderness),
          visual_life_stage = str_to_title(visual_life_stage),
          species = str_to_title(species)) %>% 
-  group_by(id, date, species, visual_life_stage, month_year, lat, long) %>% 
+  group_by(id, date, species, visual_life_stage, month_year, lat, long, wilderness) %>% 
   summarise(bd = median(bd_load))
 write_csv(bd_plot, here("data", "bd_plot.csv"))
 
