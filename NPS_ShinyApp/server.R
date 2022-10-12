@@ -200,6 +200,7 @@ server <- function(input, output, session){
     output$ves_counts = renderTable({
       
       ves_reac() %>% 
+        arrange(visual_life_stage) %>% 
         select(Year, "Visual Life Stage", Count)
         # group_by(date, 'Visual Life Stage') %>% 
         # summarise(Count = as.character(sum(Count)),

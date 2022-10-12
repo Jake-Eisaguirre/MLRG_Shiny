@@ -153,7 +153,8 @@ v <- ves_data %>%
          wilderness == "Yosemite",
          species == "Ramu",
          id == "70550",
-         visual_life_stage %in% c("Tadpole", "Adult", "Subadult", "Eggmass")) 
+         visual_life_stage %in% c("Tadpole", "Adult", "Subadult", "Eggmass")) %>% 
+  arrange(visual_life_stage)
 
 ggplot(data = v, aes(x= date, y = count, fill = visual_life_stage)) +
   geom_line()
