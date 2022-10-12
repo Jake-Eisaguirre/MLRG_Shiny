@@ -6,7 +6,7 @@ if (!require(librarian)){
 # librarian downloads, if not already downloaded, and reads in needed packages
 
 librarian::shelf(shiny, tidyverse, here, shinyWidgets, leafem, bslib, thematic, shinymanager, leaflet, ggrepel, sf, stringr,fontawesome,
-                 shinycssloaders, shinydashboardPlus, lubridate)
+                 shinycssloaders, shinydashboardPlus, lubridate, scales)
 
 
 #Bd and VES combined data read in
@@ -61,6 +61,14 @@ t = setTimeout(logout, 120000);  // time is in milliseconds (1000 is 1 second)
 }
 idleTimer();"
 
+integer_breaks <- function(n = 5, ...) {
+  fxn <- function(x) {
+    breaks <- floor(pretty(x, n, ...))
+    names(breaks) <- attr(breaks, "labels")
+    breaks
+  }
+  return(fxn)
+}
 
 
 

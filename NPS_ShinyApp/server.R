@@ -155,7 +155,10 @@ server <- function(input, output, session){
                           wilderness == input$wilderness_1, 
                           species == input$ves_species, 
                           id == input$id,
-                          visual_life_stage %in% input$vls)
+                          visual_life_stage %in% input$vls) %>% 
+        mutate("Visual Life Stage" = visual_life_stage,
+               Count = as.character(count),
+               Year = as.character(date))
             
     })
     
@@ -184,20 +187,23 @@ server <- function(input, output, session){
         geom_line() +
         theme_classic() +
         ylab("Count") +
+        xlab("Year") +
         ggtitle(paste(input$ves_date[1], "-", input$ves_date[2], input$ves_species, "Annual Count")) +
         theme(plot.title = element_text(hjust = 0.5, vjust = 1.5)) +
         scale_color_manual(values = c("Adult" = "#35b779", "Subadult" = "#fde725", "Tadpole" = "#31688e", "Eggmass" = "#440154"),
-                          name = "Visual Life Stage")
+                          name = "Visual Life Stage") +
+        scale_y_continuous(breaks = integer_breaks()) +
+        scale_x_continuous(breaks = integer_breaks())
             
     })
     
     output$ves_counts = renderTable({
       
       ves_reac() %>% 
-        group_by(date, visual_life_stage) %>% 
-        summarise(Count = as.character(sum(count)),
-                  visual_life_stage = visual_life_stage,
-                  date = as.character(date))
+        select(Year, "Visual Life Stage", Count)
+        # group_by(date, 'Visual Life Stage') %>% 
+        # summarise(Count = as.character(sum(Count)),
+        #           Date = as.character(date))
 
       
       })
@@ -231,12 +237,13 @@ server <- function(input, output, session){
     
     observeEvent(input$id, {
       
-      updatePickerInput(session, inputId = "vls", 
-                        choices = unique(ves_data$vls[ves_data$date <= input$ves_date[2] 
+      updateCheckboxGroupInput(session, inputId = "vls", 
+                        choices = unique(ves_data$visual_life_stage[ves_data$date <= input$ves_date[2] 
                                                      & ves_data$date >= input$ves_date[1] 
                                                      & ves_data$wilderness == input$wilderness_1 
                                                      & ves_data$species == input$ves_species
-                                                     & ves_data$id == input$id]))
+                                                     & ves_data$id == input$id]),
+                        selected = unique(ves_data$visual_life_stage))
     })
     
     
