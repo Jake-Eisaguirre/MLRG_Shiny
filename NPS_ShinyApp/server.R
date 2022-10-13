@@ -49,25 +49,23 @@ server <- function(input, output, session){
         shape %>% 
             dplyr::filter(names == input$wilderness)
     })
-
+    
+    # reactive for all visits
+    
+    visit_reactive <- eventReactive(input$visits, {
+      
+      all_visits %>% 
+        filter(year <= input$site_year[2] & year >= input$site_year[1],
+               wilderness == input$wilderness)
+    })
+    
   
 
     
     # leaflet map with date, species, and site as reactive 
     output$site_map <- renderLeaflet({
       
-      
-      if(input$wilderness < 0 && input$species < 0 && input$stage < 0) {
-        validate("Please select a wilderness, species, and life stage")
-      }
 
-      if(input$wilderness > 0 && input$species < 0 && input$stage < 0){
-        validate("Please select a species and life stage")
-      }
-
-      if(input$wilderness > 0 && input$species > 0 && input$stage < 0){
-        validate("Please select a life stage")
-      }
 
       #OpenTopoMap
       #Esri.WorldTopoMap
@@ -80,35 +78,37 @@ server <- function(input, output, session){
           primaryLengthUnit = "feet",
           primaryAreaUnit = "sqfeet",
           activeColor = "#3D535D",
-          completedColor = "#7D4479") %>%
+          completedColor = "#7D4479") %>% 
         addCircleMarkers(data = data_reactive(), lng = ~long, lat = ~lat,  color = "#31688e", radius = 1,
-                             layerId = ~id, label = paste('Site:', data_reactive()$id),
-                             popup = paste("<B>Year:",input$site_year[1], "-", input$site_year[2], "<br>",
-
-                                           "Site:", data_reactive()$id, "(", paste(round(ves_data$lat, 3)),
-                                                    ",", paste(round(ves_data$long, 3)), ")", "<br>",
-
-                                           "Wilderness:", data_reactive()$wilderness, "<br>",
-
-                                           data_reactive()$species, "Median log(Bd) Load:", round(data_reactive()$med, 2), "<br>",
-
-                                           data_reactive()$visual_life_stage, data_reactive()$species, "Count:", data_reactive()$sum_count, "<br>"),
-
-                             popupOptions(closeOnClick = T)) %>%
-
-            addPolylines(data = shape_reactive()$geometry, color = "#0d0887", dashArray = T, opacity = 0.9, weight = 1.9,
-                         label = paste("Wilderness:", shape_reactive()$names),
-                         popup = paste("<B>", input$site_year[1], "-", input$site_year[2], "Wilderness Totals <br>",
-
+                         layerId = ~id, label = paste('Site:', data_reactive()$id),
+                         popup = paste("<B>Year:",input$site_year[1], "-", input$site_year[2], "<br>",
+                                       
+                                       "Site:", data_reactive()$id, "(", paste(round(ves_data$lat, 3)),
+                                       ",", paste(round(ves_data$long, 3)), ")", "<br>",
+                                       
                                        "Wilderness:", data_reactive()$wilderness, "<br>",
-
-                                       paste(data_reactive()$visual_life_stage), paste(data_reactive()$species),
-                                             "Median Wilderness log(Bd) Load:", round(data_reactive()$bd, 2), "<br>",
-
-                                       paste(data_reactive()$visual_life_stage ,paste(data_reactive()$species),
-                                            "Count:", sum(data_reactive()$count))))
+                                       
+                                       data_reactive()$species, "Median log(Bd) Load:", round(data_reactive()$med, 2), "<br>",
+                                       
+                                       data_reactive()$visual_life_stage, data_reactive()$species, "Count:", data_reactive()$sum_count, "<br>"),
+                         
+                         popupOptions(closeOnClick = T)) %>%
+        
+        addPolylines(data = shape_reactive()$geometry, color = "#0d0887", dashArray = T, opacity = 0.9, weight = 1.9,
+                     label = paste("Wilderness:", shape_reactive()$names),
+                     popup = paste("<B>", input$site_year[1], "-", input$site_year[2], "Wilderness Totals <br>",
+                                   
+                                   "Wilderness:", data_reactive()$wilderness, "<br>",
+                                   
+                                   paste(data_reactive()$visual_life_stage), paste(data_reactive()$species),
+                                   "Median Wilderness log(Bd) Load:", round(data_reactive()$bd, 2), "<br>",
+                                   
+                                   paste(data_reactive()$visual_life_stage ,paste(data_reactive()$species),
+                                         "Count:", sum(data_reactive()$count)))) %>% 
+        addCircleMarkers(data = visit_reactive(), lng = ~long, lat = ~lat, color = "black", radius = 1)
 
     })
+    
     
     # observe events to update wilderness and years based on selection for leaflet map
     observeEvent(input$site_year, {
@@ -190,7 +190,8 @@ server <- function(input, output, session){
         xlab("Year") +
         ggtitle(paste(input$ves_date[1], "-", input$ves_date[2], input$ves_species, "Annual Count")) +
         theme(plot.title = element_text(hjust = 0.5, vjust = 1.5)) +
-        scale_color_manual(values = c("Adult" = "#35b779", "Subadult" = "#fde725", "Tadpole" = "#31688e", "Eggmass" = "#440154"),
+        scale_color_manual(values = c("Adult" = "#35b779", "Subadult" = "#fde725", "Tadpole" = "#31688e", 
+                                      "Eggmass" = "#440154"),
                           name = "Visual Life Stage") +
         scale_y_continuous(breaks = integer_breaks()) +
         scale_x_continuous(breaks = integer_breaks())

@@ -28,6 +28,8 @@ shape <- read_sf(here("data", "wilderness_shapes", "wilderness.shp")) %>%
 # read in bd_plot data with month_year
 bd_plot <- read_csv(here("data", "bd_plot.csv"))
 
+# all visit data for map
+all_visits <- read_csv(here("data", "all_visits.csv"))
 
 # # themeing
 # theme <- bs_theme(

@@ -165,6 +165,10 @@ ui <-  secure_app(head_auth = tags$script(inactivity),
                                         choices = unique(ves_data$visual_life_stage),
                                         options = pickerOptions(title = "Select Variable"),
                                         multiple = F),
+                            hr(style = "border-top: 1px solid #000000;"),
+                            checkboxGroupButtons(inputId = "visits",
+                                                 label = "All Sites Visited",
+                                                 choices = c("Sites")),
                             h5("*Please be patient, map rendering can be delayed dependent on inputs*")),
                           
                           mainPanel(withSpinner(leafletOutput(outputId = "site_map", width = 900, height = 500))))

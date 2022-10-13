@@ -25,9 +25,6 @@ librarian::shelf(tidyverse, here, janitor, sf, lubridate, RPostgres, rstudioapi)
 ```{r}
 
 
-
-drv = dbDriver("Postgres")
-
 tryCatch({
     drv <- dbDriver("Postgres")
     print("Connecting to Database…")
@@ -204,4 +201,48 @@ write_csv(bd_plot, here("data", "bd_plot.csv"))
 
 ```
 
+# sites lat log
+```{sql bd_data, connection=connection, output.var = "site_data"}
+
+select s.id, s.utme, s.utmn, s.wilderness
+from site s
+
+```
+
+# all sites visited data
+```{r}
+
+visit_data <- read_csv(here("data", "all_visits.csv")) %>% 
+  left_join(site_data, by = c("site_id" = "id")) %>% 
+  select(site_id, utme, utmn, visit_date, wilderness) %>% 
+  mutate(year = year(visit_date))
+
+# pull out only desolation wilderness due to zone 10 coords
+des_visit_cords <- visit_data %>% 
+  filter(wilderness == "desolation")
+
+des_coord_sf <- st_as_sf(des_visit_cords, coords = c('utme', 'utmn'), crs = "+proj=utm +zone=10")
+des_coord = st_transform(des_coord_sf, crs = "+proj=longlat +ellps=WGS84 +datum=WGS84")
+
+# now do rest of wildernesses in zone 11 coords
+coord_11 <- visit_data %>% 
+  filter(!wilderness %in% c("desolation", "none"))
+  
+sf_11 <- st_as_sf(coord_11, coords = c('utme', 'utmn'), crs = "+proj=utm +zone=11")
+coodss = st_transform(sf_11, crs = "+proj=longlat +ellps=WGS84 +datum=WGS84")
+
+# bind desolation back to all the main df
+visits <- rbind(coodss, des_coord)
+
+all_visits <- visits %>% 
+  mutate(long = st_coordinates(.)[,1],
+         lat = st_coordinates(.)[,2]) %>% 
+  as.data.frame() %>% 
+  dplyr::select(!c(geometry)) %>% 
+  mutate(wilderness = gsub("_", " ", wilderness),
+         wilderness = str_to_title(wilderness))
+
+write_csv(all_visits, here("data", "all_visits.csv"))
+
+```
 

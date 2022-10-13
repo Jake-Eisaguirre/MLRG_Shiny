@@ -181,7 +181,9 @@ all.records %>%
 # apply complete to all records, unfiltered 
 all.records %>% 
   select(site_id, visit_date, visual_life_stage, count_observed) %>% 
-  complete(site_id, visit_date, visual_life_stage, fill = list(count_observed = 0)) 
+  complete(site_id, visit_date, visual_life_stage, fill = list(count_observed = 0))
+
+write_csv(all.records, here("data", "all_visits.csv"))
 ```
 
 # 4. Test result with visualization.  
