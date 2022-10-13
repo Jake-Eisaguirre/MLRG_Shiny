@@ -1,0 +1,197 @@
+---
+title: "zero count surveys"
+author: "Jake Eisaguirre"
+date: "2022-10-13"
+output: html_document
+---
+
+
+```{r}
+if (!require(librarian)){
+  install.packages("librarian")
+  library(librarian)
+}
+
+# librarian downloads, if not already downloaded, and reads in needed packages
+
+librarian::shelf(tidyverse, here, janitor, sf, lubridate, RPostgres, rstudioapi)
+```
+
+
+```{r}
+tryCatch({
+    drv <- dbDriver("Postgres")
+    print("Connecting to Database…")
+    connection <- dbConnect(drv, 
+                 dbname = Sys.getenv("sn_dbname"),
+                 host = Sys.getenv("sn_host"), 
+                 port = Sys.getenv("sn_port"),
+                 user = Sys.getenv("sn_user"), 
+                 password = Sys.getenv("sn_password"))
+    print("Database Connected!")
+    },
+    error=function(cond) {
+            print("Unable to connect to Database.")
+    })
+```
+
+# visit table
+```{sql visit, connection=connection, output.var = "test.data.visit"}
+
+select v.id, v.site_id, v.visit_date
+from visit v
+
+```
+
+
+# survey table
+```{sql visit, connection=connection, output.var = "test.data.survey"}
+
+select s.id, s.visit_id, s.survey_type, s.duration
+from survey s
+
+
+```
+
+# visual table
+```{sql visit, connection=connection, output.var = "test.data.visual"}
+
+select su.id, su.survey_id, su.species, su.visual_life_stage,
+        su.visual_animal_state, su.location, 
+        su.count
+from visual_survey su
+
+```
+
+
+**OBJECTIVE:** This script is designed to test tools to make sure all VES data is represented, even when a survey event occurs but has no associated amphibian observations. It turns implicit zeros to explicit zeros. The result should clearly include 'zeros' in amphibian counts (or, e.g. tallies of swabs collected), to be used for subsequent visualizations and analyses.
+
+# 1. Create test data.
+Create three small datasets to mimic visit, survey, and visual_survey tables. Use data that are small enough that individual records can easily be tracked when the three tables are joined. These objects are simplified but contain realistic relationships. The UUIDs are fictional and "human readable", but lake IDs are real.  
+
+Each **visit** has one:one corresponding visual survey. In the MLRG and RIBBiTR databases, the existence of additional tablesmeans that there are multiple survey types and potential for one:many relationship between visual:survey tables.
+
+In summary, the data will look like"  
+    -  ten visual survey amphibian records correspond to only six visit-survey records, such that:  
+    -  10100 should have observations of three life stages in 1900 and 1901, but only adult observations in 1902 and 1903  
+    -  10101 should have only observations of adults, ONLY in two years 1900, 1901 and none in 1902, 1903  
+    -  10102 should have no observations of any amphibians.  
+
+```{r create-test-data}
+# Visits
+test.data.visit <- read_csv("id, site_id, visit_date
+                                 visit-001-uuid, 10100, 1900-01-01
+                                 visit-002-uuid, 10100, 1901-01-01
+                                 visit-003-uuid, 10100, 1902-01-01
+                                 visit-004-uuid, 10100, 1903-01-01
+                                 visit-005-uuid, 10101, 1900-01-01
+                                 visit-006-uuid, 10101, 1901-01-01
+                                 visit-007-uuid, 10101, 1902-01-01
+                                 visit-008-uuid, 10101, 1903-01-01
+                                 visit-009-uuid, 10102, 1900-01-01
+                                 visit-010-uuid, 10102, 1901-01-01
+                                 visit-011-uuid, 10102, 1902-01-01
+                                 visit-012-uuid, 10102, 1903-01-01") %>%
+  as_tibble()
+# three sites are visited once each in four years
+# Survey
+test.data.survey <- read_csv("id, visit_id, survey_type, duration
+                                 survy-001-uuid, visit-001-uuid, visual, 1
+                                 survy-002-uuid, visit-002-uuid, visual, 1
+                                 survy-003-uuid, visit-003-uuid, visual, 1
+                                 survy-004-uuid, visit-004-uuid, visual, 1
+                                 survy-005-uuid, visit-005-uuid, visual, 1
+                                 survy-006-uuid, visit-006-uuid, visual, 1
+                                 survy-007-uuid, visit-007-uuid, visual, 1
+                                 survy-008-uuid, visit-008-uuid, visual, 1
+                                 survy-009-uuid, visit-009-uuid, visual, 1
+                                 survy-010-uuid, visit-010-uuid, visual, 1
+                                 survy-011-uuid, visit-011-uuid, visual, 1
+                                 survy-012-uuid, visit-012-uuid, visual, 1") %>%
+  as_tibble()
+# Visual Survey (or, amphibian counts)
+test.data.visual <- read_csv("id, survey_id, species, visual_life_stage, visual_animal_state, location, count
+                                  visul-001-uuid, survy-001-uuid, ramu, adult, alive, lake, 1
+                                  visul-002-uuid, survy-001-uuid, ramu, tadpole, alive, lake, 2
+                                  visul-003-uuid, survy-001-uuid, ramu, subadult, alive, lake, 3
+                                  visul-004-uuid, survy-002-uuid, ramu, adult, alive, lake, 11
+                                  visul-005-uuid, survy-002-uuid, ramu, tadpole, alive, lake, 12
+                                  visul-006-uuid, survy-002-uuid, ramu, subadult, alive, lake, 13
+                                  visul-007-uuid, survy-003-uuid, ramu, adult, alive, lake, 21
+                                  visul-008-uuid, survy-004-uuid, ramu, adult, alive, lake, 31
+                                  visul-009-uuid, survy-005-uuid, ramu, adult, alive, lake, 41
+                                  visul-010-uuid, survy-006-uuid, ramu, adult, alive, lake, 51") %>%
+  rename(count_observed=count) %>% # avoid using `count` as vector name because it is also an R/tidyverse function
+  as_tibble()
+```
+
+
+```{r print-tables}
+print(test.data.visit)
+print(test.data.survey)
+print(test.data.visual)
+```
+
+# 2. Join data tables
+```{r join-test-data}
+# change UUID vector names for clarity  
+test.data.visit <- test.data.visit %>% 
+  mutate(visit_id=id) %>% 
+  select(-id)
+test.data.survey <- test.data.survey %>% 
+  mutate(survey_id=id) %>% 
+  select(-id)
+test.data.visual <- test.data.visual %>% 
+  rename(count_observed=count)
+# gets ALL RECORDS including surveys and visuals with related counts or non-counts
+all.records <-
+  test.data.visit %>% 
+  inner_join(filter(test.data.survey, survey_type=="visual"), by=c("visit_id")) %>% 
+  select(visit_id, site_id, visit_date, survey_id, survey_type) %>% 
+  left_join(test.data.visual, by="survey_id")
+# Surveys with OBSERVED AMPHIBIANS
+# gets all surveys with non-zero counts
+amphibian.counts <- 
+  test.data.visit %>% 
+  inner_join(filter(test.data.survey, survey_type=="visual"), by=c("visit_id")) %>% 
+  select(visit_id, site_id, visit_date, survey_id, survey_type) %>% 
+  inner_join(test.data.visual, by="survey_id")
+# Surveys with NO AMPHIBIANS
+# gets all surveys with no counts, streamlined because uses filtering join
+surveys.no.counts <-
+  test.data.visit %>% 
+  inner_join(filter(test.data.survey, survey_type=="visual"), by=c("visit_id")) %>% 
+  select(visit_id, site_id, visit_date, survey_id, survey_type) %>% 
+  anti_join(test.data.visual, by="survey_id")
+```
+
+# 3. Use `dplyr::complete` to create complete explicit records from implicit zeros.  
+```{r use-complete-to-create-explicit-zeros}
+# use`dplyr::complete` on test data; suggested by Max Joseph
+# using amphibian counts or all records, we can still generate records for visit-surveys where no amphibians (or, none of a certain lifestage) were observed.  
+amphibian.counts %>% 
+  select(site_id, visit_date, visual_life_stage, count_observed) %>% # 
+  filter(visual_life_stage=="adult") %>% #
+  complete(site_id, visit_date, visual_life_stage, fill=list(count_observed=0)) # 
+# same result:
+all.records %>% 
+  select(site_id, visit_date, visual_life_stage, count_observed) %>% # 
+  filter(visual_life_stage=="adult") %>% # optionals filter for one life_stage  
+  complete(site_id, visit_date, visual_life_stage, fill=list(count_observed=0)) # 
+# apply complete to all records, unfiltered 
+all.records %>% 
+  select(site_id, visit_date, visual_life_stage, count_observed) %>% 
+  complete(site_id, visit_date, visual_life_stage, fill = list(count_observed = 0)) 
+```
+
+# 4. Test result with visualization.  
+```{r visualize-complete-output-with-zeros}
+all.records %>% 
+  select(site_id, visit_date, visual_life_stage, count_observed) %>% #
+  complete(site_id, visit_date, visual_life_stage, fill = list(count_observed = 0)) %>% #
+  filter(visual_life_stage=="adult") %>%  # 
+  mutate(site_id=factor(site_id)) %>% # change site_id from integer or double to factor for visualization
+ggplot( aes( x=visit_date, y=count_observed, group=site_id ) ) +
+  geom_point( aes( color=site_id ) )+
+  geom_line( aes( color=site_id ) )
+```

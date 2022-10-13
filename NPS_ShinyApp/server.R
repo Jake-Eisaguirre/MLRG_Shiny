@@ -259,7 +259,7 @@ server <- function(input, output, session){
         mutate("Year-Month" = month_year,
                "Log(Bd) Load" = bd,
                "Visual Life Stage" = visual_life_stage,
-               "Prevalence" = "",
+               Prevalence = round(Prevalence, 2),
                bd = round(bd, 2))
       
     })
@@ -337,7 +337,7 @@ server <- function(input, output, session){
     
     observeEvent(input$bd_id, {
 
-      updatePickerInput(session, inputId = "stage_bd",
+      updateCheckboxGroupInput(session, inputId = "stage_bd",
                         choices = unique(bd_data$visual_life_stage[bd_data$date <= input$bd_date[2]
                                                     & bd_data$date >= input$bd_date[1]
                                                     & bd_data$wilderness == input$wilderness_2
@@ -347,8 +347,6 @@ server <- function(input, output, session){
 
     })
     
-
-
     
     
 }

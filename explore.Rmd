@@ -159,5 +159,19 @@ v <- ves_data %>%
 ggplot(data = v, aes(x= date, y = count, fill = visual_life_stage)) +
   geom_line()
 
+prev <- des_bind %>% 
+  mutate(long = st_coordinates(.)[,1],
+         lat = st_coordinates(.)[,2]) %>% 
+  as.data.frame() %>% 
+  dplyr::select(!c(geometry)) %>% 
+  rename(visual_life_stage = capture_life_stage) %>% 
+  mutate(wilderness = gsub("_", " ", wilderness),
+         wilderness = str_to_title(wilderness),
+         visual_life_stage = str_to_title(visual_life_stage),
+         species = str_to_title(species)) %>% 
+  group_by(id, species, month_year, visual_life_stage) %>% 
+  mutate(infect = if_else(bd_load>0, 1, 0)) %>% 
+  summarise(sum_infect = (sum(infect)/sum(n())))
+
 ```
 

@@ -191,9 +191,15 @@ bd_plot <- des_bind %>%
          wilderness = str_to_title(wilderness),
          visual_life_stage = str_to_title(visual_life_stage),
          species = str_to_title(species)) %>% 
-  group_by(id, date, species, visual_life_stage, month_year, lat, long, wilderness) %>% 
-  summarise(bd = median(bd_load))
+  group_by(id, species, visual_life_stage, month_year, lat, long, wilderness, date) %>% 
+  mutate(infect = if_else(bd_load>0, 1, 0)) %>% 
+  summarise(bd = median(bd_load),
+            Prevalence = (sum(infect)/sum(n()))) 
+
 write_csv(bd_plot, here("data", "bd_plot.csv"))
+
+
+
 
 
 ```
