@@ -184,5 +184,10 @@ lakes <- read_sf(here("data", "lakes", "lakes2021.shp")) %>%
 
 plot(lakes)
 
+
+ view <- shape %>% 
+      filter(wilderness == "Yosemite") %>% 
+      st_bbox(geometry) %>% 
+   as.vector()
 ```
 

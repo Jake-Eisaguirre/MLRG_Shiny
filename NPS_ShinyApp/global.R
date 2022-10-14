@@ -29,7 +29,9 @@ bd_data <- read_csv(here("data", "bd_data.csv"))
 shape <- read_sf(here("data", "wilderness_shapes", "wilderness.shp")) %>% 
   mutate(names = gsub("_", " ", names),
          names = str_to_title(names)) %>% 
-  ms_simplify(0.01)
+  ms_simplify(0.01)%>% 
+  mutate(zoom = 9) %>% 
+  rename(wilderness = names)
 
 #ves data read in
 ves_data <- read_csv(here("data", "ves_data.csv")) %>% 
