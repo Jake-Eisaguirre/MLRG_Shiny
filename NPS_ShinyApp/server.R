@@ -44,9 +44,9 @@ server <- function(input, output, session){
     #reactive shape file for wilderness outlines
     
     shape_reactive <- reactive({
-      
 
-        shape %>% 
+
+        shape %>%
             dplyr::filter(names == input$wilderness)
     })
     
@@ -65,8 +65,6 @@ server <- function(input, output, session){
     # leaflet map with date, species, and site as reactive 
     output$site_map <- renderLeaflet({
       
-
-
       #OpenTopoMap
       #Esri.WorldTopoMap
       leaflet() %>% 
@@ -78,9 +76,18 @@ server <- function(input, output, session){
           primaryLengthUnit = "feet",
           primaryAreaUnit = "sqfeet",
           activeColor = "#3D535D",
-          completedColor = "#7D4479") %>% 
+          completedColor = "#7D4479") 
+        
+     })
+
+    
+    observeEvent(ignoreInit = TRUE, c(input$site_year, input$wilderness, input$species, input$stage), {
+
+      leafletProxy("site_map", data = data_reactive()) %>% 
+        clearMarkers() %>% 
+        clearShapes() %>% 
         addCircleMarkers(data = data_reactive(), lng = ~long, lat = ~lat,  color = "#31688e", radius = 1,
-                         layerId = ~id, label = paste('Site:', data_reactive()$id),
+                         label = paste('Site:', data_reactive()$id),
                          popup = paste("<B>Year:",input$site_year[1], "-", input$site_year[2], "<br>",
                                        
                                        "Site:", data_reactive()$id, "(", paste(round(ves_data$lat, 3)),
@@ -104,11 +111,29 @@ server <- function(input, output, session){
                                    "Median Wilderness log(Bd) Load:", round(data_reactive()$bd, 2), "<br>",
                                    
                                    paste(data_reactive()$visual_life_stage ,paste(data_reactive()$species),
-                                         "Count:", sum(data_reactive()$count)))) %>% 
-        addCircleMarkers(data = visit_reactive(), lng = ~long, lat = ~lat, color = "black", radius = 1)
+                                         "Count:", sum(data_reactive()$count)))) 
 
     })
     
+    
+    observeEvent(input$visits, {
+      
+      leafletProxy("site_map") %>% 
+        addCircleMarkers(data = visit_reactive(), lng = ~long, lat = ~lat, color = "black", radius = 1)
+      
+      updateCheckboxGroupButtons(session, "visits", "")
+      
+      })
+    
+    
+    observeEvent(input$clear, {
+      updatePickerInput(session, "site_year", selected = "2021")
+      updatePickerInput(session, "wilderness", selected = "")
+      updatePickerInput(session, "species", selected = "")
+      updatePickerInput(session, "stage", selected = "")
+      updateCheckboxGroupButtons(session, "visits", selected = "")
+      updateCheckboxGroupButtons(session, "clear", selected = "")
+    })
     
     # observe events to update wilderness and years based on selection for leaflet map
     observeEvent(input$site_year, {
@@ -298,7 +323,7 @@ server <- function(input, output, session){
         scale_y_continuous(limits = c(0, max(bd_reac()$bd))) +
         scale_color_manual(values = c("Adult" = "#35b779", "Subadult" = "#fde725", "Tadpole" = "#31688e", "Eggmass" = "#440154"),
                            name = "Visual Life Stage") +
-        theme(axis.title.x = element_text(vjust = -2))
+        theme(axis.title.x = element_text(vjust = -2.3))
     
     })
     
