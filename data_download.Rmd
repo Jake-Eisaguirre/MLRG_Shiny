@@ -21,6 +21,7 @@ librarian::shelf(tidyverse, here, janitor, sf, lubridate, RPostgres, rstudioapi)
 ```
 
 
+
 # db connection
 ```{r}
 
@@ -96,6 +97,8 @@ leaf_ves = st_transform(sf_ves, crs = "+proj=longlat +ellps=WGS84 +datum=WGS84")
 
 # bind desolation back to all the main df
 des_bind <- rbind(leaf_ves, des_ves)
+
+
 
 # pull out geometries as standard lat long columns
 ves <- des_bind %>% 

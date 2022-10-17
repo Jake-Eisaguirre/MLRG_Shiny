@@ -189,5 +189,21 @@ plot(lakes)
       filter(wilderness == "Yosemite") %>% 
       st_bbox(geometry) %>% 
    as.vector()
+ 
+ yos <- read_sf(here("data", "wilderness_shapes", "yos", "yose_kica_sequ_boundaries.shp")) %>% 
+   select(UNIT_NAME, geometry) %>% 
+   rename(names = UNIT_NAME) %>% 
+   mutate(names = case_when(names == "Yosemite National Park" ~ "yosemite",
+                            names == "Kings Canyon National Park" ~ "kings_canyon",
+                            names == "Sequoia National Park" ~ "sequoia")) %>% 
+   st_transform(crs = 4326)
+ 
+ 
+ shape <- read_sf(here("data", "wilderness_shapes", "wilderness.shp")) %>% 
+   filter(!names %in% c("sequoia", "kings_canyon", "yosemite")) %>% 
+   st_transform(crs = 4326) %>% 
+   rbind(yos)
+ 
+write_sf(shape, here("data", "wilderness_shapes", "wilderness.shp"), overwrite = T)
 ```
 

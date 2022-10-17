@@ -96,7 +96,8 @@ server <- function(input, output, session){
     observeEvent(c(input$species, input$stage), {
       
       leafletProxy("site_map") %>%
-        addCircleMarkers(data = data_reactive(), lng = ~long, lat = ~lat,  color = "#31688e", radius = 1,
+        addCircleMarkers(data = data_reactive(), lng = ~long, lat = ~lat,  color = "#35b779", radius = 1, opacity = 0.05, 
+                         fillOpacity = 0.05, weight = 5,
                          label = paste('Site:', data_reactive()$id),
                          popup = paste("<B>Year:",input$site_year[1], "-", input$site_year[2], "<br>",
                                        
@@ -117,7 +118,7 @@ server <- function(input, output, session){
       
       leafletProxy("site_map") %>% 
         #clearMarkers() %>% 
-        addCircleMarkers(data = visit_reactive(), lng = ~long, lat = ~lat, color = "black", radius = 1,
+        addCircleMarkers(data = visit_reactive(), lng = ~long, lat = ~lat, color = "#440154", radius = 1,
                          label = paste('Site:', visit_reactive()$site_id),
                          popup = paste("<B>Year:",input$site_year[1], "-", input$site_year[2], "<br>",
                                                
@@ -126,7 +127,8 @@ server <- function(input, output, session){
                                                
                                                "Water Type:", data_reactive()$lake_type, "<br>")) %>% 
         
-        addCircleMarkers(data = data_reactive(), lng = ~long, lat = ~lat,  color = "#31688e", radius = 1,
+        addCircleMarkers(data = data_reactive(), lng = ~long, lat = ~lat,  color = "#35b779", radius = 1, opacity = 0.05, 
+                         fillOpacity = 0.05, weight = 5,
                          label = paste('Site:', data_reactive()$id),
                          popup = paste("<B>Year:",input$site_year[1], "-", input$site_year[2], "<br>",
                                        
@@ -139,9 +141,9 @@ server <- function(input, output, session){
                                        
                                        data_reactive()$visual_life_stage, data_reactive()$species, "Count:", data_reactive()$sum_count, "<br>"),
                          
-                         popupOptions(closeOnClick = T))
-      
-      updateCheckboxGroupButtons(session, "visits", selected = "")
+                         popupOptions(closeOnClick = T)) %>% 
+        addLegend(position = c("bottomright"), title = "Organism Encounters", colors = c("#35b779", "#440154"), 
+                  labels = c("Encounters", "No Encounters"))
       
       })
     
@@ -228,13 +230,22 @@ server <- function(input, output, session){
  
       
       ggplot(data = ves_reac(), aes(x = date, y = count, color = visual_life_stage)) +
-        geom_point() +
-        geom_line() +
+        geom_point(size = 2.5) +
+        geom_line(size = 1.5) +
         theme_classic() +
         ylab("Count") +
         xlab("Year") +
         ggtitle(paste(input$ves_date[1], "-", input$ves_date[2], input$ves_species, "Annual Count")) +
-        theme(plot.title = element_text(hjust = 0.5, vjust = 1.5)) +
+        theme(plot.title = element_text(hjust = 0.5, vjust = 1.5, size = 17),
+              axis.line = element_line(size = 1.1),
+              axis.ticks = element_line(size = 1.8),
+              axis.text = element_text(size = 14),
+              axis.title.x = element_text(size = 15),
+              axis.title.y = element_text(size = 15),
+              legend.key.height = unit(2, "cm"),
+              legend.title = element_text(size = 15),
+              legend.text = element_text(size = 15),
+              legend.key.size = unit(2, "cm")) +
         scale_color_manual(values = c("Adult" = "#35b779", "Subadult" = "#fde725", "Tadpole" = "#31688e", 
                                       "Eggmass" = "#440154"),
                           name = "Visual Life Stage") +
@@ -331,19 +342,28 @@ server <- function(input, output, session){
       
       
       ggplot(data = bd_reac(), aes(x = month_year, y = bd, group = 1)) +
-        geom_point(aes(color = visual_life_stage)) +
+        geom_point(aes(color = visual_life_stage, shape = factor(visual_life_stage)), size = 2.5) +
         geom_smooth(se = F) +
         ylab("Median log(Bd)") +
         xlab("Year-Month") +
         ggtitle(paste(input$bd_date[1], "-", input$bd_date[2], input$bd_species, "Median Log(Bd)")) +
         geom_text_repel(aes(label = paste(round(bd_reac()$bd, 3)))) +
         theme_classic() +
-        theme(plot.title = element_text(hjust = 0.5),
-              axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 1)) +
+        theme(#plot.title = element_text(hjust = 0.5),
+              axis.text.x = element_text(angle = 45, vjust = 1, hjust = 0.9, size = 12),
+              plot.title = element_text(hjust = 0.5, vjust = 1.2, size = 17),
+              axis.line = element_line(size = 1.1),
+              axis.ticks = element_line(size = 1.8),
+              axis.text.y = element_text(size = 14),
+              axis.title.x = element_text(size = 14, vjust = 3),
+              axis.title.y = element_text(size = 15),
+              legend.key.height = unit(2, "cm"),
+              legend.title = element_text(size = 15),
+              legend.text = element_text(size = 15),
+              legend.key.size = unit(2, "cm")) +
         scale_y_continuous(limits = c(0, max(bd_reac()$bd))) +
         scale_color_manual(values = c("Adult" = "#35b779", "Subadult" = "#fde725", "Tadpole" = "#31688e", "Eggmass" = "#440154"),
-                           name = "Visual Life Stage") +
-        theme(axis.title.x = element_text(vjust = -2.3))
+                           name = "Visual Life Stage") 
     
     })
     
