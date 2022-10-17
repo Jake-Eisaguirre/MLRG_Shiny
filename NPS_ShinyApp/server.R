@@ -77,6 +77,7 @@ server <- function(input, output, session){
       leafletProxy("site_map") %>% 
         clearMarkers() %>% 
         clearShapes() %>% 
+        clearControls() %>% 
         fitBounds(view()[1], view()[2], view()[3], view()[4])  %>%
         
         addPolylines(data = shape_reactive()$geometry, color = "#0d0887", dashArray = T, opacity = 0.9, weight = 1.9,
@@ -231,7 +232,7 @@ server <- function(input, output, session){
       
       ggplot(data = ves_reac(), aes(x = date, y = count, color = visual_life_stage)) +
         geom_point(size = 2.5) +
-        geom_line(size = 1.5) +
+        geom_line(size = 1.25) +
         theme_classic() +
         ylab("Count") +
         xlab("Year") +
@@ -342,7 +343,7 @@ server <- function(input, output, session){
       
       
       ggplot(data = bd_reac(), aes(x = month_year, y = bd, group = 1)) +
-        geom_point(aes(color = visual_life_stage, shape = factor(visual_life_stage)), size = 2.5) +
+        geom_point(aes(color = visual_life_stage), size = 2.5) +
         geom_smooth(se = F) +
         ylab("Median log(Bd)") +
         xlab("Year-Month") +
@@ -363,7 +364,7 @@ server <- function(input, output, session){
               legend.key.size = unit(2, "cm")) +
         scale_y_continuous(limits = c(0, max(bd_reac()$bd))) +
         scale_color_manual(values = c("Adult" = "#35b779", "Subadult" = "#fde725", "Tadpole" = "#31688e", "Eggmass" = "#440154"),
-                           name = "Visual Life Stage") 
+                           name = "Visual Life Stage")
     
     })
     
