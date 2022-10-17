@@ -168,11 +168,11 @@ ui <-  secure_app(head_auth = tags$script(inactivity),
                             checkboxGroupButtons(inputId = "visits",
                                                  label = "All Sites Visited",
                                                  choices = c("Sites")),
+                            h5("*Please be patient, map rendering can be delayed dependent on inputs*"),
                             hr(style = "border-top: 1px solid #000000;"),
                             checkboxGroupButtons(inputId = "clear",
                                                  label = "Clear Selection",
-                                                 choices = c("Clear")),
-                            h5("*Please be patient, map rendering can be delayed dependent on inputs*")),
+                                                 choices = c("Clear"))),
                           
                           mainPanel(withSpinner(leafletOutput(outputId = "site_map", width = 900, height = 500))))
                         

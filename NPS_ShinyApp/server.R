@@ -24,22 +24,6 @@ server <- function(input, output, session){
       
     })
     
-    #ractive bd map data filtering on year, wilderness, species, and life stage
-    # data_reactive_bd <- reactive({ 
-    # 
-    # 
-    #   
-    #   bd_data %>%
-    #     dplyr::filter(date <= input$site_year[2] & date >= input$site_year[1], wilderness == input$wilderness, 
-    #                   species == input$species, visual_life_stage == input$stage) %>% 
-    #     group_by(id, species, visual_life_stage) %>% 
-    #     mutate(med_bd = mean(bd),
-    #               bd = bd,
-    #               id = order(id, decreasing = T))
-    #   
-    #   
-    # })
-    # 
     
     #reactive shape file for wilderness outlines
     
@@ -51,7 +35,7 @@ server <- function(input, output, session){
     
     # reactive for all visits
     
-    visit_reactive <- eventReactive(input$visits, {
+    visit_reactive <- reactive({
       
       all_visits %>% 
         filter(year <= input$site_year[2] & year >= input$site_year[1],
@@ -119,7 +103,7 @@ server <- function(input, output, session){
                                        "Site:", data_reactive()$id, "(", paste(round(ves_data$lat, 3)),
                                        ",", paste(round(ves_data$long, 3)), ")", "<br>",
                                        
-                                       "Wilderness:", data_reactive()$wilderness, "<br>",
+                                       "Water Type:", data_reactive()$lake_type, "<br>",
                                        
                                        data_reactive()$species, "Median log(Bd) Load:", round(data_reactive()$med, 2), "<br>",
                                        
@@ -132,9 +116,32 @@ server <- function(input, output, session){
     observeEvent(input$visits, {
       
       leafletProxy("site_map") %>% 
-        addCircleMarkers(data = visit_reactive(), lng = ~long, lat = ~lat, color = "black", radius = 1)
+        #clearMarkers() %>% 
+        addCircleMarkers(data = visit_reactive(), lng = ~long, lat = ~lat, color = "black", radius = 1,
+                         label = paste('Site:', visit_reactive()$site_id),
+                         popup = paste("<B>Year:",input$site_year[1], "-", input$site_year[2], "<br>",
+                                               
+                                               "Site:", data_reactive()$id, "(", paste(round(ves_data$lat, 3)),
+                                               ",", paste(round(ves_data$long, 3)), ")", "<br>",
+                                               
+                                               "Water Type:", data_reactive()$lake_type, "<br>")) %>% 
+        
+        addCircleMarkers(data = data_reactive(), lng = ~long, lat = ~lat,  color = "#31688e", radius = 1,
+                         label = paste('Site:', data_reactive()$id),
+                         popup = paste("<B>Year:",input$site_year[1], "-", input$site_year[2], "<br>",
+                                       
+                                       "Site:", data_reactive()$id, "(", paste(round(ves_data$lat, 3)),
+                                       ",", paste(round(ves_data$long, 3)), ")", "<br>",
+                                       
+                                       "Water Type:", data_reactive()$lake_type, "<br>",
+                                       
+                                       data_reactive()$species, "Median log(Bd) Load:", round(data_reactive()$med, 2), "<br>",
+                                       
+                                       data_reactive()$visual_life_stage, data_reactive()$species, "Count:", data_reactive()$sum_count, "<br>"),
+                         
+                         popupOptions(closeOnClick = T))
       
-      updateCheckboxGroupButtons(session, "visits", "")
+      updateCheckboxGroupButtons(session, "visits", selected = "")
       
       })
     
@@ -208,15 +215,15 @@ server <- function(input, output, session){
     output$ves_plots = renderPlot({
       
       if(input$wilderness_1 < 0 && input$ves_species < 0 && input$id < 0) {
-        validate("Please select a wilderness, species, life stage, and site ID")
+        validate("Please select a wilderness, species, site ID, and life stage")
       }
       
       if(input$wilderness_1 > 0 && input$ves_species < 0 && input$id < 0){
-        validate("Please select a species, life stage, and site ID")
+        validate("Please select a species, site ID, and life stage")
       }
       
       if(input$wilderness_1 > 0 && input$ves_species > 0 && input$id < 0){
-        validate("Please select a life stage and site ID")
+        validate("Please select a site ID and life stage")
       }
  
       
@@ -308,17 +315,17 @@ server <- function(input, output, session){
     output$bd_plots <- renderPlot({
       
       if(input$wilderness_2 < 0 && input$bd_species < 0 && input$bd_id < 0) {
-        validate("Please select a wilderness, species, and site ID")
+        validate("Please select a wilderness, species, site ID, and life stage")
       }
       
       
       if(input$wilderness_2 > 0 && input$bd_species < 0 && input$bd_id < 0) {
-        validate("Please select a species and site ID")
+        validate("Please select a species, site ID, and life stage")
       }
       
       
       if(input$wilderness_2 > 0 && input$bd_species > 0 && input$bd_id < 0) {
-        validate("Please select a site ID")
+        validate("Please select a site ID and life stage")
       }
       
       

@@ -11,14 +11,14 @@ librarian::shelf(shiny, tidyverse, here, shinyWidgets, leafem, bslib, thematic, 
 
 
 #Bd and VES combined data read in
-data <- read_csv(here("data", "bd_plot.csv")) %>% 
-  select(!1)
+# data <- read_csv(here("data", "bd_plot.csv")) %>% 
+#   select(!1)
 
 # lakes shapefile
-lakes <- read_sf(here("data", "lakes", "lakes2021.shp")) %>% 
-  select(c(LAKEID, geometry)) %>% 
-  rename(id = LAKEID) %>%
-  filter(st_is_valid(geometry))
+# lakes <- read_sf(here("data", "lakes", "lakes2021.shp")) %>% 
+#   select(c(LAKEID, geometry)) %>% 
+#   rename(id = LAKEID) %>%
+#   filter(st_is_valid(geometry))
 
 #Bd data read in
 bd_data <- read_csv(here("data", "bd_data.csv"))
@@ -29,13 +29,17 @@ bd_data <- read_csv(here("data", "bd_data.csv"))
 shape <- read_sf(here("data", "wilderness_shapes", "wilderness.shp")) %>% 
   mutate(names = gsub("_", " ", names),
          names = str_to_title(names)) %>% 
-  ms_simplify(0.01)%>% 
-  mutate(zoom = 9) %>% 
+  ms_simplify(0.005)%>% 
   rename(wilderness = names)
+
+#read in water types
+water <- read_csv(here("data", "water_type.csv")) %>% 
+  rename(id = lake_id)
 
 #ves data read in
 ves_data <- read_csv(here("data", "ves_data.csv")) %>% 
-  left_join(bd_data) 
+  left_join(bd_data) %>% 
+  left_join(water)
 # %>%
 #   left_join(shape, by = c("wilderness" = "names"))
   
@@ -44,7 +48,9 @@ bd_plot <- read_csv(here("data", "bd_plot.csv"))
 
 # all visit data for map
 all_visits <- read_csv(here("data", "all_visits.csv")) %>% 
-  left_join(lakes, by = c("site_id" = "id"))
+  left_join(water, by = c("site_id" = "id"))
+  #left_join(lakes, by = c("site_id" = "id"))
+
 
 # # themeing
 # theme <- bs_theme(
