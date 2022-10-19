@@ -94,7 +94,7 @@ server <- function(input, output, session){
 
     })
     
-    observeEvent(c(input$species, input$stage), {
+    observeEvent(c(input$species, input$stage), { 
       
       leafletProxy("site_map") %>%
         addCircleMarkers(data = data_reactive(), lng = ~long, lat = ~lat,  color = "#35b779", radius = 1, opacity = 0.05, 
