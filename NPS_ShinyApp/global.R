@@ -41,7 +41,7 @@ ves_data <- read_csv(here("data", "ves_data.csv")) %>%
   left_join(bd_data) %>% 
   left_join(water) 
 # %>% 
-#   left_join(lakes, by = c("id"))
+#   left_join(lakes, by = c("id")) 
 
   
 # read in bd_plot data with month_year
