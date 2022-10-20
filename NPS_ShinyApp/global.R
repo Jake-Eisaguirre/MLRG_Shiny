@@ -39,17 +39,22 @@ water <- read_csv(here("data", "water_type.csv")) %>%
 #ves data read in
 ves_data <- read_csv(here("data", "ves_data.csv")) %>% 
   left_join(bd_data) %>% 
-  left_join(water)
-# %>%
-#   left_join(shape, by = c("wilderness" = "names"))
+  left_join(water) 
+# %>% 
+#   left_join(lakes, by = c("id"))
+
   
 # read in bd_plot data with month_year
 bd_plot <- read_csv(here("data", "bd_plot.csv"))
 
+#lakes <- read_sf(here("data", "lakes", "lakes2021.shp"))
+
 # all visit data for map
 all_visits <- read_csv(here("data", "all_visits.csv")) %>% 
   left_join(water, by = c("site_id" = "id"))
-  #left_join(lakes, by = c("site_id" = "id"))
+# %>% 
+#   left_join(lakes, by = c("site_id" = "id"))
+
 
 
 # # themeing

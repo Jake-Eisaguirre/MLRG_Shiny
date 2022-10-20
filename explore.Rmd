@@ -178,12 +178,11 @@ prev <- des_bind %>%
 ```{r}
 
 lakes <- read_sf(here("data", "lakes", "lakes2021.shp")) %>% 
-  select(c(LAKEID, geometry)) %>% 
-  rename(id = LAKEID) %>%
-  filter(st_is_valid(geometry))
+  mutate(geometry = st_transform(geometry, crs = 4326))
+
+write_sf(lakes, here("data", "lakes", "lakes2021.shp"))
 
 plot(lakes)
-
 
  view <- shape %>% 
       filter(wilderness == "Yosemite") %>% 
