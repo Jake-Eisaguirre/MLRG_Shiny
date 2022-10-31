@@ -205,4 +205,18 @@ plot(lakes)
  
 write_sf(shape, here("data", "wilderness_shapes", "wilderness.shp"), overwrite = T)
 ```
+```{r}
+
+usfs <- read_sf(here("data", "temp_shapes", "usfs-boundaries", "S_USA.AdministrativeForest.shp"))
+
+mylf <- read_sf(here("data", "temp_shapes", "mylf-range-map", "RK_mylf_boundary_final.shp"))
+
+frog <- read_sf(here("data", "temp_shapes", "frog-conservation-areas", "FCA_RMUSCOSA_RSIERRAE_020618.shp"))
+
+cdfw <- read_sf(here("data", "temp_shapes", "cdfw-boundaries", "CDFW_Regions.shp"))
+
+ca <- read_sf(here("data", "temp_shapes", "ca-boundaries", "CA_boundary_NAD83albers.shp"))
+  
+plot(usfs$geometry[FORESTNAME == "Sierra National Forest"])
+```
 
