@@ -144,7 +144,7 @@ clean_bd <- bd_data %>%
   dplyr::select(id, utme, utmn, wilderness, visit_date, species, capture_life_stage, bd_load) %>% 
   mutate(date = year(visit_date),
          month = month(visit_date),
-         bd_load = log(bd_load + 1),
+         bd_load = log10(bd_load + 1),
          month_year = format(visit_date, "%Y-%m")) 
   
 

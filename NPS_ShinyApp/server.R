@@ -244,7 +244,7 @@ server <- function(input, output, session){
         geom_point(size = 2.5) +
         geom_line(size = 1.2) +
         theme_classic() +
-        ylab("Count") +
+        ylab("Median Count") +
         xlab("Year") +
         ggtitle(paste(input$ves_date[1], "-", input$ves_date[2], input$ves_species, "Annual Count")) +
         theme(plot.title = element_text(hjust = 0.5, vjust = 1.5, size = 17),
@@ -269,7 +269,8 @@ server <- function(input, output, session){
       
       ves_reac() %>% 
         arrange(visual_life_stage) %>% 
-        select(Year, "Visual Life Stage", Count)
+        select(Year, "Visual Life Stage", Count) %>% 
+        rename("Median Count" = Count)
       
       })
     
@@ -374,7 +375,8 @@ server <- function(input, output, session){
               legend.key.size = unit(2, "cm")) +
         scale_y_continuous(breaks = integer_breaks()) +
         scale_color_manual(values = c("Adult" = "#35b779", "Subadult" = "#fde725", "Tadpole" = "#31688e", "Eggmass" = "#440154"),
-                           name = "Visual Life Stage")
+                           name = "Visual Life Stage") +
+        geom_hline(yintercept=5.8, linetype='dotted', col = 'red') 
     
     })
     
