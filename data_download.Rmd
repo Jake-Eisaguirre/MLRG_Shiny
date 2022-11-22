@@ -194,7 +194,8 @@ bd_plot <- des_bind %>%
   group_by(id, species, visual_life_stage, month_year, lat, long, wilderness, date) %>% 
   mutate(infect = if_else(bd_load>0, 1, 0)) %>% 
   summarise(bd = median(bd_load),
-            Prevalence = (sum(infect)/sum(n()))) 
+            Prevalence = (sum(infect)/sum(n())),
+            sample_size = n()) 
 
 write_csv(bd_plot, here("data", "bd_plot.csv"))
 
