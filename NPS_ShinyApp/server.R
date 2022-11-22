@@ -209,6 +209,7 @@ server <- function(input, output, session){
     
       
         ves_data %>%
+                   filter(!visual_life_stage == "Tadpole") %>% 
             dplyr::filter(date <= input$ves_date[2] & date >= input$ves_date[1],
                           wilderness == input$wilderness_1, 
                           species == input$ves_species, 
@@ -220,8 +221,38 @@ server <- function(input, output, session){
             
     })
     
+    ves_tad <- reactive({
+      
+      
+      
+      ves_data %>%
+        dplyr::filter(date <= input$ves_date[2] & date >= input$ves_date[1],
+                      wilderness == input$wilderness_1, 
+                      species == input$ves_species, 
+                      id == input$id,
+                      visual_life_stage == "Tadpole") %>% 
+        mutate("Visual Life Stage" = visual_life_stage,
+               Count = as.character(count),
+               Year = as.character(date))
+      
+    })
   
     
+    ves_table <- reactive({
+      
+      
+      
+      ves_data %>%
+        dplyr::filter(date <= input$ves_date[2] & date >= input$ves_date[1],
+                      wilderness == input$wilderness_1, 
+                      species == input$ves_species, 
+                      id == input$id,
+                      visual_life_stage %in% input$vls) %>% 
+        mutate("Visual Life Stage" = visual_life_stage,
+               Count = as.character(count),
+               Year = as.character(date))
+      
+    })  
     
 
     
@@ -257,17 +288,55 @@ server <- function(input, output, session){
               legend.title = element_text(size = 15),
               legend.text = element_text(size = 15),
               legend.key.size = unit(2, "cm")) +
-        scale_color_manual(values = c("Adult" = "#35b779", "Subadult" = "#fde725", "Tadpole" = "#31688e", 
-                                      "Eggmass" = "#440154"),
+        scale_color_manual(values = c("Adult" = "#35b779", "Subadult" = "#fde725", "Eggmass" = "#440154"),
                           name = "Visual Life Stage") +
         scale_y_continuous(breaks = integer_breaks()) +
         scale_x_continuous(breaks = integer_breaks())
             
     })
     
+    output$ves_tad = renderPlot({
+      
+      if(input$wilderness_1 < 0 && input$ves_species < 0 && input$id < 0) {
+        validate(" ")
+      }
+      
+      if(input$wilderness_1 > 0 && input$ves_species < 0 && input$id < 0){
+        validate(" ")
+      }
+      
+      if(input$wilderness_1 > 0 && input$ves_species > 0 && input$id < 0){
+        validate(" ")
+      }
+      
+      
+      ggplot(data = ves_tad(), aes(x = date, y = count, color = visual_life_stage)) +
+        geom_point(size = 2.5) +
+        geom_line(size = 1.2) +
+        theme_classic() +
+        ylab("Median Count") +
+        xlab("Year") +
+        theme(plot.title = element_text(hjust = 0.5, vjust = 1.5, size = 17),
+              axis.line = element_line(size = 1.1),
+              axis.ticks = element_line(size = 1.8),
+              axis.text = element_text(size = 14),
+              axis.title.x = element_text(size = 15),
+              axis.title.y = element_text(size = 15),
+              legend.key.height = unit(2, "cm"),
+              legend.title = element_text(size = 15),
+              legend.text = element_text(size = 15),
+              legend.key.size = unit(2, "cm")) +
+        scale_color_manual(values = c("Tadpole" = "#31688e"),
+                           name = "Visual Life Stage") +
+        scale_y_continuous(breaks = integer_breaks()) +
+        scale_x_continuous(breaks = integer_breaks())
+      
+    })
+      
+    
     output$ves_counts = renderTable({
       
-      ves_reac() %>% 
+      ves_table() %>% 
         arrange(visual_life_stage) %>% 
         select(Year, "Visual Life Stage", Count) %>% 
         rename("Median Count" = Count)
