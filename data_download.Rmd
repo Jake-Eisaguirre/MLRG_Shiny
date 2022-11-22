@@ -111,7 +111,7 @@ ves <- des_bind %>%
          visual_life_stage = str_to_title(visual_life_stage),
          species = str_to_title(species)) %>% 
   group_by(id, date, species, visual_life_stage, visual_animal_state, wilderness, lat, long) %>% 
-  summarise(count = sum(count))
+  summarise(count = median(count))
 
 
 write_csv(ves, here("data", "ves_data.csv"))

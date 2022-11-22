@@ -99,8 +99,8 @@ ui <-  secure_app(head_auth = tags$script(inactivity),
                                 tableOutput("ves_counts")),
                             
                         mainPanel(h5("Counts of each species-life stage are median counts across all surveys conducted per year"),
-                                  withSpinner(plotOutput(outputId = "ves_plots", width = 900, height = 500)),
-                                  withSpinner(plotOutput(outputId = "ves_tad", width = 900, height = 500))))
+                                  withSpinner(plotOutput(outputId = "ves_plots", width = 900, height = 400)),
+                                  withSpinner(plotOutput(outputId = "ves_tad", width = 900, height = 400))))
                             
                         ),
                

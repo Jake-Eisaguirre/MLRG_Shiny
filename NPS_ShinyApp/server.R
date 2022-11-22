@@ -272,12 +272,12 @@ server <- function(input, output, session){
  
       
       ggplot(data = ves_reac(), aes(x = date, y = count, color = visual_life_stage)) +
-        geom_point(size = 2.5) +
+        geom_point(size = 3) +
         geom_line(size = 1.2) +
         theme_classic() +
         ylab("Median Count") +
         xlab("Year") +
-        ggtitle(paste(input$ves_date[1], "-", input$ves_date[2], input$ves_species, "Annual Count")) +
+        ggtitle(paste(input$ves_date[1], "-", input$ves_date[2], input$ves_species, "Annual Median Count")) +
         theme(plot.title = element_text(hjust = 0.5, vjust = 1.5, size = 17),
               axis.line = element_line(size = 1.1),
               axis.ticks = element_line(size = 1.8),
