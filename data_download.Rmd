@@ -111,7 +111,17 @@ ves <- des_bind %>%
          visual_life_stage = str_to_title(visual_life_stage),
          species = str_to_title(species)) %>% 
   group_by(id, date, species, visual_life_stage, visual_animal_state, wilderness, lat, long) %>% 
-  summarise(count = median(count))
+  summarise(count = median(count)) %>% 
+  mutate(species = case_when(species == "Hyre" ~ "Pacific treefrog - Hyliola regilla",
+                             species == "Thel" ~ "Western garter snake - Thamnophis elegans",
+                             species == "Ramu" ~ "Mountain yellow-legged frog - Rana muscosa",
+                             species == "Buca" ~ "Yosemite toad - Anaxyrus canorus",
+                             species == "Bubo" ~ "Western toad - Anaxyrus boreas",
+                             species == "Thco" ~ "Sierra garter snake - Thamnophis couchii",
+                             species == "Tato" ~ "California newt - Taricha torosa",
+                             species == "Raca" ~ "Bullfrog - Rana catesbiana",
+                             species == "Clma" ~ "Western pond turtle - Actinemys marmorata",
+                             species == "Amma" ~ "Long-toed salamander - Ambystoma macrodactylum"))
 
 
 write_csv(ves, here("data", "ves_data.csv"))
@@ -145,7 +155,12 @@ clean_bd <- bd_data %>%
   mutate(date = year(visit_date),
          month = month(visit_date),
          bd_load = log10(bd_load + 1),
-         month_year = format(visit_date, "%Y-%m")) 
+         month_year = format(visit_date, "%Y-%m")) %>% 
+  mutate(species = case_when(species == "ramu" ~ "Mountain yellow-legged frog - Rana muscosa",
+                             species == "hyre" ~ "Pacific treefrog - Hyliola regilla",
+                             species == "tato" ~ "California newt - Taricha torosa",
+                             species == "buca" ~ "Yosemite toad - Anaxyrus canorus",
+                             species == "bubo" ~ "Western toad - Anaxyrus boreas"))
   
 
 # pull out only desolation wilderness due to zone 10 coords

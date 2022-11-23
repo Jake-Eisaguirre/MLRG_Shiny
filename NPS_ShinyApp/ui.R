@@ -140,10 +140,12 @@ ui <-  secure_app(head_auth = tags$script(inactivity),
                                 #                                     actionsBox = T)),
                                 tableOutput("bd_counts")),
                         
-                        mainPanel(h5("Bd loads are determined from skin swabs collected from frogs and analyzed using qPCR. Loads are expressed as median(log10(ITS copies + 1)). The log10(Bd load) above which mortality of post-metamorphic animals is likely approximately 5.8 (red dotted line). The blue line represents the average trend of Bd load and the integer adjacent to each point represents sample size."),
+                        mainPanel(
+                        h5("Bd loads are determined from skin swabs collected from frogs and analyzed using qPCR. Loads are expressed as median(log10(ITS copies + 1)). The log10(Bd load) above which mortality of post-metamorphic animals is likely approximately 5.8 (red dotted line). The blue line represents the average trend of Bd load and the integer adjacent to each point represents sample size."),
                                   withSpinner(plotOutput(outputId = "bd_plots", width = 900, height = 350)),
                                   withSpinner(plotOutput(outputId = "bd_plots_sub", width = 900, height = 350)),
-                                  withSpinner(plotOutput(outputId = "bd_plots_tad", width = 900, height = 350))))
+                                  withSpinner(plotOutput(outputId = "bd_plots_tad", width = 900, height = 350)),
+                        ))
                             
                         ),
                
