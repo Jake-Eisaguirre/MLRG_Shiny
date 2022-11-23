@@ -9,7 +9,6 @@ librarian::shelf(shiny, tidyverse, here, shinyWidgets, leafem, bslib, thematic, 
                  shinycssloaders, shinydashboardPlus, lubridate, scales, 
                  rmapshaper)
 
-
 #Bd and VES combined data read in
 # data <- read_csv(here("data", "bd_plot.csv")) %>% 
 #   select(!1)

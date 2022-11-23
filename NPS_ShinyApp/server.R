@@ -258,6 +258,8 @@ server <- function(input, output, session){
     
     output$ves_plots = renderPlot({
       
+      
+      
       if(input$wilderness_1 < 0 && input$ves_species < 0 && input$id < 0) {
         validate("Please select a wilderness, species, site ID, and life stage")
       }
@@ -458,26 +460,27 @@ server <- function(input, output, session){
     output$bd_plots <- renderPlot({
       
       if(input$wilderness_2 < 0 && input$bd_species < 0 && input$bd_id < 0) {
-        validate("Please select a wilderness, species, site ID, and life stage")
+        validate("Please select a wilderness, species, and site ID")
       }
       
       
       if(input$wilderness_2 > 0 && input$bd_species < 0 && input$bd_id < 0) {
-        validate("Please select a species, site ID, and life stage")
+        validate("Please select a species, and site ID")
       }
       
       
       if(input$wilderness_2 > 0 && input$bd_species > 0 && input$bd_id < 0) {
-        validate("Please select a site ID and life stage")
+        validate("Please select a site ID")
       }
       
       
       
-      ggplot(data = bd_reac_adult(), aes(x = month_year, y = bd, group = 1)) +
-        geom_point(aes(color = visual_life_stage), size = 2.5) +
-        geom_smooth(se = F) +
+      ggplot(data = bd_reac_adult(), aes(x = month_year, y = bd, fill = visual_life_stage)) +
+        geom_point(size = 2.75, color = "#35b779") +
+        geom_smooth(se = F, show.legend = F) +
         ylab("Median log10(Bd)") +
         xlab("Year-Month") +
+        labs(fill = "Visual Life Stage") + 
         ggtitle(paste(input$bd_date[1], "-", input$bd_date[2], input$bd_species, "Median Log10(Bd)")) +
         geom_text_repel(aes(label = paste(round(bd_reac_adult()$sample_size, 3)))) +
         theme_classic() +
@@ -494,7 +497,7 @@ server <- function(input, output, session){
               legend.text = element_text(size = 15),
               legend.key.size = unit(2, "cm")) +
         scale_y_continuous(breaks = integer_breaks()) +
-        scale_color_manual(values = c("Adult" = "#35b779"),
+        scale_fill_manual(values = c("Adult" = "#35b779"),
                            name = "Visual Life Stage") +
         geom_hline(yintercept=5.8, linetype='dotted', col = 'red') 
     
@@ -502,27 +505,31 @@ server <- function(input, output, session){
     
     output$bd_plots_sub <- renderPlot({
       
+      
       if(input$wilderness_2 < 0 && input$bd_species < 0 && input$bd_id < 0) {
         validate(" ")
       }
-      
-      
+
+
       if(input$wilderness_2 > 0 && input$bd_species < 0 && input$bd_id < 0) {
         validate(" ")
       }
-      
-      
+
+
       if(input$wilderness_2 > 0 && input$bd_species > 0 && input$bd_id < 0) {
         validate(" ")
       }
+
+      validate(
+        need(nrow(bd_reac_subadult() > 0), 'No data exists')
+      )
       
-      
-      
-      ggplot(data = bd_reac_subadult(), aes(x = month_year, y = bd, group = 1)) +
-        geom_point(aes(color = visual_life_stage), size = 2.5) +
-        geom_smooth(se = F) +
+      ggplot(data = bd_reac_subadult(), aes(x = month_year, y = bd, fill = visual_life_stage)) +
+        geom_point(size = 2.5, color = "#fde725") +
+        geom_smooth(se = F, show.legend = F) +
         ylab("Median log10(Bd)") +
         xlab("Year-Month") +
+        labs(fill = "Visual Life Stage") + 
         geom_text_repel(aes(label = paste(round(bd_reac_subadult()$sample_size, 3)))) +
         theme_classic() +
         theme(#plot.title = element_text(hjust = 0.5),
@@ -538,9 +545,9 @@ server <- function(input, output, session){
           legend.text = element_text(size = 15),
           legend.key.size = unit(2, "cm")) +
         scale_y_continuous(breaks = integer_breaks()) +
-        scale_color_manual(values = c("Subadult" = "#fde725"),
+        scale_fill_manual(values = c("Subadult" = "#fde725"),
                            name = "Visual Life Stage") +
-        geom_hline(yintercept=5.8, linetype='dotted', col = 'red') 
+        geom_hline(yintercept=5.8, linetype='dotted', col = 'red')
       
     })
     
@@ -562,11 +569,12 @@ server <- function(input, output, session){
       
       
       
-      ggplot(data = bd_reac_tad(), aes(x = month_year, y = bd, group = 1)) +
-        geom_point(aes(color = visual_life_stage), size = 2.5) +
-        geom_smooth(se = F) +
+      ggplot(data = bd_reac_tad(), aes(x = month_year, y = bd, fill = visual_life_stage)) +
+        geom_point(color = "#31688e", size = 2.5) +
+        geom_smooth(se = F, show.legend = F) +
         ylab("Median log10(Bd)") +
         xlab("Year-Month") +
+        labs(fill = "Visual Life Stage") + 
         geom_text_repel(aes(label = paste(round(bd_reac_tad()$sample_size, 3)))) +
         theme_classic() +
         theme(#plot.title = element_text(hjust = 0.5),
@@ -582,9 +590,9 @@ server <- function(input, output, session){
           legend.text = element_text(size = 15),
           legend.key.size = unit(2, "cm")) +
         scale_y_continuous(breaks = integer_breaks()) +
-        scale_color_manual(values = c("Tadpole" = "#31688e"),
+        scale_fill_manual(values = c("Tadpole" = "#31688e"),
                            name = "Visual Life Stage") +
-        geom_hline(yintercept=5.8, linetype='dotted', col = 'red') 
+        geom_hline(yintercept=5.8, linetype='dotted', col = 'red')
       
     })
     
