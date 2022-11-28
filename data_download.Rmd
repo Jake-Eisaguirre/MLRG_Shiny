@@ -188,8 +188,7 @@ bd <- des_bind %>%
   rename(visual_life_stage = capture_life_stage) %>% 
   mutate(wilderness = gsub("_", " ", wilderness),
          wilderness = str_to_title(wilderness),
-         visual_life_stage = str_to_title(visual_life_stage),
-         species = str_to_title(species)) %>% 
+         visual_life_stage = str_to_title(visual_life_stage)) %>% 
   group_by(id, date, species, wilderness, visual_life_stage) %>% 
   summarise(bd = median(bd_load)) %>% 
   ungroup()
@@ -204,8 +203,7 @@ bd_plot <- des_bind %>%
   rename(visual_life_stage = capture_life_stage) %>% 
   mutate(wilderness = gsub("_", " ", wilderness),
          wilderness = str_to_title(wilderness),
-         visual_life_stage = str_to_title(visual_life_stage),
-         species = str_to_title(species)) %>% 
+         visual_life_stage = str_to_title(visual_life_stage)) %>% 
   group_by(id, species, visual_life_stage, month_year, lat, long, wilderness, date) %>% 
   mutate(infect = if_else(bd_load>0, 1, 0)) %>% 
   summarise(bd = median(bd_load),

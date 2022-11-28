@@ -17,7 +17,7 @@ server <- function(input, output, session){
             dplyr::filter(date <= input$site_year[2] & date >= input$site_year[1], wilderness == input$wilderness, 
                           species == input$species, visual_life_stage == input$stage) %>% 
         group_by(id, wilderness, species, visual_life_stage) %>% 
-        mutate(sum_count = sum(count),
+        mutate(sum_count = count,
                med = mean(bd),
                bd = bd)
       
@@ -72,7 +72,7 @@ server <- function(input, output, session){
      })
 
     
-    observeEvent(c(input$site_year, input$wilderness), {
+    observe({
 
       leafletProxy("site_map") %>% 
         clearMarkers() %>% 
@@ -82,12 +82,13 @@ server <- function(input, output, session){
         
         addPolylines(data = shape_reactive()$geometry, color = "#0d0887", dashArray = T, opacity = 0.9, weight = 1.9) 
 
-    })
+    }) %>% bindEvent(c(input$site_year, input$wilderness))
     
-    observeEvent(c(input$species, input$stage), { 
+    observe({ 
       
       leafletProxy("site_map") %>%
         clearMarkers() %>% 
+        clearControls() %>%  
         fitBounds(view()[1], view()[2], view()[3], view()[4])  %>%
         addCircleMarkers(data = data_reactive(), lng = ~long, lat = ~lat,  color = "#35b779", radius = 1, opacity = 0.5, 
                          fillOpacity = 0.05, weight = 5,
@@ -99,9 +100,10 @@ server <- function(input, output, session){
                                        
                                        "Water Type:", data_reactive()$lake_type, "<br>",
                                        
-                                       data_reactive()$species, "Median log(Bd) Load:", round(data_reactive()$med, 2), "<br>",
+                                       data_reactive()$visual_life_stage, 
+                                       data_reactive()$species, "Median log10(Bd) Load:", round(data_reactive()$med, 2), "<br>",
                                        
-                                       data_reactive()$visual_life_stage, data_reactive()$species, "Count:", data_reactive()$sum_count, "<br>"),
+                                      "Median Count:", data_reactive()$sum_count, "<br>"),
                          
                          popupOptions(closeOnClick = T)) %>% 
         addPolylines(data = shape_reactive()$geometry, color = "#0d0887", dashArray = T, opacity = 0.9, weight = 1.9,
@@ -114,14 +116,14 @@ server <- function(input, output, session){
                                    "Median Wilderness log(Bd) Load:", round(data_reactive()$bd, 2), "<br>",
                                    
                                    paste(data_reactive()$visual_life_stage, paste(data_reactive()$species),
-                                         "Count:", sum(data_reactive()$count))))
+                                         "Median Count:", sum(data_reactive()$count))))
       
-    })
+    }) %>% bindEvent(c(input$species, input$stage))
     
-    observeEvent(input$visits, {
+    observe({
       
       leafletProxy("site_map") %>% 
-        #clearMarkers() %>% 
+        clearControls() %>%  
         addCircleMarkers(data = visit_reactive(), lng = ~long, lat = ~lat, color = "#440154", radius = 1,
                          label = paste('Site:', visit_reactive()$site_id),
                          popup = paste("<B>Year:",input$site_year[1], "-", input$site_year[2], "<br>",
@@ -141,15 +143,21 @@ server <- function(input, output, session){
                                        
                                        "Water Type:", data_reactive()$lake_type, "<br>",
                                        
+                                       data_reactive()$visual_life_stage,
                                        data_reactive()$species, "Median log(Bd) Load:", round(data_reactive()$med, 2), "<br>",
                                        
-                                       data_reactive()$visual_life_stage, data_reactive()$species, "Count:", data_reactive()$sum_count, "<br>"),
+                                      "Median Count:", data_reactive()$sum_count, "<br>"),
                          
                          popupOptions(closeOnClick = T)) %>% 
-        addLegend(position = c("bottomright"), title = "Organism Encounters", colors = c("#35b779", "#440154"), 
-                  labels = c("Encounters", "No Encounters"))
+        addLegend(position = c("bottomright"), title = "Species/Life stage Detected", colors = c("#35b779", "#440154"), 
+                  labels = c("Detected", "Not Detected"))
       
-      })
+      }) %>% bindEvent(input$visits)
+    
+    
+    observeEvent(input$visits, {
+      updateCheckboxGroupButtons(session, "visits", selected = "")
+    })
     
     
     observeEvent(input$clear, {
