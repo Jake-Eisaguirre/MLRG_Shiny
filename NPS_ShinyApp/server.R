@@ -22,7 +22,8 @@ server <- function(input, output, session){
                bd = bd)
       
       
-    }) %>% bindCache(input$site_year, input$wilderness, input$species, input$stage)
+    }) %>% 
+      bindCache(input$site_year, input$wilderness, input$species, input$stage)
     
     
     #reactive shape file for wilderness outlines
@@ -117,7 +118,7 @@ server <- function(input, output, session){
                                    
                                    paste("Median Count:", sum(data_reactive()$count))))
       
-    }) %>% bindEvent(c(input$species, input$stage))
+    }) %>% bindEvent(c(input$species, input$stage)) 
     
     observe({
       
@@ -175,37 +176,37 @@ server <- function(input, output, session){
       
     })
     
-    # observe events to update wilderness and years based on selection for leaflet map
+    #observe events to update wilderness and years based on selection for leaflet map
     observeEvent(input$site_year, {
-      
-      updatePickerInput(session, inputId = "wilderness", 
+
+      updatePickerInput(session, inputId = "wilderness",
                         choices = unique(ves_data$wilderness[ves_data$date <= input$site_year[2]
                                                              & ves_data$date >= input$site_year[1]]))
     })
-    
+
     observeEvent(input$wilderness, {
-      
-      updatePickerInput(session, inputId = "species", 
+
+      updatePickerInput(session, inputId = "species",
                           choices = unique(ves_data$species[ves_data$date <= input$site_year[2]
-                                                            & ves_data$date >= input$site_year[1] 
+                                                            & ves_data$date >= input$site_year[1]
                                                             & ves_data$wilderness == input$wilderness]))
-       
+
     })
-    
+
     observeEvent(input$species, {
-      
-      updatePickerInput(session, inputId = "stage", 
+
+      updatePickerInput(session, inputId = "stage",
                         choices = unique(ves_data$visual_life_stage[ves_data$date <= input$site_year[2]
-                                                                    & ves_data$date >= input$site_year[1] 
-                                                                    & ves_data$wilderness == input$wilderness 
+                                                                    & ves_data$date >= input$site_year[1]
+                                                                    & ves_data$wilderness == input$wilderness
                                                                     & ves_data$species == input$species]))
     })
-    
-    
-     
- 
 
-    
+
+
+
+
+
     
 
     
@@ -482,7 +483,7 @@ server <- function(input, output, session){
       
       
       
-      ggplot(data = bd_reac_adult(), aes(x = month_year, y = bd, fill = visual_life_stage)) +
+      ggplot(data = bd_reac_adult(), aes(x = month_year, y = bd, fill = visual_life_stage, group = 1)) +
         geom_point(size = 2.75, color = "#35b779") +
         geom_smooth(se = F, show.legend = F) +
         ylab("Median log10(Bd)") +
@@ -531,7 +532,7 @@ server <- function(input, output, session){
         need(nrow(bd_reac_subadult() > 0), 'No data exists')
       )
       
-      ggplot(data = bd_reac_subadult(), aes(x = month_year, y = bd, fill = visual_life_stage)) +
+      ggplot(data = bd_reac_subadult(), aes(x = month_year, y = bd, fill = visual_life_stage, group = 1)) +
         geom_point(size = 2.5, color = "#fde725") +
         geom_smooth(se = F, show.legend = F) +
         ylab("Median log10(Bd)") +
@@ -576,7 +577,7 @@ server <- function(input, output, session){
       
       
       
-      ggplot(data = bd_reac_tad(), aes(x = month_year, y = bd, fill = visual_life_stage)) +
+      ggplot(data = bd_reac_tad(), aes(x = month_year, y = bd, fill = visual_life_stage, group = 1)) +
         geom_point(color = "#31688e", size = 2.5) +
         geom_smooth(se = F, show.legend = F) +
         ylab("Median log10(Bd)") +

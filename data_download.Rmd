@@ -62,7 +62,14 @@ join visual_survey vs on s2.id = vs.survey_id;
 ```{r}
 
 shape <- read_sf(here("data", "wilderness_shapes", "wilderness.shp")) %>% 
-  st_transform(crs = 4326)
+  st_transform(crs = 4326)%>% 
+  mutate(names = gsub("_", " ", names),
+         names = str_to_title(names)) %>% 
+  ms_simplify(0.005)%>% 
+  rename(wilderness = names)
+
+write_sf(shape, here("data", "wilderness_shapes", "wilderness.shp"))
+
 
 ```
 
@@ -121,7 +128,8 @@ ves <- des_bind %>%
                              species == "Tato" ~ "California newt - Taricha torosa",
                              species == "Raca" ~ "Bullfrog - Rana catesbiana",
                              species == "Clma" ~ "Western pond turtle - Actinemys marmorata",
-                             species == "Amma" ~ "Long-toed salamander - Ambystoma macrodactylum"))
+                             species == "Amma" ~ "Long-toed salamander - Ambystoma macrodactylum")) %>% 
+filter(!str_detect(species, "NA"))
 
 
 write_csv(ves, here("data", "ves_data.csv"))

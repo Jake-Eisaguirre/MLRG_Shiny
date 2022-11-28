@@ -28,11 +28,7 @@ bd_data <- read_csv(here("data", "bd_data.csv"))
 
 
 #read in wilderness shape files
-shape <- read_sf(here("data", "wilderness_shapes", "wilderness.shp")) %>% 
-  mutate(names = gsub("_", " ", names),
-         names = str_to_title(names)) %>% 
-  ms_simplify(0.005)%>% 
-  rename(wilderness = names)
+shape <- read_sf(here("data", "wilderness_shapes", "wilderness.shp")) 
 
 #read in water types
 water <- read_csv(here("data", "water_type.csv")) %>% 
@@ -42,10 +38,7 @@ water <- read_csv(here("data", "water_type.csv")) %>%
 ves_data <- read_csv(here("data", "ves_data.csv")) %>% 
   left_join(bd_data) %>% 
   left_join(water) 
-# %>% 
-#   left_join(lakes, by = c("id")) 
 
-  
 # read in bd_plot data with month_year
 bd_plot <- read_csv(here("data", "bd_plot.csv"))
 
