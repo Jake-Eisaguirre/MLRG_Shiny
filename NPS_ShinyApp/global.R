@@ -9,6 +9,9 @@ librarian::shelf(shiny, tidyverse, here, shinyWidgets, leafem, bslib, thematic, 
                  shinycssloaders, shinydashboardPlus, lubridate, scales, 
                  rmapshaper)
 
+shinyOptions(cache = cachem::cache_disk("./app_cache"))
+shinyOptions(cache = cachem::cache_mem(max_size = 1000e6))
+
 #Bd and VES combined data read in
 # data <- read_csv(here("data", "bd_plot.csv")) %>% 
 #   select(!1)

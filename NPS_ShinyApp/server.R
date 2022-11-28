@@ -17,12 +17,12 @@ server <- function(input, output, session){
             dplyr::filter(date <= input$site_year[2] & date >= input$site_year[1], wilderness == input$wilderness, 
                           species == input$species, visual_life_stage == input$stage) %>% 
         group_by(id, wilderness, species, visual_life_stage) %>% 
-        mutate(sum_count = count,
+        mutate(sum_count = median(count),
                med = mean(bd),
                bd = bd)
       
       
-    })
+    }) %>% bindCache(input$site_year, input$wilderness, input$species, input$stage)
     
     
     #reactive shape file for wilderness outlines
@@ -31,7 +31,7 @@ server <- function(input, output, session){
 
         shape %>%
             dplyr::filter(wilderness == input$wilderness)
-    })
+    }) %>% bindCache(input$wilderness)
     
     # reactive for all visits
     
@@ -40,7 +40,7 @@ server <- function(input, output, session){
       all_visits %>% 
         filter(year <= input$site_year[2] & year >= input$site_year[1],
                wilderness == input$wilderness)
-    })
+    })%>% bindCache(input$site_year, input$wilderness)
     
   
     
@@ -50,7 +50,7 @@ server <- function(input, output, session){
         filter(wilderness == input$wilderness) %>%
         st_bbox(geometry) %>%
         as.vector()
-    })
+    }) %>% bindCache(input$wilderness)
 
     
     # leaflet map with date, species, and site as reactive 
@@ -113,10 +113,9 @@ server <- function(input, output, session){
                                    "Wilderness:", shape_reactive()$wilderness, "<br>",
                                    
                                    paste(data_reactive()$visual_life_stage), paste(data_reactive()$species),
-                                   "Median Wilderness log(Bd) Load:", round(data_reactive()$bd, 2), "<br>",
+                                   "Median Wilderness log10(Bd) Load:", round(data_reactive()$bd, 2), "<br>",
                                    
-                                   paste(data_reactive()$visual_life_stage, paste(data_reactive()$species),
-                                         "Median Count:", sum(data_reactive()$count))))
+                                   paste("Median Count:", sum(data_reactive()$count))))
       
     }) %>% bindEvent(c(input$species, input$stage))
     
@@ -144,7 +143,7 @@ server <- function(input, output, session){
                                        "Water Type:", data_reactive()$lake_type, "<br>",
                                        
                                        data_reactive()$visual_life_stage,
-                                       data_reactive()$species, "Median log(Bd) Load:", round(data_reactive()$med, 2), "<br>",
+                                       data_reactive()$species, "Median log10(Bd) Load:", round(data_reactive()$med, 2), "<br>",
                                        
                                       "Median Count:", data_reactive()$sum_count, "<br>"),
                          
@@ -152,7 +151,7 @@ server <- function(input, output, session){
         addLegend(position = c("bottomright"), title = "Species/Life stage Detected", colors = c("#35b779", "#440154"), 
                   labels = c("Detected", "Not Detected"))
       
-      }) %>% bindEvent(input$visits)
+      }) %>% bindEvent(input$visits, ignoreInit = T)
     
     
     observeEvent(input$visits, {
