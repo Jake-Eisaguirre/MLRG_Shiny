@@ -32,7 +32,7 @@ server <- function(input, output, session){
 
         shape %>%
             dplyr::filter(wilderness == input$wilderness)
-    }) %>% bindCache(input$wilderness)
+    }) %>% bindCache(input$wilderness, cache = "app")
     
     # reactive for all visits
     
@@ -41,7 +41,7 @@ server <- function(input, output, session){
       all_visits %>% 
         filter(year <= input$site_year[2] & year >= input$site_year[1],
                wilderness == input$wilderness)
-    })%>% bindCache(input$site_year, input$wilderness)
+    })%>% bindCache(input$site_year, input$wilderness, cache = "app")
     
   
     
@@ -51,7 +51,7 @@ server <- function(input, output, session){
         filter(wilderness == input$wilderness) %>%
         st_bbox(geometry) %>%
         as.vector()
-    }) %>% bindCache(input$wilderness)
+    }) %>% bindCache(input$wilderness, cache = "app")
 
     
     # leaflet map with date, species, and site as reactive 
@@ -60,6 +60,8 @@ server <- function(input, output, session){
       #OpenTopoMap
       #Esri.WorldTopoMap
       leaflet() %>% 
+        clearMarkers() %>% 
+        clearControls() %>%  
         addProviderTiles("OpenTopoMap") %>% 
         addMouseCoordinates() %>% 
         setView(lng = -119.36697, lat = 37.3, zoom = 7.25) %>% 
@@ -68,91 +70,166 @@ server <- function(input, output, session){
           primaryLengthUnit = "feet",
           primaryAreaUnit = "sqfeet",
           activeColor = "#3D535D",
-          completedColor = "#7D4479") 
-        
-     })
-
-    
-    observe({
-
-      leafletProxy("site_map") %>% 
-        clearMarkers() %>% 
-        clearShapes() %>% 
-        clearControls() %>% 
+          completedColor = "#7D4479")  %>% 
         fitBounds(view()[1], view()[2], view()[3], view()[4])  %>%
-        
-        addPolylines(data = shape_reactive()$geometry, color = "#0d0887", dashArray = T, opacity = 0.9, weight = 1.9) 
-
-    }) %>% bindEvent(c(input$site_year, input$wilderness))
-    
-    observe({ 
-      
-      leafletProxy("site_map") %>%
-        clearMarkers() %>% 
-        clearControls() %>%  
-        fitBounds(view()[1], view()[2], view()[3], view()[4])  %>%
-        addCircleMarkers(data = data_reactive(), lng = ~long, lat = ~lat,  color = "#35b779", radius = 1, opacity = 0.5, 
-                         fillOpacity = 0.05, weight = 5,
-                         label = paste('Site:', data_reactive()$id),
-                         popup = paste("<B>Year:",input$site_year[1], "-", input$site_year[2], "<br>",
-                                       
-                                       "Site:", data_reactive()$id, "(", paste(round(ves_data$lat, 3)),
-                                       ",", paste(round(ves_data$long, 3)), ")", "<br>",
-                                       
-                                       "Water Type:", data_reactive()$lake_type, "<br>",
-                                       
-                                       data_reactive()$visual_life_stage, 
-                                       data_reactive()$species, "Median log10(Bd) Load:", round(data_reactive()$med, 2), "<br>",
-                                       
-                                      "Median Count:", data_reactive()$sum_count, "<br>"),
+        addCircleMarkers(data = data_reactive(), lng = ~long, lat = ~lat,  color = "#35b779", radius = 1, opacity = 1, 
+                         fillOpacity = 1, weight = 5, layerId = ~id,
+                         label = paste('Site:',data_reactive()$id)) %>% 
                          
-                         popupOptions(closeOnClick = T)) %>% 
         addPolylines(data = shape_reactive()$geometry, color = "#0d0887", dashArray = T, opacity = 0.9, weight = 1.9,
-                     label = paste("Wilderness:", shape_reactive()$wilderness),
-                     popup = paste("<B>", input$site_year[1], "-", input$site_year[2], "Wilderness Totals <br>",
-                                   
-                                   "Wilderness:", shape_reactive()$wilderness, "<br>",
-                                   
-                                   paste(data_reactive()$visual_life_stage), paste(data_reactive()$species),
-                                   "Median Wilderness log10(Bd) Load:", round(data_reactive()$bd, 2), "<br>",
-                                   
-                                   paste("Median Count:", sum(data_reactive()$count))))
+                     label = paste("Wilderness:", shape_reactive()$wilderness)) 
+                   
+      })
       
-    }) %>% bindEvent(c(input$species, input$stage)) 
+   
+    # observe({
+    #   
+    #   leafletProxy("site_map") %>% 
+    #     clearMarkers() %>% 
+    #     clearControls() %>% 
+    #     addCircleMarkers(data = visit_reactive(), lng = ~long, lat = ~lat, color = "#440154", radius = 1,
+    #                      label = paste('Site:', visit_reactive()$site_id))
+    #   
+    # })
     
+
+   # click site
     observe({
-      
-      leafletProxy("site_map") %>% 
-        clearControls() %>%  
-        addCircleMarkers(data = visit_reactive(), lng = ~long, lat = ~lat, color = "#440154", radius = 1,
-                         label = paste('Site:', visit_reactive()$site_id),
-                         popup = paste("<B>Year:",input$site_year[1], "-", input$site_year[2], "<br>",
-                                               
-                                               "Site:", data_reactive()$id, "(", paste(round(ves_data$lat, 3)),
-                                               ",", paste(round(ves_data$long, 3)), ")", "<br>",
-                                               
-                                               "Water Type:", data_reactive()$lake_type, "<br>")) %>% 
+      leafletProxy("site_map")
         
-        addCircleMarkers(data = data_reactive(), lng = ~long, lat = ~lat,  color = "#35b779", radius = 1, opacity = 0.5, 
-                         fillOpacity = 0.05, weight = 5,
-                         label = paste('Site:', data_reactive()$id),
-                         popup = paste("<B>Year:",input$site_year[1], "-", input$site_year[2], "<br>",
-                                       
-                                       "Site:", data_reactive()$id, "(", paste(round(ves_data$lat, 3)),
-                                       ",", paste(round(ves_data$long, 3)), ")", "<br>",
-                                       
-                                       "Water Type:", data_reactive()$lake_type, "<br>",
-                                       
-                                       data_reactive()$visual_life_stage,
-                                       data_reactive()$species, "Median log10(Bd) Load:", round(data_reactive()$med, 2), "<br>",
-                                       
-                                      "Median Count:", data_reactive()$sum_count, "<br>"),
-                         
-                         popupOptions(closeOnClick = T)) %>% 
-        addLegend(position = c("bottomright"), title = "Species/Life stage Detected", colors = c("#35b779", "#440154"), 
-                  labels = c("Detected", "Not Detected"))
+        event <- input$site_map_marker_click
+        
+        x <- ves_data %>%
+          filter(id %in% event$id)
+
+        dat <- x %>%
+          filter(date <= input$site_year[2] & date >= input$site_year[1], wilderness == input$wilderness,
+                 species == input$species, visual_life_stage == input$stage) %>% 
+          group_by(date, id, lat, long, wilderness, species, visual_life_stage) %>% 
+          mutate(id = id,
+                 date = date,
+                 lat = round(lat, 2),
+                 long = round(long, 2),
+                 wilderness = wilderness,
+                 species = species, 
+                 visual_life_stage = visual_life_stage,
+                 bd = round(median(bd), 2),
+                 count = median(count),
+                 lake_type = lake_type)
+        
+        message <- data.frame(Date = dat$date[dat$id == event$id],
+                              Site = as.character(dat$id[dat$id == event$id]),
+                              Lat = dat$lat[dat$id == event$id],
+                              Long = dat$long[dat$id == event$id],
+                              lake_type= dat$lake_type[dat$id == event$id],
+                              count = (dat$count[dat$id == event$id]),
+                              bd = (dat$bd[dat$id == event$id])) %>% 
+          rename("Median Count" = count,
+                 "Median Log10(Bd)" = bd,
+                 "Water Type" = lake_type) 
       
-      }) %>% bindEvent(input$visits, ignoreInit = T)
+        
+        output$test_id <- DT::renderDataTable(message, rownames = F,  options = list(dom = 't'))
+
+    })
+  
+    
+    # #click polygon
+    # observe({
+    #   
+    #   leafletProxy("site_map")
+    #   
+    #   event_poly <- input$site_map_shape_click
+    #   
+    #   p <- ves_data %>% 
+    #     filter(wilderness %in% event_poly$id)
+    #   
+    #   p_dat <- ves_data %>%
+    #     dplyr::filter(date <= input$site_year[2] & date >= input$site_year[1], wilderness == input$wilderness,
+    #                   species == input$species, visual_life_stage == input$stage) %>%
+    #     group_by(id, wilderness, species, visual_life_stage) %>%
+    #     mutate(sum_count = median(count),
+    #            med = mean(bd),
+    #            bd = bd)
+    # 
+    #   
+    #   # p_message <- data.frame(
+    #   #                       Jurisdiction = as.character(p_dat$wilderness[p_dat$id == event_poly$id]),
+    #   #                       count = (p_dat$count[p_dat$id == event_poly$id]),
+    #   #                       bd = (p_dat$bd[p_dat$id == event_poly$id])) %>% 
+    #   #   rename("Median Count" = count,
+    #   #          "Median Log10(Bd)" = bd,
+    #   #          "Water Type" = lake_type) 
+    #   
+    #   #output$test_id <- DT::renderDataTable(p_message, rownames = F,  options = list(dom = 't'))
+    #   
+    # })
+    # 
+
+      
+  
+    
+    # 
+    # 
+    # # observe({
+    # # 
+    # #   leafletProxy("site_map") %>% 
+    # #     clearMarkers() %>% 
+    # #     clearShapes() %>% 
+    # #     clearControls() %>% 
+    # #     fitBounds(view()[1], view()[2], view()[3], view()[4])  %>%
+    # #     
+    # #     addPolylines(data = shape_reactive()$geometry, color = "#0d0887", dashArray = T, opacity = 0.9, weight = 1.9) 
+    # # 
+    # # }) %>% bindEvent(c(input$site_year, input$wilderness))
+    # 
+  
+
+
+
+    # #   
+    # # }) %>% bindEvent(c(input$species, input$stage)) 
+    # 
+    # #data <- reactiveValues(clickedMarker=NULL)
+    # # # observe the marker click info and print to console when it is changed.
+    # # observeEvent(input$sitemap_marker_click, { 
+    # #   p <- input$sitemap_marker_click
+    # #   print(p)
+    # # })
+    # 
+    # observe({
+    # 
+    #   leafletProxy("site_map") %>%
+    #     clearControls() %>%
+    #     addCircleMarkers(data = visit_reactive(), lng = ~long, lat = ~lat, color = "#440154", radius = 1,
+    #                      label = paste('Site:', visit_reactive()$site_id)) %>%
+    #                      # popup = paste("<B>Year:",input$site_year[1], "-", input$site_year[2], "<br>",
+    #                      #
+    #                      #                       "Site:", data_reactive()$id, "(", paste(round(ves_data$lat, 3)),
+    #                      #                       ",", paste(round(ves_data$long, 3)), ")", "<br>",
+    #                      #
+    #                      #                       "Water Type:", data_reactive()$lake_type, "<br>")) %>%
+    # 
+    #     addCircleMarkers(data = data_reactive(), lng = ~long, lat = ~lat,  color = "#35b779", radius = 1, opacity = 0.5,
+    #                      fillOpacity = 0.05, weight = 5,
+    #                      label = paste('Site:', data_reactive()$id)) %>%
+    #                      # popup = paste("<B>Year:",input$site_year[1], "-", input$site_year[2], "<br>",
+    #                      #
+    #                      #               "Site:", data_reactive()$id, "(", paste(round(ves_data$lat, 3)),
+    #                      #               ",", paste(round(ves_data$long, 3)), ")", "<br>",
+    #                      #
+    #                      #               "Water Type:", data_reactive()$lake_type, "<br>",
+    #                      #
+    #                      #               data_reactive()$visual_life_stage,
+    #                      #               data_reactive()$species, "Median log10(Bd) Load:", round(data_reactive()$med, 2), "<br>",
+    #                      #
+    #                      #              "Median Count:", data_reactive()$sum_count, "<br>"),
+    # 
+    #                      popupOptions(closeOnClick = T) %>%
+    #     addLegend(position = c("bottomright"), title = "Species/Life stage Detected", colors = c("#35b779", "#440154"),
+    #               labels = c("Detected", "Not Detected"))
+    # 
+    #   }) %>% bindEvent(input$visits, ignoreInit = T)
     
     
     observeEvent(input$visits, {
@@ -160,47 +237,33 @@ server <- function(input, output, session){
     })
     
     
-    observeEvent(input$clear, {
-      
-      leafletProxy("site_map") %>% 
-        fitBounds(view()[1], view()[2], view()[3], view()[4])
-      
-      updatePickerInput(session, "site_year", selected = "2021")
-      updatePickerInput(session, "wilderness", selected = "")
-      updatePickerInput(session, "species", selected = "")
-      updatePickerInput(session, "stage", selected = "")
-      updateCheckboxGroupButtons(session, "visits", selected = "")
-      updateCheckboxGroupButtons(session, "clear", selected = "")
-      
-
-      
-    })
+    
     
     #observe events to update wilderness and years based on selection for leaflet map
-    observeEvent(input$site_year, {
-
-      updatePickerInput(session, inputId = "wilderness",
-                        choices = unique(ves_data$wilderness[ves_data$date <= input$site_year[2]
-                                                             & ves_data$date >= input$site_year[1]]))
-    })
-
-    observeEvent(input$wilderness, {
-
-      updatePickerInput(session, inputId = "species",
-                          choices = unique(ves_data$species[ves_data$date <= input$site_year[2]
-                                                            & ves_data$date >= input$site_year[1]
-                                                            & ves_data$wilderness == input$wilderness]))
-
-    })
-
-    observeEvent(input$species, {
-
-      updatePickerInput(session, inputId = "stage",
-                        choices = unique(ves_data$visual_life_stage[ves_data$date <= input$site_year[2]
-                                                                    & ves_data$date >= input$site_year[1]
-                                                                    & ves_data$wilderness == input$wilderness
-                                                                    & ves_data$species == input$species]))
-    })
+    # observeEvent(input$site_year, {
+    # 
+    #   updatePickerInput(session, inputId = "wilderness",
+    #                     choices = unique(ves_data$wilderness[ves_data$date <= input$site_year[2]
+    #                                                          & ves_data$date >= input$site_year[1]]))
+    # })
+    # 
+    # observeEvent(input$wilderness, {
+    # 
+    #   updatePickerInput(session, inputId = "species",
+    #                       choices = unique(ves_data$species[ves_data$date <= input$site_year[2]
+    #                                                         & ves_data$date >= input$site_year[1]
+    #                                                         & ves_data$wilderness == input$wilderness]))
+    # 
+    # })
+    # 
+    # observeEvent(input$species, {
+    # 
+    #   updatePickerInput(session, inputId = "stage",
+    #                     choices = unique(ves_data$visual_life_stage[ves_data$date <= input$site_year[2]
+    #                                                                 & ves_data$date >= input$site_year[1]
+    #                                                                 & ves_data$wilderness == input$wilderness
+    #                                                                 & ves_data$species == input$species]))
+    # })
 
 
 
@@ -269,7 +332,7 @@ server <- function(input, output, session){
       
       
       if(input$wilderness_1 < 0 && input$ves_species < 0 && input$id < 0) {
-        validate("Please select a wilderness, species, site ID, and life stage")
+        validate("Please select a jurisdiction, species, site ID, and life stage")
       }
       
       if(input$wilderness_1 > 0 && input$ves_species < 0 && input$id < 0){
@@ -470,7 +533,7 @@ server <- function(input, output, session){
     output$bd_plots <- renderPlot({
       
       if(input$wilderness_2 < 0 && input$bd_species < 0 && input$bd_id < 0) {
-        validate("Please select a wilderness, species, and site ID")
+        validate("Please select a jurisdiction, species, and site ID")
       }
       
       

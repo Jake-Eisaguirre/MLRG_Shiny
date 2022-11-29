@@ -65,6 +65,50 @@ ui <-  secure_app(head_auth = tags$script(inactivity),
                                                 width = 300))))
                         )),
                
+               tabPanel(title = "Amphibian Occupancy Map", icon = icon("globe"),
+                        
+                        sidebarLayout(
+                          
+                          sidebarPanel(width = 3,
+                                       sliderInput(inputId = "site_year",
+                                                   label = "Select an annual range",
+                                                   min = min(ves_data$date), max = max(ves_data$date), 
+                                                   value =  c(max(ves_data$date) - 5, max(ves_data$date)),
+                                                   sep = ""),
+                                       pickerInput(inputId = "wilderness",
+                                                   label = "Select a jurisdiction",
+                                                   choices = unique(ves_data$wilderness),
+                                                   multiple = F,
+                                                   options = pickerOptions(title = " "),
+                                                   selected = "Yosemite"),
+                                       pickerInput(inputId = "species",
+                                                   label = "Select a species",
+                                                   choices = unique(ves_data$species),
+                                                   options = pickerOptions(title = " "),
+                                                   multiple = F,
+                                                   selected = "Mountain yellow-legged frog - Rana muscosa"),
+                                       pickerInput(inputId = "stage",
+                                                   label = "Select a life stage",
+                                                   choices = unique(ves_data$visual_life_stage),
+                                                   options = pickerOptions(title = " "),
+                                                   multiple = F,
+                                                   selected = "Adult"),
+                                       # checkboxGroupButtons(inputId = "search",
+                                       #                      label = "Search",
+                                       #                      choices = c("Data")),
+                                       
+                                       hr(style = "border-top: 1px solid #000000;"),
+                                       checkboxGroupButtons(inputId = "visits",
+                                                            label = "All Sites Visited",
+                                                            choices = c("Sites"))),
+                          
+                          mainPanel(h5("Map of water bodies and associated site ids, and (depending on selection) detection/non-detection of species/life stages. Detection information is provided by site/year and not based on specific survey dates. A distance tool is provided in the lower-left of the map to allow measure of distances of interest"),
+                                    withSpinner(leafletOutput(outputId = "site_map", width = 1000, height = 500)),
+                                    DT::dataTableOutput("test_id"),
+                                    headerPanel("")))
+                        
+               ),
+               
                
                tabPanel(title = "VES", icon = icon("frog"),
                         
@@ -147,49 +191,9 @@ ui <-  secure_app(head_auth = tags$script(inactivity),
                                   withSpinner(plotOutput(outputId = "bd_plots_tad", width = 900, height = 350)),
                         ))
                             
-                        ),
+                        )
                
-               tabPanel(title = "Amphibian Occupancy Map", icon = icon("globe"),
-                        
-                        sidebarLayout(
-                          
-                          sidebarPanel(
-                            sliderInput(inputId = "site_year",
-                                        label = "Select an annual range",
-                                        min = min(ves_data$date), max = max(ves_data$date), 
-                                        value =  c(max(ves_data$date), max(ves_data$date)),
-                                        sep = ""),
-                            pickerInput(inputId = "wilderness",
-                                        label = "Select a jurisdiction",
-                                        choices = unique(ves_data$wilderness),
-                                        multiple = F,
-                                        options = pickerOptions(title = " ")),
-                            pickerInput(inputId = "species",
-                                        label = "Select a species",
-                                        choices = unique(ves_data$species),
-                                        options = pickerOptions(title = " "),
-                                        multiple = F),
-                            pickerInput(inputId = "stage",
-                                        label = "Select a life stage",
-                                        choices = unique(ves_data$visual_life_stage),
-                                        options = pickerOptions(title = " "),
-                                        multiple = F),
-                            # checkboxGroupButtons(inputId = "search",
-                            #                      label = "Search",
-                            #                      choices = c("Data")),
-                            checkboxGroupButtons(inputId = "visits",
-                                                 label = "All Sites Visited",
-                                                 choices = c("Sites")),
-                            h5("*Please be patient, map rendering can be delayed dependent on inputs*"),
-                            hr(style = "border-top: 1px solid #000000;"),
-                            checkboxGroupButtons(inputId = "clear",
-                                                 label = "Clear Selection",
-                                                 choices = c("Clear"))),
-                          
-                          mainPanel(h5("Map of water bodies and associated site ids, and (depending on selection) detection/non-detection of species/life stages. Detection information is provided by site/year and not based on specific survey dates. A distance tool is provided in the lower-left of the map to allow measure of distances of interest"),
-                                    withSpinner(leafletOutput(outputId = "site_map", width = 900, height = 500))))
-                        
-               )
+              
     
     
 )))
