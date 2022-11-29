@@ -219,4 +219,44 @@ ca <- read_sf(here("data", "temp_shapes", "ca-boundaries", "CA_boundary_NAD83alb
   
 plot(usfs$geometry[FORESTNAME == "Sierra National Forest"])
 ```
+```{r}
+
+
+test <- bd_plot %>% 
+        dplyr::filter(date <= 2021 & date >= 2016, 
+                      wilderness == "Yosemite", 
+                      species == "Mountain yellow-legged frog - Rana muscosa", 
+                      id == "70449") %>% 
+        mutate("Year-Month" = month_year,
+               "Log(Bd) Load" = bd,
+               "Visual Life Stage" = visual_life_stage,
+               Prevalence = round(Prevalence, 2),
+               bd = round(bd, 2))
+
+ggplot(data = test, aes(x = month_year, y = bd, fill = visual_life_stage, group = 1)) +
+        geom_point(size = 2.5, color = "#fde725") +
+        geom_smooth(se = F, show.legend = F) +
+        ylab("Median log10(Bd)") +
+        xlab("Year-Month") +
+        labs(fill = "Visual Life Stage") + 
+        geom_text_repel(aes(label = paste(round(test$sample_size, 3)))) +
+        theme_classic() +
+        theme(#plot.title = element_text(hjust = 0.5),
+          axis.text.x = element_text(angle = 45, vjust = 1, hjust = 0.9, size = 12),
+          plot.title = element_text(hjust = 0.5, vjust = 1.2, size = 17),
+          axis.line = element_line(size = 1.1),
+          axis.ticks = element_line(size = 1.8),
+          axis.text.y = element_text(size = 14),
+          axis.title.x = element_text(size = 14, vjust = 1),
+          axis.title.y = element_text(size = 15),
+          legend.key.height = unit(2, "cm"),
+          legend.title = element_text(size = 15),
+          legend.text = element_text(size = 15),
+          legend.key.size = unit(2, "cm")) +
+        scale_y_continuous(breaks = integer_breaks()) +
+        #scale_fill_manual(values = c("Subadult" = "#fde725"),
+                           #name = "Visual Life Stage") +
+        geom_hline(yintercept=5.8, linetype='dotted', col = 'red')
+
+```
 

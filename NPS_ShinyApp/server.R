@@ -426,7 +426,8 @@ server <- function(input, output, session){
                "Log(Bd) Load" = bd,
                "Visual Life Stage" = visual_life_stage,
                Prevalence = round(Prevalence, 2),
-               bd = round(bd, 2))
+               bd = round(bd, 2)) %>% 
+        ungroup()
       
     })
     
@@ -443,7 +444,8 @@ server <- function(input, output, session){
                "Log(Bd) Load" = bd,
                "Visual Life Stage" = visual_life_stage,
                Prevalence = round(Prevalence, 2),
-               bd = round(bd, 2))
+               bd = round(bd, 2)) %>% 
+        ungroup()
       
     })
     
@@ -483,7 +485,7 @@ server <- function(input, output, session){
       
       
       
-      ggplot(data = bd_reac_adult(), aes(x = month_year, y = bd, fill = visual_life_stage, group = 1)) +
+      ggplot(data = bd_reac_adult(), aes(x = month_year, y = bd, fill = visual_life_stage, group = visual_life_stage)) +
         geom_point(size = 2.75, color = "#35b779") +
         geom_smooth(se = F, show.legend = F) +
         ylab("Median log10(Bd)") +
@@ -532,7 +534,7 @@ server <- function(input, output, session){
         need(nrow(bd_reac_subadult() > 0), 'No data exists')
       )
       
-      ggplot(data = bd_reac_subadult(), aes(x = month_year, y = bd, fill = visual_life_stage, group = 1)) +
+      ggplot(data = bd_reac_subadult(), aes(x = month_year, y = bd, fill = visual_life_stage, group = visual_life_stage)) +
         geom_point(size = 2.5, color = "#fde725") +
         geom_smooth(se = F, show.legend = F) +
         ylab("Median log10(Bd)") +
@@ -577,7 +579,7 @@ server <- function(input, output, session){
       
       
       
-      ggplot(data = bd_reac_tad(), aes(x = month_year, y = bd, fill = visual_life_stage, group = 1)) +
+      ggplot(data = bd_reac_tad(), aes(x = month_year, y = bd, fill = visual_life_stage, group = visual_life_stage)) +
         geom_point(color = "#31688e", size = 2.5) +
         geom_smooth(se = F, show.legend = F) +
         ylab("Median log10(Bd)") +
