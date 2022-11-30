@@ -16,7 +16,7 @@ server <- function(input, output, session){
         ves_data %>%
             dplyr::filter(date <= input$site_year[2] & date >= input$site_year[1], wilderness == input$wilderness, 
                           species == input$species, visual_life_stage == input$stage) %>% 
-        group_by(id, wilderness, species, visual_life_stage) %>% 
+        group_by(id, species, visual_life_stage) %>% 
         mutate(sum_count = median(count),
                med = mean(bd),
                bd = bd)
@@ -77,20 +77,36 @@ server <- function(input, output, session){
                          label = paste('Site:',data_reactive()$id)) %>% 
                          
         addPolylines(data = shape_reactive()$geometry, color = "#0d0887", dashArray = T, opacity = 0.9, weight = 1.9,
-                     label = paste("Wilderness:", shape_reactive()$wilderness)) 
+                     label = paste("Wilderness:", shape_reactive()$wilderness), layerId = shape_reactive()$wilderness)
+      # ,
+      #                popup = paste("<B>", input$site_year[1], "-", input$site_year[2], "Wilderness Totals <br>",
+      #                              
+      #                             
+      #                              
+      #                              paste(data_reactive()$visual_life_stage), paste(data_reactive()$species),
+      #                              "Median Wilderness log10(Bd) Load:", round(data_reactive()$med, 2), "<br>",
+      #                              
+      #                              paste(
+      #                                    "Summed Median Count:", sum(data_reactive()$count)))) 
                    
       })
       
    
-    # observe({
-    #   
-    #   leafletProxy("site_map") %>% 
-    #     clearMarkers() %>% 
-    #     clearControls() %>% 
-    #     addCircleMarkers(data = visit_reactive(), lng = ~long, lat = ~lat, color = "#440154", radius = 1,
-    #                      label = paste('Site:', visit_reactive()$site_id))
-    #   
-    # })
+    observeEvent(input$visits, {
+
+      leafletProxy("site_map") %>%
+        clearMarkers() %>%
+        clearControls()  %>% 
+        addCircleMarkers(data = visit_reactive(), lng = ~long, lat = ~lat, color = "#440154", radius = 1,
+                         layerId = ~site_id,
+                         label = paste('Site:', visit_reactive()$site_id)) %>% 
+        addCircleMarkers(data = data_reactive(), lng = ~long, lat = ~lat,  color = "#35b779", radius = 1, opacity = 1, 
+                         fillOpacity = 1, weight = 5, layerId = ~id,
+                         label = paste('Site:',data_reactive()$id)) %>% 
+        addLegend(position = c("bottomright"), title = "Species/Life stage Detected", colors = c("#35b779", "#440154"),
+                                 labels = c("Detected", "Not Detected"))
+
+    })
     
 
    # click site
@@ -113,8 +129,8 @@ server <- function(input, output, session){
                  wilderness = wilderness,
                  species = species, 
                  visual_life_stage = visual_life_stage,
-                 bd = round(median(bd), 2),
-                 count = median(count),
+                 bd = round(bd, 2),
+                 count = count,
                  lake_type = lake_type)
         
         message <- data.frame(Date = dat$date[dat$id == event$id],
@@ -135,36 +151,61 @@ server <- function(input, output, session){
   
     
     # #click polygon
+    observe({
+
+      leafletProxy("site_map")
+
+      event_poly <- input$site_map_shape_click
+
+      p <- ves_data %>%
+        filter(wilderness %in% event_poly$id)
+
+      p_dat <- p %>%
+        dplyr::filter(date <= input$site_year[2] & date >= input$site_year[1], wilderness == input$wilderness,
+                      species == input$species, visual_life_stage == input$stage) %>%
+        group_by(species, visual_life_stage, wilderness, date) %>%
+        summarise(sum_count = sum(count),
+                  av_bd = mean(bd, na.rm = T))
+
+
+      p_message <- data.frame(
+                            Jurisdiction = as.character(p_dat$wilderness[p_dat$wilderness == event_poly$id]),
+                            Year = as.character(p_dat$date[p_dat$wilderness == event_poly$id]),
+                            count = (p_dat$sum_count[p_dat$wilderness == event_poly$id]),
+                            bd = (p_dat$av_bd[p_dat$wilderness == event_poly$id])) %>% 
+        rename("Jurisdiction Median Count" = count,
+               "Jurisdiction Bd Load" = bd)
+
+      output$test_id <- DT::renderDataTable(p_message, rownames = F,  options = list(dom = 't'))
+       
+     })
+     
+    
+    # click all visits
     # observe({
     #   
     #   leafletProxy("site_map")
     #   
-    #   event_poly <- input$site_map_shape_click
+    #   v <- input$site_map_marker_click
     #   
-    #   p <- ves_data %>% 
-    #     filter(wilderness %in% event_poly$id)
+    #   v_dat <- all_visits %>% 
+    #     filter(site_id %in% v$id)
     #   
-    #   p_dat <- ves_data %>%
-    #     dplyr::filter(date <= input$site_year[2] & date >= input$site_year[1], wilderness == input$wilderness,
-    #                   species == input$species, visual_life_stage == input$stage) %>%
-    #     group_by(id, wilderness, species, visual_life_stage) %>%
-    #     mutate(sum_count = median(count),
-    #            med = mean(bd),
-    #            bd = bd)
+    #   dat_v <- v_dat %>% 
+    #     filter(year <= input$site_year[2] & year >= input$site_year[1],
+    #            wilderness == input$wilderness)
+    #   
+    #   v_message <- data.frame(
+    #                    Date = dat_v$visit_date[dat_v$site_id == v$id],
+    #                    Site = as.character(dat_v$site_id[dat_v$site_id == v$id]),
+    #                    Lat = dat_v$lat[dat_v$site_id == v$id],
+    #                    Long = dat_v$long[dat_v$site_id == v$id],
+    #                    lake_type = dat_v$lake_type[dat_v$site_id == v$id])
     # 
-    #   
-    #   # p_message <- data.frame(
-    #   #                       Jurisdiction = as.character(p_dat$wilderness[p_dat$id == event_poly$id]),
-    #   #                       count = (p_dat$count[p_dat$id == event_poly$id]),
-    #   #                       bd = (p_dat$bd[p_dat$id == event_poly$id])) %>% 
-    #   #   rename("Median Count" = count,
-    #   #          "Median Log10(Bd)" = bd,
-    #   #          "Water Type" = lake_type) 
-    #   
-    #   #output$test_id <- DT::renderDataTable(p_message, rownames = F,  options = list(dom = 't'))
+    # 
+    #    output$test_id <- DT::renderDataTable(v_message, rownames = F,  options = list(dom = 't'))
     #   
     # })
-    # 
 
       
   

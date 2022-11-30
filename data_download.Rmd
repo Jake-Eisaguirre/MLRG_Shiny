@@ -63,10 +63,7 @@ join visual_survey vs on s2.id = vs.survey_id;
 
 shape <- read_sf(here("data", "wilderness_shapes", "wilderness.shp")) %>% 
   st_transform(crs = 4326)%>% 
-  mutate(names = gsub("_", " ", names),
-         names = str_to_title(names)) %>% 
-  ms_simplify(0.005)%>% 
-  rename(wilderness = names)
+  ms_simplify(0.005)
 
 write_sf(shape, here("data", "wilderness_shapes", "wilderness.shp"))
 

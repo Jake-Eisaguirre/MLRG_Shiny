@@ -260,3 +260,14 @@ ggplot(data = test, aes(x = month_year, y = bd, fill = visual_life_stage, group 
 
 ```
 
+```{r}
+
+t <- ves_data %>% 
+        dplyr::filter(date %in% c(2016:2021), wilderness == "Yosemite",
+                      species == "Mountain yellow-legged frog - Rana muscosa", visual_life_stage == "Adult") %>%
+        group_by(species, visual_life_stage, wilderness, date) %>%
+        summarise(sum_count = sum(count),
+                  av_bd = mean(bd, na.rm = T))
+
+```
+
