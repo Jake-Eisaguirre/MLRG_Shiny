@@ -73,7 +73,7 @@ server <- function(input, output, session){
           completedColor = "#7D4479")  %>% 
         fitBounds(view()[1], view()[2], view()[3], view()[4])  %>%
         addCircleMarkers(data = data_reactive(), lng = ~long, lat = ~lat,  color = "#35b779", radius = 1, opacity = 1, 
-                         fillOpacity = 1, weight = 5, layerId = ~id,
+                         fillOpacity = 1, weight = 5, layerId = data_reactive()$id,
                          label = paste('Site:',data_reactive()$id)) %>% 
                          
         addPolylines(data = shape_reactive()$geometry, color = "#0d0887", dashArray = T, opacity = 0.9, weight = 1.9,
@@ -95,13 +95,13 @@ server <- function(input, output, session){
     observeEvent(input$visits, {
 
       leafletProxy("site_map") %>%
-        clearMarkers() %>%
+        clearMarkers() %>% 
         clearControls()  %>% 
         addCircleMarkers(data = visit_reactive(), lng = ~long, lat = ~lat, color = "#440154", radius = 1,
-                         layerId = ~site_id,
+                         layerId = visit_reactive()$site_id,
                          label = paste('Site:', visit_reactive()$site_id)) %>% 
         addCircleMarkers(data = data_reactive(), lng = ~long, lat = ~lat,  color = "#35b779", radius = 1, opacity = 1, 
-                         fillOpacity = 1, weight = 5, layerId = ~id,
+                         fillOpacity = 1, weight = 5, layerId = data_reactive()$id,
                          label = paste('Site:',data_reactive()$id)) %>% 
         addLegend(position = c("bottomright"), title = "Species/Life stage Detected", colors = c("#35b779", "#440154"),
                                  labels = c("Detected", "Not Detected"))
@@ -165,7 +165,7 @@ server <- function(input, output, session){
                       species == input$species, visual_life_stage == input$stage) %>%
         group_by(species, visual_life_stage, wilderness, date) %>%
         summarise(sum_count = sum(count),
-                  av_bd = mean(bd, na.rm = T))
+                  av_bd = round(mean(bd, na.rm = T), 2))
 
 
       p_message <- data.frame(
@@ -174,27 +174,27 @@ server <- function(input, output, session){
                             count = (p_dat$sum_count[p_dat$wilderness == event_poly$id]),
                             bd = (p_dat$av_bd[p_dat$wilderness == event_poly$id])) %>% 
         rename("Jurisdiction Median Count" = count,
-               "Jurisdiction Bd Load" = bd)
+               "Jurisdiction Bd Load" = bd) 
 
-      output$test_id <- DT::renderDataTable(p_message, rownames = F,  options = list(dom = 't'))
+      output$test_id <- DT::renderDataTable(p_message, rownames = F,  options = list(dom = 't', pageLength = 25))
        
      })
      
     
-    # click all visits
+    # # click all visits
     # observe({
-    #   
+    # 
     #   leafletProxy("site_map")
-    #   
+    # 
     #   v <- input$site_map_marker_click
-    #   
-    #   v_dat <- all_visits %>% 
+    # 
+    #   v_dat <- all_visits %>%
     #     filter(site_id %in% v$id)
-    #   
-    #   dat_v <- v_dat %>% 
+    # 
+    #   dat_v <- v_dat %>%
     #     filter(year <= input$site_year[2] & year >= input$site_year[1],
     #            wilderness == input$wilderness)
-    #   
+    # 
     #   v_message <- data.frame(
     #                    Date = dat_v$visit_date[dat_v$site_id == v$id],
     #                    Site = as.character(dat_v$site_id[dat_v$site_id == v$id]),
@@ -204,7 +204,7 @@ server <- function(input, output, session){
     # 
     # 
     #    output$test_id <- DT::renderDataTable(v_message, rownames = F,  options = list(dom = 't'))
-    #   
+    # 
     # })
 
       

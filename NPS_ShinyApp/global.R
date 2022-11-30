@@ -47,10 +47,12 @@ bd_plot <- read_csv(here("data", "bd_plot.csv"))
 # all visit data for map
 all_visits <- read_csv(here("data", "all_visits.csv")) %>% 
   left_join(water, by = c("site_id" = "id")) %>% 
-  group_by(site_id, visit_date) %>% 
-  mutate(t_id = cur_group_id()) %>% 
-  filter(!duplicated(t_id)) %>% 
-  select(!(t_id))
+  anti_join(ves_data, by = c("site_id" = "id"))
+  # group_by(site_id, visit_date) %>% 
+  # mutate(t_id = cur_group_id()) %>% 
+  # filter(!duplicated(t_id)) %>% 
+  # select(!(t_id)) %>% 
+  
 # %>% 
 #   left_join(lakes, by = c("site_id" = "id"))
 
