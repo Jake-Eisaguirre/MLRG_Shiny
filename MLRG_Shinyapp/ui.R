@@ -1,5 +1,5 @@
-source(here("NPS_ShinyApp", "global.R"))
-source(here("NPS_ShinyApp", "creds.R"))
+source(here("MLRG_ShinyApp", "global.R"))
+source(here("MLRG_ShinyApp", "creds.R"))
 
 
 
@@ -16,7 +16,7 @@ ui <-  secure_app(head_auth = tags$script(inactivity),
         font-weight: bold;}"))),
 
     
-    includeCSS(here("NPS_ShinyApp/theme.css")),
+    includeCSS(here("MLRG_ShinyApp/theme.css")),
     
     #theme = theme,
     
