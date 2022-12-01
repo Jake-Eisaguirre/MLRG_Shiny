@@ -43,7 +43,7 @@ ui <-  secure_app(head_auth = tags$script(inactivity),
                             fluidRow(
                               h1(strong("Acknowledgements"), style = "font-size:20px;"),
                               
-                              column(12, p("This web-based application was created by ",tags$a(href = "https://jake-eisaguirre.github.io/", "Jake Eisaguirre"), ", Data Manager for the ",tags$a(href ="https://ribbitr.com/", "Resilience Institue Bridging Biological Training and Research"),"(RIBBiTR). Financial support was provided by the National Science Foundation. Photo Credits: Sara Dykman"))),
+                              column(12, p("This web-based application was created by ",tags$a(href = "https://jake-eisaguirre.github.io/", "Jake Eisaguirre"), ", Data Manager for the ",tags$a(href ="https://ribbitr.com/", "Resilience Institue Bridging Biological Training and Research"),"(RIBBiTR). Financial support was provided by the National Science Foundation. Photo Credits: Sara Dykman & Gary Nafis"))),
                             
                             fluidRow(
                               align = "center", div(style = "display: inline", img(src = "ribbitr.png", height = "75", width = "85")),
@@ -60,7 +60,7 @@ ui <-  secure_app(head_auth = tags$script(inactivity),
                                                width = 400)),
                                        
                                        div(style = "display: inline;",
-                                            img(src = "dist.jpeg",
+                                            img(src = "new_dist.jpeg",
                                                 height = 300,
                                                 width = 300)),
                                        div(style = "display: inline;",
