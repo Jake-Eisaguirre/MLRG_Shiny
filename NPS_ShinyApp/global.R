@@ -6,8 +6,7 @@ if (!require(librarian)){
 # librarian downloads, if not already downloaded, and reads in needed packages
 
 librarian::shelf(shiny, tidyverse, here, shinyWidgets, leafem, bslib, thematic, shinymanager, leaflet, ggrepel, sf, stringr,fontawesome,
-                 shinycssloaders, shinydashboardPlus, lubridate, scales, cachem,
-                 rmapshaper)
+                 shinycssloaders, shinydashboardPlus, lubridate, scales, cachem, htmltools, rmapshaper)
 
 shinyOptions(cache = cachem::cache_disk("./app_cache"))
 #shinyOptions(cache = cachem::cache_mem(max_size = 1000e6))
@@ -46,12 +45,9 @@ bd_plot <- read_csv(here("data", "bd_plot.csv"))
 
 # all visit data for map
 all_visits <- read_csv(here("data", "all_visits.csv")) %>% 
-  left_join(water, by = c("site_id" = "id")) %>% 
+  left_join(water, by = c("site_id" = "id")) %>%
   anti_join(ves_data, by = c("site_id" = "id"))
-  # group_by(site_id, visit_date) %>% 
-  # mutate(t_id = cur_group_id()) %>% 
-  # filter(!duplicated(t_id)) %>% 
-  # select(!(t_id)) %>% 
+ 
   
 # %>% 
 #   left_join(lakes, by = c("site_id" = "id"))

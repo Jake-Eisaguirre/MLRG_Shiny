@@ -27,9 +27,8 @@ ui <-  secure_app(head_auth = tags$script(inactivity),
         fluidRow(column(8,
                         h1(strong("Mountain Lakes Research Group Amphibian Populations App"))),
                  column(4,
-                        
-                        img(src = "ribbitr.png", align = "right", height = "120", width = "150"),
-                        img(src = "nsf_logo.png", align = "right", height = "120", width = "120")))),
+                        img(src = "mlrg_logo.png", alright = "right", height = "120", width = "400") 
+                        ))),
     
     
     navbarPage("", inverse = T,
@@ -196,4 +195,6 @@ ui <-  secure_app(head_auth = tags$script(inactivity),
               
     
     
-)))
+), 
+img(src = "ribbitr.png", align = "left", height = "100", width = "120"),
+img(src = "nsf_logo.png", align = "left", height = "100", width = "100")))

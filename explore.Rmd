@@ -271,3 +271,12 @@ t <- ves_data %>%
 
 ```
 
+```{r}
+
+
+t <- all_visits %>% 
+        filter(year %in% c(2016:2021),
+               wilderness == "Yosemite")
+
+```
+

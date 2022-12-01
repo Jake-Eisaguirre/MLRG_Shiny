@@ -141,7 +141,7 @@ test.data.visit <- test.data.visit %>%
 test.data.survey <- test.data.survey %>% 
   mutate(survey_id=id) %>% 
   select(-id)
-test.data.visual <- test.data.visual %>% 
+test.data.visual <- test.data.visual %>%
   rename(count_observed=count)
 # gets ALL RECORDS including surveys and visuals with related counts or non-counts
 all.records <-

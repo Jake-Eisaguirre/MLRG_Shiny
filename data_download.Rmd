@@ -262,7 +262,11 @@ all_visits <- visits %>%
   as.data.frame() %>% 
   dplyr::select(!c(geometry)) %>% 
   mutate(wilderness = gsub("_", " ", wilderness),
-         wilderness = str_to_title(wilderness))
+         wilderness = str_to_title(wilderness)) %>% 
+  group_by(site_id, year, wilderness) %>% 
+  mutate(t_id = cur_group_id()) %>%
+  filter(!duplicated(t_id)) %>%
+  select(!c(t_id, visit_date)) 
 
 write_csv(all_visits, here("data", "all_visits.csv"))
 
