@@ -41,7 +41,7 @@ server <- function(input, output, session){
       all_visits %>% 
         filter(year <= input$site_year[2] & year >= input$site_year[1],
                wilderness == input$wilderness)
-    })%>% bindCache(input$site_year, input$wilderness, cache = "app")
+    }) %>% bindCache(input$site_year, input$wilderness, cache = "app")
     
     # observe({
     # labels <- paste("<strong>", all_visits$site_id, "<br>",
@@ -110,7 +110,7 @@ server <- function(input, output, session){
                          fillOpacity = 1, weight = 5, layerId = data_reactive()$id,
                          label = paste('Site:',data_reactive()$id)) %>% 
         addLegend(position = c("bottomright"), title = "Species/Life stage Detected", colors = c("#35b779", "#440154"),
-                                 labels = c("Detected", "Not Detected"))
+                                 labels = c("Detected", "Not Detected"), opacity = 1)
 
     })
     

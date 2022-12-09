@@ -17,7 +17,7 @@ if (!require(librarian)){
 
 # librarian downloads, if not already downloaded, and reads in needed packages
 
-librarian::shelf(tidyverse, here, janitor, sf, lubridate, RPostgres, rstudioapi)
+librarian::shelf(tidyverse, here, janitor, sf, lubridate, RPostgres, rstudioapi, flextable)
 ```
 
 
@@ -61,11 +61,11 @@ join visual_survey vs on s2.id = vs.survey_id;
 # read in wilderness shape to add wilderness name per location for VES
 ```{r}
 
-shape <- read_sf(here("data", "wilderness_shapes", "wilderness.shp")) %>% 
-  st_transform(crs = 4326)%>% 
-  ms_simplify(0.005)
-
-write_sf(shape, here("data", "wilderness_shapes", "wilderness.shp"))
+# shape <- read_sf(here("data", "wilderness_shapes", "wilderness.shp")) %>% 
+#   st_transform(crs = 4326)%>% 
+#   ms_simplify(0.005)
+# 
+# write_sf(shape, here("data", "wilderness_shapes", "wilderness.shp"))
 
 
 ```

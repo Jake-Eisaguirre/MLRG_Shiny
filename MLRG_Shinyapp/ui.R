@@ -25,7 +25,7 @@ ui <-  secure_app(head_auth = tags$script(inactivity),
     
     fluidPage(
         fluidRow(column(8,
-                        h1(strong("Mountain Lakes Research Group Amphibian Populations App"))),
+                        h1(strong("Amphibian Populations App"), style = "font-size:60px;")),
                  column(4,
                         img(src = "mlrg_logo.png", alright = "right", height = "120", width = "400") 
                         ))),
@@ -46,12 +46,12 @@ ui <-  secure_app(head_auth = tags$script(inactivity),
                               column(12, p("This web-based application was created by ",tags$a(href = "https://jake-eisaguirre.github.io/", "Jake Eisaguirre"), ", Data Manager for the ",tags$a(href ="https://ribbitr.com/", "Resilience Institue Bridging Biological Training and Research"),"(RIBBiTR). Financial support was provided by the National Science Foundation. Photo Credits: Sara Dykman & Gary Nafis"))),
                             
                             fluidRow(
-                              align = "center", div(style = "display: inline", img(src = "ribbitr.png", height = "75", width = "85")),
+                              align = "center", div(style = "display: inline", img(src = "ribbitr.png", height = "75", width = "95")),
                               img(src = "nsf_logo.png", align = "center", height = "75", width = "75")),
                             
                             fluidRow(
                                 h1(strong("Data Collection"),style = "font-size:20px;"),
-                                    column(12, p("The data presented in this application is part of a long term and ongoing effort to monitor high altitude Sierra Nevada amphibian populations and the amphibian response to the infectious disease Chytridiomycosis. Data collection protocols can be found at...."))),
+                                    column(12, p("The data presented in this application is part of a long term and ongoing effort to monitor high altitude Sierra Nevada amphibian populations and the amphibian response to the infectious disease Chytridiomycosis. Data collection protocols can be found", tags$a(href ="https://mountainlakesresearch.com/resources/", "HERE")))),
                             fluidRow(
                                 column(12, align = "center",
                                        div(style = "display: inline;",
@@ -62,11 +62,7 @@ ui <-  secure_app(head_auth = tags$script(inactivity),
                                        div(style = "display: inline;",
                                             img(src = "new_dist.jpeg",
                                                 height = 300,
-                                                width = 300)),
-                                       div(style = "display: inline;",
-                                           img(src = "great_frog.JPG",
-                                               heigt = 400,
-                                               width = 400))))
+                                                width = 300))))
                         )),
                
                tabPanel(title = "Amphibian Occupancy Map", icon = icon("globe"),
@@ -82,7 +78,7 @@ ui <-  secure_app(head_auth = tags$script(inactivity),
                                        pickerInput(inputId = "wilderness",
                                                    label = "Select a jurisdiction",
                                                    choices = unique(ves_data$wilderness),
-                                                   multiple = F,
+                                                   multiple = T,
                                                    options = pickerOptions(title = " "),
                                                    selected = "Yosemite"),
                                        pickerInput(inputId = "species",
@@ -108,7 +104,7 @@ ui <-  secure_app(head_auth = tags$script(inactivity),
                           
                           mainPanel(h5("Map of water bodies and associated site ids, and (depending on selection) detection/non-detection of species/life stages. Detection information is provided by site/year and not based on specific survey dates. A distance tool is provided in the lower-left of the map to allow measure of distances of interest"),
                                     withSpinner(leafletOutput(outputId = "site_map", width = 1000, height = 500)),
-                                    DT::dataTableOutput("test_id"),
+                                    withSpinner(DT::dataTableOutput("test_id")),
                                     headerPanel("")))
                         
                ),
