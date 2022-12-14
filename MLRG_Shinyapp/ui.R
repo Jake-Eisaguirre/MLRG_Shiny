@@ -55,7 +55,7 @@ ui <-  secure_app(head_auth = tags$script(inactivity),
                             fluidRow(
                                 column(12, align = "center",
                                        div(style = "display: inline;",
-                                           img(src = "good_frog.JPG",
+                                           img(src = "good_frog.jpg",
                                                height = 300,
                                                width = 400)),
                                        
@@ -102,7 +102,7 @@ ui <-  secure_app(head_auth = tags$script(inactivity),
                                                             label = "All Sites Visited",
                                                             choices = c("Sites"))),
                           
-                          mainPanel(h5("Map of water bodies and associated site ids, and (depending on selection) detection/non-detection of species/life stages. Detection information is provided by site/year and not based on specific survey dates. A distance tool is provided in the lower-left of the map to allow measure of distances of interest."),
+                          mainPanel(h5("Map of water bodies and associated site ids, and (depending on selection) detection/non-detection of species/life stages. Detection information is provided by site/year and not based on specific survey dates. Detection and Bd load is quantified based on locations that were surveyed and organisms encountered at sites. A distance tool is provided in the lower-left of the map to allow measure of distances of interest."),
                                     withSpinner(leafletOutput(outputId = "site_map", width = 1000, height = 500)),
                                     withSpinner(DT::dataTableOutput("test_id")),
                                     headerPanel("")))
