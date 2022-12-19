@@ -41,12 +41,12 @@ ui <-  secure_app(head_auth = tags$script(inactivity),
                             fluidRow(
                                 h1(strong("Intended Use"),style = "font-size:20px;"),
                                 
-                                    column(12, p("The data presented in this application were collected as part of a long-term and ongoing effort by the", tags$a(href = "https://mountainlakesresearch.com", "Mountain Lakes Research Group"), "to survey amphibian populations in the southern Sierra Nevada, with a primary focus on mountain yellow-legged frogs. These data contain the locations of federally-endangered species, and under no circumstances shall these data or user credentials be shared without the explicit permission of the Mountain Lakes Research Group."))),
+                                    column(12, p("The data presented in this application were collected as part of a long-term and ongoing effort by the", tags$a(href = "https://mountainlakesresearch.com", "Mountain Lakes Research Group"), "to survey amphibian populations in the southern Sierra Nevada, with a primary focus on mountain yellow-legged frogs. These data contain the locations of federally-endangered species, and under no circumstances shall these data or user credentials be shared without the explicit permission of the Mountain Lakes Research Group.")), style = "font-size:17px"),
                           
                             fluidRow(
                               h1(strong("Acknowledgements"), style = "font-size:20px;"),
                               
-                              column(12, p("This web-based application was created by ",tags$a(href = "https://jake-eisaguirre.github.io/", "Jake Eisaguirre"), ", Data Manager for the ",tags$a(href ="https://ribbitr.com/", "Resilience Institue Bridging Biological Training and Research"),"(RIBBiTR). Financial support was provided by the National Science Foundation."))),
+                              column(12, p("This web-based application was created by ",tags$a(href = "https://jake-eisaguirre.github.io/", "Jake Eisaguirre"), ", Data Manager for the ",tags$a(href ="https://ribbitr.com/", "Resilience Institue Bridging Biological Training and Research"),"(RIBBiTR). Financial support was provided by the National Science Foundation.")), style = "font-size:17px"),
                             
                             fluidRow(
                               align = "center", div(style = "display: inline", img(src = "ribbitr.png", height = "75", width = "95")),
@@ -54,7 +54,7 @@ ui <-  secure_app(head_auth = tags$script(inactivity),
                             
                             fluidRow(
                                 h1(strong("Data Collection"),style = "font-size:20px;"),
-                                    column(12, p("The data presented in this application is part of a long term and ongoing effort to monitor high altitude Sierra Nevada amphibian populations and the amphibian response to the infectious disease Chytridiomycosis. Data collection protocols can be found", tags$a(href ="https://mountainlakesresearch.com/resources/", "HERE.")))),
+                                    column(12, p("The data presented in this application is part of a long term and ongoing effort to monitor high altitude Sierra Nevada amphibian populations and the amphibian response to the infectious disease Chytridiomycosis. Data collection protocols can be found", tags$a(href ="https://mountainlakesresearch.com/resources/", "HERE.")), style = "font-size:17px")),
                             fluidRow(
                                 column(12, align = "center",
                                        div(style = "display: inline;",
