@@ -5,8 +5,7 @@ if (!require(librarian)){
 
 # librarian downloads, if not already downloaded, and reads in needed packages
 
-librarian::shelf(shiny, tidyverse, here, shinyWidgets, leafem, bslib, thematic, shinymanager, leaflet, ggrepel, sf, stringr,fontawesome,
-                 shinycssloaders, shinydashboardPlus, lubridate, scales, cachem, htmltools, rmapshaper)
+librarian::shelf(shiny, tidyverse, here, shinyWidgets, leafem, bslib, thematic, shinymanager, leaflet, ggrepel, sf, stringr,fontawesome,shinycssloaders, shinydashboardPlus, lubridate, scales, cachem, htmltools, rmapshaper, DT)
 
 shinyOptions(cache = cachem::cache_disk("./app_cache"))
 #shinyOptions(cache = cachem::cache_mem(max_size = 1000e6))
