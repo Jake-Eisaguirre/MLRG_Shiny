@@ -108,8 +108,8 @@ ui <-  secure_app(head_auth = tags$script(inactivity),
                           mainPanel(h5("Map of water bodies and associated site ids, and (depending on selection) detection/non-detection of species/life stages. Detection information is provided by site/year and not based on specific survey dates. Detection and Bd load is quantified based on locations that were surveyed and organisms encountered at sites. A distance tool is provided in the lower-left of the map to allow measure of distances of interest."),
                                     withSpinner(leafletOutput(outputId = "site_map", width = 1000, height = 500)),
                                     withSpinner(DT::dataTableOutput("test_id")),
-                                    headerPanel(""),
-                          hr(style = "border-top: 1px solid #000000;")))),
+                                    headerPanel(""))),
+                        hr(style = "border-top: 1px solid #000000;")),
                
                
                tabPanel(title = "VES", icon = icon("frog"),
@@ -146,8 +146,8 @@ ui <-  secure_app(head_auth = tags$script(inactivity),
                             
                         mainPanel(h5("Counts of each species-life stage are median counts across all surveys conducted per year"),
                                   withSpinner(plotOutput(outputId = "ves_plots", width = 900, height = 375)),
-                                  withSpinner(plotOutput(outputId = "ves_tad", width = 900, height = 375)),
-                                  hr(style = "border-top: 1px solid #000000;")))),
+                                  withSpinner(plotOutput(outputId = "ves_tad", width = 900, height = 375)))),
+                        hr(style = "border-top: 1px solid #000000;")),
                
                tabPanel(title = "Bd Load", icon = icon("bacterium"),
                         
@@ -188,8 +188,8 @@ ui <-  secure_app(head_auth = tags$script(inactivity),
                         h5("Bd loads are determined from skin swabs collected from frogs and analyzed using qPCR. Loads are expressed as median(log10(ITS copies + 1)). The log10(Bd load) above which mortality of post-metamorphic animals is likely approximately 5.8 (red dotted line). The blue line indicates average trend and the integer adjacent to each point represents sample size."),
                                   withSpinner(plotOutput(outputId = "bd_plots", width = 900, height = 350)),
                                   withSpinner(plotOutput(outputId = "bd_plots_sub", width = 900, height = 350)),
-                                  withSpinner(plotOutput(outputId = "bd_plots_tad", width = 900, height = 350)),
-                        hr(style = "border-top: 1px solid #000000;"))))
+                                  withSpinner(plotOutput(outputId = "bd_plots_tad", width = 900, height = 350)))),
+                        hr(style = "border-top: 1px solid #000000;"))
               
     
     

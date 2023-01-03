@@ -14,11 +14,11 @@ tryCatch({
   drv <- dbDriver("Postgres")
   print("Connecting to Database…")
   connection <- dbConnect(drv, 
-                          dbname = Sys.getenv("sn_dbname"),
-                          host = Sys.getenv("sn_host"), 
-                          port = Sys.getenv("sn_port"),
-                          user = Sys.getenv("sn_user"), 
-                          password = Sys.getenv("sn_password"))
+                          dbname = sn_dbname,
+                          host = sn_host, 
+                          port = sn_port,
+                          user = sn_user, 
+                          password = sn_password)
   print("Database Connected!")
 },
 error=function(cond) {
@@ -27,7 +27,7 @@ error=function(cond) {
 
 
 ####### VES Data #########3
-ves_data <- dbExecute(connection, "select *
+ves_data <- dbGetQuery(connection, "select *
                                    from site s 
                                    join visit v on s.id = v.site_id 
                                    join survey s2 on v.id = s2.visit_id 
@@ -92,7 +92,7 @@ write_csv(ves, here("data", "ves_data.csv"))
 
 ###### BD Data #########
 
-bd_data <- dbExecute(connection, "select *
+bd_data <- dbGetQuery(connection, "select *
                                   from site s 
                                   join visit v on s.id = v.site_id 
                                   join survey s2 on v.id = s2.visit_id 
