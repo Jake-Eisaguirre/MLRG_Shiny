@@ -2,7 +2,7 @@ if (!require(librarian)){
   install.packages("librarian")
   library(librarian)
 }
-
+ 
 # librarian downloads, if not already downloaded, and reads in needed packages
 
 librarian::shelf(shiny, tidyverse, here, shinyWidgets, leafem, bslib, thematic, shinymanager, leaflet, ggrepel, sf, stringr,fontawesome,shinycssloaders, shinydashboardPlus, lubridate, scales, cachem, htmltools, rmapshaper, DT)
