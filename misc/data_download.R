@@ -1,4 +1,3 @@
-source(here("misc", "db_creds.R"))
 
 if (!require(librarian)){
   install.packages("librarian")
@@ -7,6 +6,8 @@ if (!require(librarian)){
 
 # librarian downloads, if not already downloaded, and reads in needed packages
 librarian::shelf(tidyverse, here, janitor, sf, lubridate, RPostgres, DBI)
+
+source(here("misc", "db_creds.R"))
 
 
 # DB conection
