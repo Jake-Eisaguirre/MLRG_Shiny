@@ -26,7 +26,7 @@ vignettes/*.pdf
 
 # OAuth2 token, see https://github.com/hadley/httr/releases/tag/v0.3
 .httr-oauth
-
+ß
 # knitr and R markdown default cache directories
 *_cache/
 /cache/
@@ -43,4 +43,5 @@ data/
 .Renviron
 creds.R
 old_shape_file_data/
+db_creds.R
 

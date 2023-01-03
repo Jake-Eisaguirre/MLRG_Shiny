@@ -17,7 +17,7 @@ if (!require(librarian)){
 
 # librarian downloads, if not already downloaded, and reads in needed packages
 
-librarian::shelf(tidyverse, here, janitor, sf, lubridate, RPostgres, rstudioapi, flextable)
+librarian::shelf(tidyverse, here, janitor, sf, lubridate, RPostgres)
 ```
 
 
