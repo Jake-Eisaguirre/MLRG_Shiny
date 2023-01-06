@@ -1,5 +1,5 @@
-source(here("mlrg_shinyapp", "global.R"))
-source(here("mlrg_shinyapp", "creds.R"))
+source(here("MLRG_Shinyapp", "global.R"))
+source(here("MLRG_Shinyapp", "creds.R"))
 
 server <- function(input, output, session){
   

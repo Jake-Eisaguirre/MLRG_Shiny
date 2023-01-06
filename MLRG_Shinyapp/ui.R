@@ -1,5 +1,5 @@
-source(here("mlrg_shinyapp", "global.R"))
-source(here("mlrg_shinyapp", "creds.R"))
+source(here("MLRG_Shinyapp", "global.R"))
+source(here("MLRG_Shinyapp", "creds.R"))
 
 
 
@@ -19,7 +19,7 @@ ui <-  secure_app(head_auth = tags$script(inactivity),
       }"))),
 
     
-    includeCSS(here("MLRG_ShinyApp/theme.css")),
+    includeCSS(here("MLRG_Shinyapp/theme.css")),
     
     #theme = theme,
     
