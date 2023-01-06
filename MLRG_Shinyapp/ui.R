@@ -58,7 +58,7 @@ ui <-  secure_app(head_auth = tags$script(inactivity),
                             fluidRow(
                                 column(12, align = "center",
                                        div(style = "display: inline;",
-                                           img(src = "good_frog.jpg",
+                                           img(src = "good_frog.jpeg",
                                                height = 300,
                                                width = 400)),
                                        
