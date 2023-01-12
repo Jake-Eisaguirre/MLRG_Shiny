@@ -1,5 +1,5 @@
-source(here("MLRG_Shinyapp", "global.R"))
-source(here("MLRG_Shinyapp", "creds.R"))
+source("global.R", local = T)
+source("creds.R", local = T)
 
 
 
@@ -19,7 +19,7 @@ ui <-  secure_app(head_auth = tags$script(inactivity),
       }"))),
 
     
-    includeCSS(here("MLRG_Shinyapp/theme.css")),
+    includeCSS(here("theme.css")),
     
     #theme = theme,
     
@@ -73,40 +73,44 @@ ui <-  secure_app(head_auth = tags$script(inactivity),
                         
                         sidebarLayout(
                           
-                          sidebarPanel(width = 3,
-                                       sliderInput(inputId = "site_year",
+                          sidebarPanel(
+                            fluidRow(width = 3,
+                                       column(12, sliderInput(inputId = "site_year",
                                                    label = "Select an annual range",
                                                    min = min(ves_data$date), max = max(ves_data$date), 
                                                    value =  c(max(ves_data$date) - 5, max(ves_data$date)),
-                                                   sep = ""),
-                                       pickerInput(inputId = "wilderness",
+                                                   sep = "")),
+                                       column(12, pickerInput(inputId = "wilderness",
                                                    label = "Select a jurisdiction",
                                                    choices = unique(ves_data$wilderness),
                                                    options = pickerOptions(title = " "),
-                                                   selected = "Yosemite"),
-                                       pickerInput(inputId = "species",
+                                                   selected = "Yosemite")),
+                                       column(12, pickerInput(inputId = "species",
                                                    label = "Select a species",
                                                    choices = unique(ves_data$species),
                                                    options = pickerOptions(title = " "),
                                                    multiple = F,
-                                                   selected = "Mountain yellow-legged frog - Rana muscosa"),
-                                       pickerInput(inputId = "stage",
+                                                   selected = "Mountain yellow-legged frog - Rana muscosa")),
+                                       column(12, pickerInput(inputId = "stage",
                                                    label = "Select a life stage",
                                                    choices = unique(ves_data$visual_life_stage),
                                                    options = pickerOptions(title = " "),
                                                    multiple = F,
-                                                   selected = "Adult"),
+                                                   selected = "Adult")),
                                        # checkboxGroupButtons(inputId = "search",
                                        #                      label = "Search",
                                        #                      choices = c("Data")),
                                        
-                                       hr(style = "border-top: 1px solid #000000;"),
-                                       checkboxGroupButtons(inputId = "visits",
+                                       column(12, hr(style = "border-top: 1px solid #000000;")),
+                                       column(3, div(style="display:inline-block", checkboxGroupButtons(inputId = "visits",
                                                             label = "All Sites Visited",
-                                                            choices = c("Sites"))),
+                                                            choices = c("Sites")))),
+                                        column(8, div(style="display:inline-block", checkboxGroupButtons(inputId = "bd_presence",
+                                                            label = "Bd Detection Status",
+                                                            choices = c("Bd")))))),
                           
                           mainPanel(h5("Map of water bodies and associated site ids, and (depending on selection) detection/non-detection of species/life stages. Detection information is provided by site/year and not based on specific survey dates. Detection and Bd load is quantified based on locations that were surveyed and organisms encountered at sites. A distance tool is provided in the lower-left of the map to allow measure of distances of interest."),
-                                    withSpinner(leafletOutput(outputId = "site_map", width = 1000, height = 500)),
+                                    withSpinner(leafletOutput(outputId = "site_map", width = 1100, height = 500)),
                                     withSpinner(DT::dataTableOutput("test_id")),
                                     headerPanel(""))),
                         hr(style = "border-top: 1px solid #000000;")),
@@ -189,7 +193,22 @@ ui <-  secure_app(head_auth = tags$script(inactivity),
                                   withSpinner(plotOutput(outputId = "bd_plots", width = 900, height = 350)),
                                   withSpinner(plotOutput(outputId = "bd_plots_sub", width = 900, height = 350)),
                                   withSpinner(plotOutput(outputId = "bd_plots_tad", width = 900, height = 350)))),
-                        hr(style = "border-top: 1px solid #000000;"))
+                        hr(style = "border-top: 1px solid #000000;")),
+               
+               tabPanel(title = "Data Download", icon = icon("download"),
+                        
+                        sidebarLayout(
+                          
+                          sidebarPanel(
+                            
+                           ),
+                          
+                          mainPanel(
+                           
+                            )),
+                        hr(style = "border-top: 1px solid #000000;")),
+                            
+                            
               
     
     

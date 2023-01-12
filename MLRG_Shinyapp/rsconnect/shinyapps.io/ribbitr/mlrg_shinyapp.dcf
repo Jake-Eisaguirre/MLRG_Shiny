@@ -1,0 +1,11 @@
+name: mlrg_shinyapp
+title:
+username:
+account: ribbitr
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 7999318
+bundleId: 6723125
+url: https://ribbitr.shinyapps.io/mlrg_shinyapp/
+when: 1673469329.93773
+lastSyncTime: 1673469329.93776

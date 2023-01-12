@@ -63,38 +63,38 @@ leaflet() %>%
 
 ```{r}
 
-yos <- read_sf(here("data", "Yosemite", "yosemite.shp")) %>% 
-  select(c(NAME_ABBRE, geometry)) %>% 
+yos <- read_sf(here("old_shape_file_data", "Yosemite", "yosemite.shp")) %>% 
+  dplyr::select(c(NAME_ABBRE, geometry)) %>% 
   rename(name = NAME_ABBRE)
 
-seq <- read_sf(here("data", "seq_king", "Sequoia_Kings_Canyon.shp")) %>% 
-  select(c(NAME_ABBRE, geometry)) %>% 
+seq <- read_sf(here("old_shape_file_data", "seq_king", "Sequoia_Kings_Canyon.shp")) %>% 
+  dplyr::select(c(NAME_ABBRE, geometry)) %>% 
   rename(name = NAME_ABBRE)
 
-king <- read_sf(here("data", "seq_king", "Sequoia_Kings_Canyon.shp")) %>% 
-  select(c(NAME_ABBRE, geometry)) %>% 
+king <- read_sf(here("old_shape_file_data", "seq_king", "Sequoia_Kings_Canyon.shp")) %>% 
+  dplyr::select(c(NAME_ABBRE, geometry)) %>% 
   rename(name = NAME_ABBRE)
 
-troot <- read_sf(here("data", "Golden_Trout", "Golden_Trout.shp")) %>% 
-  select(c(NAME_ABBRE, geometry)) %>% 
+troot <- read_sf(here("old_shape_file_data", "Golden_Trout", "Golden_Trout.shp")) %>% 
+  dplyr::select(c(NAME_ABBRE, geometry)) %>% 
   rename(name = NAME_ABBRE)
 
-john <- read_sf(here("data", "John_Muir", "John_Muir.shp")) %>% 
-  select(c(NAME_ABBRE, geometry)) %>% 
+john <- read_sf(here("old_shape_file_data", "John_Muir", "John_Muir.shp")) %>% 
+  dplyr::select(c(NAME_ABBRE, geometry)) %>% 
   rename(name = NAME_ABBRE)
 
-hoov <- read_sf(here("data", "Hoover", "Hoover.shp")) %>% 
-  select(c(NAME_ABBRE, geometry)) %>% 
+hoov <- read_sf(here("old_shape_file_data", "Hoover", "Hoover.shp")) %>% 
+  dplyr::select(c(NAME_ABBRE, geometry)) %>% 
   rename(name = NAME_ABBRE)
 
-des <- read_sf(here("data", "Desolation", "Desolation.shp")) %>% 
-  select(c(NAME_ABBRE, geometry)) %>% 
+des <- read_sf(here("old_shape_file_data", "Desolation", "Desolation.shp")) %>% 
+  dplyr::select(c(NAME_ABBRE, geometry)) %>% 
   rename(name = NAME_ABBRE)
 
 
 
-adam <- read_sf(here("data", "Ansel_Adams", "Ansel_Adams.shp")) %>% 
-  select(c(NAME_ABBRE, geometry)) %>% 
+adam <- read_sf(here("old_shape_file_data", "Ansel_Adams", "Ansel_Adams.shp")) %>% 
+  dplyr::select(c(NAME_ABBRE, geometry)) %>% 
   rename(name = NAME_ABBRE)
 
 wilderness_shape <- bind_rows(yos, seq, king, troot, john, hoov, des, adam)
@@ -103,11 +103,13 @@ wild_names <- data.frame(names = c("yosemite", "kings_canyon", "sequoia", "golde
                                   "john_muir", "hoover", "desolation", "ansel_adams"))
 
 wilderness_shape <- bind_cols(wilderness_shape, wild_names) %>% 
-  select(!c(name))
+  dplyr::select(!c(name))
 
 wilderness_shape = st_transform(wilderness_shape, crs = "+proj=longlat +ellps=WGS84 +datum=WGS84")
 
-st_write(wilderness_shape, here("data", "wilderness_shapes", "wilderness.shp"))
+st_write(wilderness_shape, here("data", "wilderness_shapes", "wilderness.shp"), append = F)
+
+plot(wilderness_shape$geometry)
 
 ```
 ```{r}
@@ -190,7 +192,7 @@ plot(lakes)
    as.vector()
  
  yos <- read_sf(here("data", "wilderness_shapes", "yos", "yose_kica_sequ_boundaries.shp")) %>% 
-   select(UNIT_NAME, geometry) %>% 
+   dplyr::select(UNIT_NAME, geometry) %>% 
    rename(names = UNIT_NAME) %>% 
    mutate(names = case_when(names == "Yosemite National Park" ~ "yosemite",
                             names == "Kings Canyon National Park" ~ "kings_canyon",
@@ -201,7 +203,17 @@ plot(lakes)
  shape <- read_sf(here("data", "wilderness_shapes", "wilderness.shp")) %>% 
    filter(!names %in% c("sequoia", "kings_canyon", "yosemite")) %>% 
    st_transform(crs = 4326) %>% 
-   rbind(yos)
+   rbind(yos) %>% 
+   mutate(names = case_when(names == 'yosemite' ~ "Yosemite",
+                            names == "kings_canyon" ~ "Kings Canyon",
+                            names == "sequoia" ~ "Sequoia",
+                            names == "golden_trout" ~ "Golden Trout",
+                            names == "john_muir" ~ "John Muir",
+                            names == "hoover" ~ "Hoover",
+                            names == "desolation" ~ "Desolation",
+                            names == "ansel_adams" ~ "Ansel Adams"))
+ 
+
  
 write_sf(shape, here("data", "wilderness_shapes", "wilderness.shp"), overwrite = T)
 ```
@@ -274,9 +286,21 @@ t <- ves_data %>%
 ```{r}
 
 
-t <- all_visits %>% 
-        filter(year %in% c(2016:2021),
-               wilderness == "Yosemite")
+ a <- ves_data %>% 
+        filter(date %in% c(2016:2021),
+               wilderness == "Yosemite", 
+               species == "Mountain yellow-legged frog - Rana muscosa", 
+               visual_life_stage == "Adult") %>% 
+  group_by(id) %>% 
+        mutate(int_bd_avg = mean(bd, na.rm = T)) %>% 
+  filter(int_bd_avg == 0)
+
+ b <- ves_data %>% 
+        filter(date %in% c(2016:2021),
+
+               wilderness == "Yosemite", bd_present == 1)
+ 
+ c <- anti_join(b, a, by = c("id"))
 
 ```
 
