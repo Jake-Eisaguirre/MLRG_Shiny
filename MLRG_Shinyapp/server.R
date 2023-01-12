@@ -9,6 +9,8 @@ server <- function(input, output, session){
     reactiveValuesToList(result_auth)
   })
 
+########## MAP ####################
+  
     #reactive ves map data frame filtering on year, wilderness, species, and life stage
     data_reactive <- reactive({
       
@@ -27,15 +29,14 @@ server <- function(input, output, session){
     
     
     #reactive shape file for wilderness outlines
-    
     shape_reactive <- reactive({
 
         shape %>%
             dplyr::filter(wilderness == input$wilderness)
     }) %>% bindCache(input$wilderness, cache = "app")
     
-    # reactive for all visits
     
+    # reactive for all visits
     visit_reactive <- reactive({
       
       all_visits %>% 
@@ -43,13 +44,7 @@ server <- function(input, output, session){
                wilderness == input$wilderness)
     }) %>% bindCache(input$site_year, input$wilderness, cache = "app")
     
-    # observe({
-    # labels <- paste("<strong>", all_visits$site_id, "<br>",
-    #                 "<strong>", all_visits$lake_type) %>%
-    #   lapply(htmltools::HTML)
-    # })
-
-    
+    # reactive zoom
     view <- reactive({
 
       shape %>%
@@ -59,7 +54,7 @@ server <- function(input, output, session){
     }) %>% bindCache(input$wilderness, cache = "app")
     
     
-    
+    # bd present data set
     bd_present <- reactive({
       
       ves_data %>% 
@@ -74,6 +69,7 @@ server <- function(input, output, session){
       
     })
     
+    # bd absent data set
     bd_absent <- reactive({
       
       ves_data %>% 
@@ -112,20 +108,10 @@ server <- function(input, output, session){
                          
         addPolylines(data = shape_reactive()$geometry, color = "#0d0887", dashArray = T, opacity = 0.9, weight = 1.9,
                      label = paste("Wilderness:", shape_reactive()$wilderness), layerId = shape_reactive()$wilderness)
-      # ,
-      #                popup = paste("<B>", input$site_year[1], "-", input$site_year[2], "Wilderness Totals <br>",
-      #                              
-      #                             
-      #                              
-      #                              paste(data_reactive()$visual_life_stage), paste(data_reactive()$species),
-      #                              "Median Wilderness log10(Bd) Load:", round(data_reactive()$med, 2), "<br>",
-      #                              
-      #                              paste(
-      #                                    "Summed Median Count:", sum(data_reactive()$count)))) 
-                   
+
       })
       
-   
+   # add all visits to map
     observeEvent(input$visits, {
 
       leafletProxy("site_map") %>%
@@ -143,7 +129,7 @@ server <- function(input, output, session){
 
     })
     
-    
+    # add bd present absent to map
     observeEvent(input$bd_presence, {
       
       leafletProxy("site_map") %>%
@@ -161,7 +147,7 @@ server <- function(input, output, session){
     })
     
 
-   # click site
+   # click site to render data
     observe({
       leafletProxy("site_map")
         
@@ -202,7 +188,7 @@ server <- function(input, output, session){
     })
     
     
-    # bd tab click
+    # bd tab click to render data
     observe({
       leafletProxy("site_map")
       
@@ -243,7 +229,7 @@ server <- function(input, output, session){
     })
   
     
-    # #click polygon
+    # #click polygon to redner data
     observe({
 
       leafletProxy("site_map")
@@ -276,7 +262,7 @@ server <- function(input, output, session){
     
 
     
-    
+    # reset action buttons clicks for bd and visits
     observeEvent(input$visits, {
       updateCheckboxGroupButtons(session, "visits", selected = "")
     })
@@ -286,10 +272,11 @@ server <- function(input, output, session){
     })
     
   
-
+################ END MAP #######################
     
-# reactive ves plot all below
+############## VES ########################
     
+# reactive ves data for adult, subadult and eggs
     ves_reac <- reactive({
 
     
@@ -307,6 +294,8 @@ server <- function(input, output, session){
             
     })
     
+    
+    # reactive ves data for tadpoles
     ves_tad <- reactive({
       
       
@@ -323,7 +312,7 @@ server <- function(input, output, session){
       
     })
   
-    
+    # render data for table
     ves_table <- reactive({
       
       
@@ -341,7 +330,7 @@ server <- function(input, output, session){
     })  
     
 
-    
+    # render plot for adult, sub adult, and egg
     output$ves_plots = renderPlot({
       
       
@@ -383,6 +372,8 @@ server <- function(input, output, session){
             
     })
     
+    
+    # render plot for tadpole
     output$ves_tad = renderPlot({
       
       if(input$wilderness_1 < 0 && input$ves_species < 0 && input$id < 0) {
@@ -421,7 +412,7 @@ server <- function(input, output, session){
       
     })
       
-    
+    # agg table render
     output$ves_counts = renderTable({
       
       ves_table() %>% 
@@ -430,6 +421,51 @@ server <- function(input, output, session){
         rename("Median Count" = Count)
       
       })
+    
+    # agg table for download
+    ves_agg_reac <- reactive({
+
+      ves_table() %>%
+        arrange(visual_life_stage) %>%
+        dplyr::select(Year, "Visual Life Stage", Count) %>%
+        rename("Median Count" = Count) %>% 
+        mutate(Jurisdiction = input$wilderness_1,
+               Species = input$ves_species,
+               Site = input$id)
+
+    })
+    
+        # Data download
+        observeEvent(input$ves_agg_download, {
+
+          shinyalert(title = "Pump the breaks!",
+                     text = "This Feature will be live following data sharing contract",
+                     type = "warning", closeOnClickOutside = T, showCancelButton = T, inputId = "ves_agg_download_btn",
+                     showConfirmButton = T, confirmButtonText = "Yes", cancelButtonText = "No",
+                     animation = "slide-from-top")
+        })
+
+        observeEvent(input$ves_agg_download_btn,{
+          if(input$ves_agg_download_btn == T)
+            showModal(modalDialog(downloadButton("ves_agg_dwnld", "Download"), footer = NULL, easyClose = T, size = "s"))
+        })
+
+        output$ves_agg_dwnld <- downloadHandler(
+          filename = function(){"insert_name.csv"},
+
+          content = function(file) {
+            shiny::withProgress(
+              message = paste0("Downloading Aggregated VES Data"),
+              value = 0,
+              {
+                shiny::incProgress(3/10)
+                Sys.sleep(1)
+                shiny::incProgress(9/10)
+                write.csv(ves_agg_reac(), file, row.names = FALSE)
+              }
+            )
+          }
+        )
     
     
     # observe events to update wilderness and years based on selection for leaflet map
@@ -469,10 +505,12 @@ server <- function(input, output, session){
                         selected = unique(ves_data$visual_life_stage))
     })
     
+####################### END VES ########################
+    
+#################### Bd ######################
     
     
-    
- # bd reactive time series plot all below 
+ # bd reactive time series data
     
     bd_reac <- reactive({
       
@@ -491,6 +529,7 @@ server <- function(input, output, session){
       
     })
     
+    # adult data
     bd_reac_adult <- reactive({
 
       
@@ -509,6 +548,7 @@ server <- function(input, output, session){
       
     })
     
+    # tadpole data
     bd_reac_tad <- reactive({
       
       
@@ -527,6 +567,7 @@ server <- function(input, output, session){
       
     })
     
+    #sub adult data
     bd_reac_subadult <- reactive({
       
       
@@ -544,7 +585,7 @@ server <- function(input, output, session){
       
     })
 
-    
+    # render bd plots
     output$bd_plots <- renderPlot({
       
       if(input$wilderness_2 < 0 && input$bd_species < 0 && input$bd_id < 0) {
@@ -684,7 +725,7 @@ server <- function(input, output, session){
       
     })
     
-    
+    # render table
     output$bd_counts = renderTable({
       
       bd_reac() %>% 
@@ -693,7 +734,50 @@ server <- function(input, output, session){
       
     })
     
+    # agg table for download
+    bd_agg_reac <- reactive({
+      
+      bd_reac() %>% 
+        arrange(visual_life_stage) %>% 
+        dplyr::select("Year-Month", "Visual Life Stage", "Log10(Bd) Load", "Prevalence", "Sample Size") %>% 
+        mutate(Jurisdiction = input$wilderness_2, Species = input$bd_species, Site = input$bd_id)
+      
+    })
     
+    # Data download
+    observeEvent(input$bd_agg_download, {
+      
+      shinyalert(title = "Pump the breaks!",
+                 text = "This Feature will be live following data sharing contract",
+                 type = "warning", closeOnClickOutside = T, showCancelButton = T, inputId = "bd_agg_download_btn",
+                 showConfirmButton = T, confirmButtonText = "Yes", cancelButtonText = "No",
+                 animation = "slide-from-top")
+    })
+    
+    observeEvent(input$bd_agg_download_btn,{
+      if(input$bd_agg_download_btn == T)
+        showModal(modalDialog(downloadButton("bd_agg_dwnld", "Download"), footer = NULL, easyClose = T, size = "s"))
+    })
+    
+    output$bd_agg_dwnld <- downloadHandler(
+      filename = function(){"insert_name.csv"},
+      
+      content = function(file) {
+        shiny::withProgress(
+          message = paste0("Downloading Aggregated Bd Data"),
+          value = 0,
+          {
+            shiny::incProgress(3/10)
+            Sys.sleep(1)
+            shiny::incProgress(9/10)
+            write.csv(bd_agg_reac(), file, row.names = FALSE)
+          }
+        )
+      }
+    )
+    
+    
+    # update input options
     observeEvent(input$bd_date, {
       
       updatePickerInput(session, inputId = "wilderness_2", 
@@ -730,6 +814,8 @@ server <- function(input, output, session){
                         selected = unique(ves_data$visual_life_stage))
 
     })
+    
+############## END Bd #######################
     
     
 ##### capture data download ######
@@ -805,7 +891,7 @@ server <- function(input, output, session){
 #                  })
 #     
 #     
-# ###### end capture #########
+# ###### end capture download #########
 #     
 # ####### VES Data download ##########
 #     
@@ -877,6 +963,6 @@ server <- function(input, output, session){
 #                    
 #                  })
 #     
-    
+################# END VES data download ###################    
 }
     
