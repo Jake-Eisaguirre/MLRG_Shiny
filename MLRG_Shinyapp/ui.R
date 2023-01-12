@@ -195,17 +195,156 @@ ui <-  secure_app(head_auth = tags$script(inactivity),
                                   withSpinner(plotOutput(outputId = "bd_plots_tad", width = 900, height = 350)))),
                         hr(style = "border-top: 1px solid #000000;")),
                
-               tabPanel(title = "Data Download", icon = icon("download"),
+               navbarMenu(title = "Data Download", icon = icon("download"),
+                      
+                    tabPanel("Capture Data",
                         
                         sidebarLayout(
                           
                           sidebarPanel(
+                              sliderInput(inputId = "data_year",
+                                          label = "Select Annual Range",
+                                          min = min(visit$year), max = max(visit$year),
+                                          value = c(max(visit$year) - 5, max(visit$year)),
+                                          sep = ""),
+                              pickerInput(inputId = "data_jur",
+                                          label = "Select a Jurisdiction",
+                                          choices = unique(site$wilderness),
+                                          options = list(
+                                            `actions-box` = TRUE, 
+                                            size = 10,
+                                            `selected-text-format` = "count > 3"
+                                          ), 
+                                          multiple = TRUE),
+                              hr(style = "border-top: 1px solid #000000;"),
+                              pickerInput(inputId = "data_site",
+                                          label = "Select Site Level Variables",
+                                          choices = colnames(site),
+                                          options = list(
+                                            `actions-box` = TRUE, 
+                                            size = 10,
+                                            `selected-text-format` = "count > 3"
+                                          ), 
+                                          multiple = TRUE),
+                              pickerInput(inputId = "data_visit",
+                                          label = "Select Visit Level Variables",
+                                          choices = colnames(visit),
+                                          options = list(
+                                            `actions-box` = TRUE, 
+                                            size = 10,
+                                            `selected-text-format` = "count > 3"
+                                          ), 
+                                          multiple = TRUE),
+                              pickerInput(inputId = "data_survey",
+                                          label = "Select Survey Level Variables",
+                                          choices = colnames(survey),
+                                          options = list(
+                                            `actions-box` = TRUE, 
+                                            size = 10,
+                                            `selected-text-format` = "count > 3"
+                                          ), 
+                                          multiple = TRUE),
+                              pickerInput(inputId = "data_capture",
+                                          label = "Select Capture Level Variables",
+                                          choices = colnames(capture),
+                                          options = list(
+                                            `actions-box` = TRUE, 
+                                            size = 10,
+                                            `selected-text-format` = "count > 3"
+                                          ), 
+                                          multiple = TRUE),
+                              pickerInput(inputId = "data_bd",
+                                          label = "Select Bd Load Variables",
+                                          choices = colnames(bd_load_table),
+                                          options = list(
+                                            `actions-box` = TRUE, 
+                                            size = 10,
+                                            `selected-text-format` = "count > 3"
+                                          ), 
+                                          multiple = TRUE)
+                              
                             
                            ),
                           
                           mainPanel(
-                           
-                            )),
+                            withSpinner(DT::dataTableOutput("cap_table")),
+                            headerPanel(""),
+                            actionButton('cap_download',"Download the data",
+                                         icon("download"), 
+                                         style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
+                            actionButton('cap_clear', "Clear Selection",
+                                         icon("trash"),
+                                         style="color: #fff; background-color: red; border-color: black")))),
+                    
+                    tabPanel("VES Data",
+                             
+                             sidebarLayout(
+                               
+                               sidebarPanel(
+                                 sliderInput(inputId = "data_year_ves",
+                                             label = "Select Annual Range",
+                                             min = min(visit$year), max = max(visit$year),
+                                             value = c(max(visit$year) - 5, max(visit$year)),
+                                             sep = ""),
+                                 pickerInput(inputId = "data_jur_ves",
+                                             label = "Select a Jurisdiction",
+                                             choices = unique(site$wilderness),
+                                             options = list(
+                                               `actions-box` = TRUE, 
+                                               size = 10,
+                                               `selected-text-format` = "count > 3"
+                                             ), 
+                                             multiple = TRUE),
+                                 hr(style = "border-top: 1px solid #000000;"),
+                                 pickerInput(inputId = "data_site_ves",
+                                             label = "Select Site Level Variables",
+                                             choices = colnames(site),
+                                             options = list(
+                                               `actions-box` = TRUE, 
+                                               size = 10,
+                                               `selected-text-format` = "count > 3"
+                                             ), 
+                                             multiple = TRUE),
+                                 pickerInput(inputId = "data_visit_ves",
+                                             label = "Select Visit Level Variables",
+                                             choices = colnames(visit),
+                                             options = list(
+                                               `actions-box` = TRUE, 
+                                               size = 10,
+                                               `selected-text-format` = "count > 3"
+                                             ), 
+                                             multiple = TRUE),
+                                 pickerInput(inputId = "data_survey_ves",
+                                             label = "Select Survey Level Variables",
+                                             choices = colnames(survey),
+                                             options = list(
+                                               `actions-box` = TRUE, 
+                                               size = 10,
+                                               `selected-text-format` = "count > 3"
+                                             ), 
+                                             multiple = TRUE),
+                                 pickerInput(inputId = "data_ves",
+                                             label = "Select VES Level Variables",
+                                             choices = colnames(ves_table),
+                                             options = list(
+                                               `actions-box` = TRUE, 
+                                               size = 10,
+                                               `selected-text-format` = "count > 3"
+                                             ), 
+                                             multiple = TRUE)
+                                 
+                                 
+                               ),
+                               
+                               mainPanel(
+                                 withSpinner(DT::dataTableOutput("ves_table")),
+                                 headerPanel(""),
+                                 actionButton('ves_download',"Download the data",
+                                              icon("download"), 
+                                              style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
+                                 actionButton('ves_clear', "Clear Selection",
+                                              icon("trash"),
+                                              style="color: #fff; background-color: red; border-color: black")))),
                         hr(style = "border-top: 1px solid #000000;")),
                             
                             
