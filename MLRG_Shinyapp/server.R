@@ -735,148 +735,148 @@ server <- function(input, output, session){
 ##### capture data download ######
     
     
-    cap_data <- reactive({
-      
-      full_capture %>% 
-        filter(year <= input$data_year[2] & year>= input$data_year[1],
-               jurisdiction %in% input$data_jur) %>% 
-        dplyr::select(wilderness, input$data_site, input$data_visit, input$data_survey, input$data_capture, input$data_bd) 
-      
-    })
-    
-    output$cap_table <- DT::renderDataTable(cap_data(), rownames = FALSE, extensions= 'Buttons', 
-                                            options = list(scrollX = T, TRUEom = 'Bfrtip',
-                                                           buttons = c('copy', 'csv', 'excel', 'pdf', 'print')))
-    
-    
-    # Data download
-    observeEvent(input$cap_download, {
-      
-      shinyalert(title = "Pump the breaks!", 
-                 text = "This Feature will be live following data sharing contract",
-                 type = "warning", closeOnClickOutside = T, showCancelButton = T, inputId = "cap_download_btn",
-                 showConfirmButton = T, confirmButtonText = "Yes", cancelButtonText = "No", 
-                 animation = "slide-from-top")
-    })
-    
-    # observeEvent(input$cap_download_btn,{
-    #   if(input$cap_download_btn == T)
-    #     showModal(modalDialog(downloadButton("cap_dwnld", "Download"), footer = NULL, easyClose = T, size = "s"))
-    # })
-    # 
-    # output$cap_dwnld <- downloadHandler(
-    #   filename = function(){"insert_name.csv"},
-    #   
-    #   content = function(file) {
-    #     shiny::withProgress(
-    #       message = paste0("Downloading Capture Data"),
-    #       value = 0,
-    #       {
-    #         shiny::incProgress(3/10)
-    #         Sys.sleep(1)
-    #         shiny::incProgress(9/10)
-    #         write.csv(cap_data(), file, row.names = FALSE)
-    #       }
-    #     )
-    #   }
-    # )
-    
-    
-    # update wilderness options based on year selection
-    observe(
-      {input$data_year
-        
-        updatePickerInput(session, inputId = "data_jur",
-                          choices = unique(full_capture$wilderness[full_capture$year <= input$data_year[2] 
-                                                        & full_capture$year>=input$data_year[1]]))
-      })
-    
-    # clear button
-    observeEvent(input$cap_clear,
-                 {
-                   updatePickerInput(session, inputId = "data_year", selected = c(max(visit$year) - 5, max(visit$year)))
-                   updatePickerInput(session, inputId = "data_jur", selected = "")
-                   updatePickerInput(session, inputId = "data_site", selected = "")
-                   updatePickerInput(session, inputId = "data_visit", selected = "")
-                   updatePickerInput(session, inputId = "data_survey", selected = "")
-                   updatePickerInput(session, inputId = "data_capture", selected = "")
-                   updatePickerInput(session, inputId = "data_bd", selected = "")
-                   
-                 })
-    
-    
-###### end capture #########
-    
-####### VES Data download ##########
-    
-    v_data <- reactive({
-      
-      full_ves %>% 
-        filter(year <= input$data_year_ves[2] & year >= input$data_year_ves[1],
-               jurisdiction %in% input$data_jur_ves) %>% 
-        dplyr::select(wilderness, input$data_site_ves, input$data_visit_ves, input$data_survey_ves, input$data_ves) 
-      
-    })
-    
-    output$ves_table <- DT::renderDataTable(v_data(), rownames = FALSE, extensions= 'Buttons', 
-                                            options = list(scrollX = T, TRUEom = 'Bfrtip',
-                                                           buttons = c('copy', 'csv', 'excel', 'pdf', 'print')))
-  
-    # VES Data download
-    observeEvent(input$ves_download, {
-      
-      shinyalert(title = "Pump the breaks!", 
-                 text = "This Feature will be live following data sharing contract",
-                 type = "warning", closeOnClickOutside = T, showCancelButton = T, inputId = "ves_download_btn",
-                 showConfirmButton = T, confirmButtonText = "Yes", cancelButtonText = "No", 
-                 animation = "slide-from-top")
-    })
-    
-    # observeEvent(input$ves_download_btn,{
-    #   if(input$ves_download_btn == T)
-    #     showModal(modalDialog(downloadButton("ves_dwnld", "Download"), footer = NULL, easyClose = T, size = "s"))
-    # })
-    # 
-    # output$ves_dwnld <- downloadHandler(
-    #   filename = function(){"insert_name.csv"},
-    # 
-    #   content = function(file) {
-    #     shiny::withProgress(
-    #       message = paste0("Downloading VES Data"),
-    #       value = 0,
-    #       {
-    #         shiny::incProgress(3/10)
-    #         Sys.sleep(1)
-    #         shiny::incProgress(9/10)
-    #         write.csv(v_data(), file, row.names = FALSE)
-    #       }
-    #     )
-    #   }
-    # )
-    # 
-    
-    # update wilderness options based on year selection
-    observe(
-      {input$data_year_ves
-        
-        updatePickerInput(session, inputId = "data_jur_ves",
-                          choices = unique(full_ves$wilderness[full_ves$year <= input$data_year_ves[2] 
-                                                                   & full_ves$year>=input$data_year_ves[1]]))
-      })
-    
-    
-    # clear button
-    observeEvent(input$ves_clear,
-                 {
-                   updatePickerInput(session, inputId = "data_year_ves", selected = c(max(visit$year) - 5, max(visit$year)))
-                   updatePickerInput(session, inputId = "data_jur_ves", selected = "")
-                   updatePickerInput(session, inputId = "data_site_ves", selected = "")
-                   updatePickerInput(session, inputId = "data_visit_ves", selected = "")
-                   updatePickerInput(session, inputId = "data_survey_ves", selected = "")
-                   updatePickerInput(session, inputId = "data_ves", selected = "")
-                   
-                 })
-    
+#     cap_data <- reactive({
+#       
+#       full_capture %>% 
+#         filter(year <= input$data_year[2] & year>= input$data_year[1],
+#                jurisdiction %in% input$data_jur) %>% 
+#         dplyr::select(wilderness, input$data_site, input$data_visit, input$data_survey, input$data_capture, input$data_bd) 
+#       
+#     })
+#     
+#     output$cap_table <- DT::renderDataTable(cap_data(), rownames = FALSE, extensions= 'Buttons', 
+#                                             options = list(scrollX = T, TRUEom = 'Bfrtip',
+#                                                            buttons = c('copy', 'csv', 'excel', 'pdf', 'print')))
+#     
+#     
+#     # Data download
+#     observeEvent(input$cap_download, {
+#       
+#       shinyalert(title = "Pump the breaks!", 
+#                  text = "This Feature will be live following data sharing contract",
+#                  type = "warning", closeOnClickOutside = T, showCancelButton = T, inputId = "cap_download_btn",
+#                  showConfirmButton = T, confirmButtonText = "Yes", cancelButtonText = "No", 
+#                  animation = "slide-from-top")
+#     })
+#     
+#     # observeEvent(input$cap_download_btn,{
+#     #   if(input$cap_download_btn == T)
+#     #     showModal(modalDialog(downloadButton("cap_dwnld", "Download"), footer = NULL, easyClose = T, size = "s"))
+#     # })
+#     # 
+#     # output$cap_dwnld <- downloadHandler(
+#     #   filename = function(){"insert_name.csv"},
+#     #   
+#     #   content = function(file) {
+#     #     shiny::withProgress(
+#     #       message = paste0("Downloading Capture Data"),
+#     #       value = 0,
+#     #       {
+#     #         shiny::incProgress(3/10)
+#     #         Sys.sleep(1)
+#     #         shiny::incProgress(9/10)
+#     #         write.csv(cap_data(), file, row.names = FALSE)
+#     #       }
+#     #     )
+#     #   }
+#     # )
+#     
+#     
+#     # update wilderness options based on year selection
+#     observe(
+#       {input$data_year
+#         
+#         updatePickerInput(session, inputId = "data_jur",
+#                           choices = unique(full_capture$wilderness[full_capture$year <= input$data_year[2] 
+#                                                         & full_capture$year>=input$data_year[1]]))
+#       })
+#     
+#     # clear button
+#     observeEvent(input$cap_clear,
+#                  {
+#                    updatePickerInput(session, inputId = "data_year", selected = c(max(visit$year) - 5, max(visit$year)))
+#                    updatePickerInput(session, inputId = "data_jur", selected = "")
+#                    updatePickerInput(session, inputId = "data_site", selected = "")
+#                    updatePickerInput(session, inputId = "data_visit", selected = "")
+#                    updatePickerInput(session, inputId = "data_survey", selected = "")
+#                    updatePickerInput(session, inputId = "data_capture", selected = "")
+#                    updatePickerInput(session, inputId = "data_bd", selected = "")
+#                    
+#                  })
+#     
+#     
+# ###### end capture #########
+#     
+# ####### VES Data download ##########
+#     
+#     v_data <- reactive({
+#       
+#       full_ves %>% 
+#         filter(year <= input$data_year_ves[2] & year >= input$data_year_ves[1],
+#                jurisdiction %in% input$data_jur_ves) %>% 
+#         dplyr::select(wilderness, input$data_site_ves, input$data_visit_ves, input$data_survey_ves, input$data_ves) 
+#       
+#     })
+#     
+#     output$ves_table <- DT::renderDataTable(v_data(), rownames = FALSE, extensions= 'Buttons', 
+#                                             options = list(scrollX = T, TRUEom = 'Bfrtip',
+#                                                            buttons = c('copy', 'csv', 'excel', 'pdf', 'print')))
+#   
+#     # VES Data download
+#     observeEvent(input$ves_download, {
+#       
+#       shinyalert(title = "Pump the breaks!", 
+#                  text = "This Feature will be live following data sharing contract",
+#                  type = "warning", closeOnClickOutside = T, showCancelButton = T, inputId = "ves_download_btn",
+#                  showConfirmButton = T, confirmButtonText = "Yes", cancelButtonText = "No", 
+#                  animation = "slide-from-top")
+#     })
+#     
+#     # observeEvent(input$ves_download_btn,{
+#     #   if(input$ves_download_btn == T)
+#     #     showModal(modalDialog(downloadButton("ves_dwnld", "Download"), footer = NULL, easyClose = T, size = "s"))
+#     # })
+#     # 
+#     # output$ves_dwnld <- downloadHandler(
+#     #   filename = function(){"insert_name.csv"},
+#     # 
+#     #   content = function(file) {
+#     #     shiny::withProgress(
+#     #       message = paste0("Downloading VES Data"),
+#     #       value = 0,
+#     #       {
+#     #         shiny::incProgress(3/10)
+#     #         Sys.sleep(1)
+#     #         shiny::incProgress(9/10)
+#     #         write.csv(v_data(), file, row.names = FALSE)
+#     #       }
+#     #     )
+#     #   }
+#     # )
+#     # 
+#     
+#     # update wilderness options based on year selection
+#     observe(
+#       {input$data_year_ves
+#         
+#         updatePickerInput(session, inputId = "data_jur_ves",
+#                           choices = unique(full_ves$wilderness[full_ves$year <= input$data_year_ves[2] 
+#                                                                    & full_ves$year>=input$data_year_ves[1]]))
+#       })
+#     
+#     
+#     # clear button
+#     observeEvent(input$ves_clear,
+#                  {
+#                    updatePickerInput(session, inputId = "data_year_ves", selected = c(max(visit$year) - 5, max(visit$year)))
+#                    updatePickerInput(session, inputId = "data_jur_ves", selected = "")
+#                    updatePickerInput(session, inputId = "data_site_ves", selected = "")
+#                    updatePickerInput(session, inputId = "data_visit_ves", selected = "")
+#                    updatePickerInput(session, inputId = "data_survey_ves", selected = "")
+#                    updatePickerInput(session, inputId = "data_ves", selected = "")
+#                    
+#                  })
+#     
     
 }
     
