@@ -66,93 +66,93 @@ all_visits <- read_csv(here( "data/all_visits.csv")) %>%
 
  ######### Database Connection and Data Download ############## 
 
-# # DB conection
-# source(here("db_creds.R"))
-# 
-# connection <- dbConnect(dbDriver("Postgres"),
-#                         dbname = sn_dbname,
-#                         host = sn_host,
-#                         port = sn_port,
-#                         user = sn_user,
-#                         password = sn_password)
-# 
-# dbExecute(connection, "set search_path = public")
-# 
-# # Site table
-# site <- dbGetQuery(connection, "select * from site")
-# site <- site %>%
-#   rename(site_name = name,
-#          site_utme = utme,
-#          site_utmn = utmn)
-# 
-# # visit table
-# visit <- dbGetQuery(connection, "select * from visit")
-# visit <- dplyr::select(visit, !c(id, site_id)) %>%
-#   mutate(year = year(visit_date)) %>%
-#   rename(visit_comment = comment)
-# 
-# # survey table
-# survey <- dbGetQuery(connection, "select * from survey")
-# survey <- dplyr::select(survey, !c(id, visit_id)) %>%
-#   rename(survey_comment = comment)
-# 
-# # capture table
-# capture <- dbGetQuery(connection, "select * from capture_survey")
-# capture <- dplyr::select(capture, !c(id, survey_id, surveyor_id)) %>%
-#   rename(capture_comment = comment,
-#          capture_utme = utme,
-#          capture_utmn = utmn)
-# 
-# # full capture data set
-# raw_capture <- dbGetQuery(connection, "select s.*, v.*, s2.*, cs.*, s3.name, bd.*
-#                                        from site s
-#                                        join visit v on s.id = v.site_id
-#                                        join survey s2 on v.id = s2.visit_id
-#                                        join capture_survey cs on s2.id = cs.survey_id
-#                                        join surveyor s3 on cs.surveyor_id = s3.id
-#                                        join bd_load bd on cs.swab_id = bd.sample_id;")
-# 
-# full_capture <- raw_capture %>%
-#   dplyr::select(!c(id..13, site_id, id..18, id..34, surveyor_id, visit_id, survey_id, swab_id)) %>%
-#   rename(site_name = name,
-#          visit_comment = comment,
-#          site_utme = utme,
-#          site_utmn = utmn,
-#          survey_comment = comment..32,
-#          capture_comment = comment..50,
-#          capture_utme = utme..44,
-#          capture_utmn = utmn..45,
-#          surveyor = name..51,
-#          swab_id = sample_id) %>%
-#   mutate(year = year(visit_date))
-# 
-# # bd load table
-# bd_load_table <- dbGetQuery(connection, "select * from bd_load")
-# bd_load_table <- bd_load_table %>% rename(swab_id = sample_id)
-# 
-# # VES table
-# ves_table <- dbGetQuery(connection, "select * from visual_survey")
-# ves_table <- dplyr::select(ves_table, !c(id, survey_id)) %>%
-#   rename(ves_comment = comment)
-# 
-# # full Ves data
-# raw_ves <- dbGetQuery(connection, "select s.*, v.*, s2.*, cs.*
-#                                    from site s
-#                                    join visit v on s.id = v.site_id
-#                                    join survey s2 on v.id = s2.visit_id
-#                                    join visual_survey cs on s2.id = cs.survey_id;")
-# 
-# full_ves <- raw_ves %>%
-#   dplyr::select(!c(id..13, site_id, id..18, id..34, visit_id, survey_id)) %>%
-#   rename(site_name = name,
-#          visit_comment = comment,
-#          survey_comment = comment..32,
-#          ves_comment = comment..41,
-#          site_utme = utme,
-#          site_utmn = utmn)%>%
-#   mutate(year = year(visit_date))
-# 
-#   
+# DB conection
+source(here("db_creds.R"))
+
+connection <- dbConnect(dbDriver("Postgres"),
+                        dbname = sn_dbname,
+                        host = sn_host,
+                        port = sn_port,
+                        user = sn_user,
+                        password = sn_password)
+
+dbExecute(connection, "set search_path = public")
+
+# Site table
+site <- dbGetQuery(connection, "select * from site")
+site <- site %>%
+  rename(site_name = name,
+         site_utme = utme,
+         site_utmn = utmn)
+
+# visit table
+visit <- dbGetQuery(connection, "select * from visit")
+visit <- dplyr::select(visit, !c(id, site_id)) %>%
+  mutate(year = year(visit_date)) %>%
+  rename(visit_comment = comment)
+
+# survey table
+survey <- dbGetQuery(connection, "select * from survey")
+survey <- dplyr::select(survey, !c(id, visit_id)) %>%
+  rename(survey_comment = comment)
+
+# capture table
+capture <- dbGetQuery(connection, "select * from capture_survey")
+capture <- dplyr::select(capture, !c(id, survey_id, surveyor_id)) %>%
+  rename(capture_comment = comment,
+         capture_utme = utme,
+         capture_utmn = utmn)
+
+# full capture data set
+raw_capture <- dbGetQuery(connection, "select s.*, v.*, s2.*, cs.*, s3.name, bd.*
+                                       from site s
+                                       join visit v on s.id = v.site_id
+                                       join survey s2 on v.id = s2.visit_id
+                                       join capture_survey cs on s2.id = cs.survey_id
+                                       join surveyor s3 on cs.surveyor_id = s3.id
+                                       join bd_load bd on cs.swab_id = bd.sample_id;")
+
+full_capture <- raw_capture %>%
+  dplyr::select(!c(id..13, site_id, id..18, id..34, surveyor_id, visit_id, survey_id, swab_id)) %>%
+  rename(site_name = name,
+         visit_comment = comment,
+         site_utme = utme,
+         site_utmn = utmn,
+         survey_comment = comment..32,
+         capture_comment = comment..50,
+         capture_utme = utme..44,
+         capture_utmn = utmn..45,
+         surveyor = name..51,
+         swab_id = sample_id) %>%
+  mutate(year = year(visit_date))
+
+# bd load table
+bd_load_table <- dbGetQuery(connection, "select * from bd_load")
+bd_load_table <- bd_load_table %>% rename(swab_id = sample_id)
+
+# VES table
+ves_table <- dbGetQuery(connection, "select * from visual_survey")
+ves_table <- dplyr::select(ves_table, !c(id, survey_id)) %>%
+  rename(ves_comment = comment)
+
+# full Ves data
+raw_ves <- dbGetQuery(connection, "select s.*, v.*, s2.*, cs.*
+                                   from site s
+                                   join visit v on s.id = v.site_id
+                                   join survey s2 on v.id = s2.visit_id
+                                   join visual_survey cs on s2.id = cs.survey_id;")
+
+full_ves <- raw_ves %>%
+  dplyr::select(!c(id..13, site_id, id..18, id..34, visit_id, survey_id)) %>%
+  rename(site_name = name,
+         visit_comment = comment,
+         survey_comment = comment..32,
+         ves_comment = comment..41,
+         site_utme = utme,
+         site_utmn = utmn)%>%
+  mutate(year = year(visit_date))
+
+
 
 
 
