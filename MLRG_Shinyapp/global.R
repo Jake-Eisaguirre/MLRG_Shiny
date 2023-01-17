@@ -155,11 +155,13 @@ full_ves <- raw_ves %>%
 # relocate table
 relocate_table <- dbGetQuery(connection, "select * from relocate")
 relocate_table <- dplyr::select(relocate_table, !c(id)) %>% 
-  mutate(year = year(collect_date))
+  mutate(year = year(collect_date)) %>% 
+  rename(relocate_comment = comment)
 
 # frog relocate table
 relocate_frog_table <- dbGetQuery(connection, "select * from relocate_frog")
-relocate_frog_table <- dplyr::select(relocate_frog_table, !c(id, relocate_id, surveyor_id))
+relocate_frog_table <- dplyr::select(relocate_frog_table, !c(id, relocate_id, surveyor_id)) %>% 
+  rename(frog_comment = comment)
 
 # full CMR table
 raw_cmr <- dbGetQuery(connection, "select r.*, rf.*

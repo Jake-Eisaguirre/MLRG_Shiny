@@ -968,6 +968,7 @@ server <- function(input, output, session){
     
 ################# Relocate data #########################
     
+    # reactive relocate data
     reloc_data <- reactive({
       
       full_cmr %>% 
@@ -977,9 +978,65 @@ server <- function(input, output, session){
       
     })
     
+    # render data
     output$cmr_table <- DT::renderDataTable(reloc_data(), rownames = FALSE, extensions= 'Buttons',
                                             options = list(scrollX = T, TRUEom = 'Bfrtip',
                                                            buttons = c('copy', 'csv', 'excel', 'pdf', 'print')))
     
+    #download data
+    # VES Data download
+    observeEvent(input$cmr_download, {
+      
+      shinyalert(title = "Pump the breaks!",
+                 text = "This Feature will be live following data sharing contract",
+                 type = "warning", closeOnClickOutside = T, showCancelButton = T, inputId = "cmr_download_btn",
+                 showConfirmButton = T, confirmButtonText = "Yes", cancelButtonText = "No",
+                 animation = "slide-from-top")
+    })
+    
+    # observeEvent(input$cmr_download_btn,{
+    #   if(input$cmr_download_btn == T)
+    #     showModal(modalDialog(downloadButton("cmr_dwnld", "Download"), footer = NULL, easyClose = T, size = "s"))
+    # })
+    # 
+    # output$cmr_dwnld <- downloadHandler(
+    #   filename = function(){"insert_name.csv"},
+    # 
+    #   content = function(file) {
+    #     shiny::withProgress(
+    #       message = paste0("Downloading Relocate Data"),
+    #       value = 0,
+    #       {
+    #         shiny::incProgress(3/10)
+    #         Sys.sleep(1)
+    #         shiny::incProgress(9/10)
+    #         write.csv(reloc_data(), file, row.names = FALSE)
+    #       }
+    #     )
+    #   }
+    # )
+    
+    
+    # clear button
+    observeEvent(input$cmr_clear,
+                 {
+                   updatePickerInput(session, inputId = "data_year_cmr", selected = "")
+                   updatePickerInput(session, inputId = "id_cmr", selected = "")
+                   updatePickerInput(session, inputId = "retran_cmr", selected = "")
+                   updatePickerInput(session, inputId = "relocate_cmr", selected = "")
+                   updatePickerInput(session, inputId = "relocate_frog_cmr", selected = "")
+                   
+                 })
+    
+    
+    # update site_id options based on year selection
+    observe(
+      {input$data_year_cmr
+        
+        updatePickerInput(session, inputId = "id_cmr",
+                          choices = unique(full_cmr$collect_siteid[full_cmr$year == c(input$data_year_cmr)]))
+      })
+    
+
 }
     
