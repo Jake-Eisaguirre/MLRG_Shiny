@@ -6,20 +6,26 @@ source("creds.R", local = T)
 ui <-  secure_app(head_auth = tags$script(inactivity), 
                   
     
-    fluidPage(tags$style('body {
-                             background-color: #cdd1cb;
-              }'
-    ),
+    fluidPage(
     
     tags$head(
       tags$style(HTML("
       .shiny-output-error-validation {
         color: #ff0000;
         font-weight: bold;
-      }"))),
+      }")),
+      tags$style(HTML(".well {
+        border: 1px solid #000000;
+      }")), 
+      # tags$style(HTML(".col-sm-8 {
+      #   border: 1px solid #000000;
+      # }")),
+      tags$style('body {
+        background-color: #cdd1cb;
+      }'),
 
     
-    includeCSS(here("MLRG_Shinyapp/theme.css")),
+    includeCSS(here("theme.css")),
     
     #theme = theme,
     
@@ -66,8 +72,7 @@ ui <-  secure_app(head_auth = tags$script(inactivity),
                                             img(src = "new_dist.jpeg",
                                                 height = 300,
                                                 width = 300))))
-                        ),
-               hr(style = "border-top: 1px solid #000000;")),
+                        )),
                
                tabPanel(title = "Amphibian Occupancy Map", icon = icon("globe"),
                         
@@ -434,4 +439,4 @@ ui <-  secure_app(head_auth = tags$script(inactivity),
               
     
     
-)))
+))))
