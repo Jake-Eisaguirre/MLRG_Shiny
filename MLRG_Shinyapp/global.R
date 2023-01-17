@@ -41,25 +41,25 @@ shinyOptions(cache = cachem::cache_disk("./app_cache"))
 #shinyOptions(cache = cachem::cache_mem(max_size = 1000e6))
 
 #Bd data read in
-bd_data <- read_csv(here("data/bd_data.csv"))
+bd_data <- read_csv(here("MLRG_Shinyapp/data/bd_data.csv"))
 
 #read in wilderness shape files
-shape <- read_sf(here("data/wilderness_shapes/wilderness.shp")) 
+shape <- read_sf(here("MLRG_Shinyapp/data/wilderness_shapes/wilderness.shp")) 
 
 #read in water types
-water <- read_csv(here("data/water_type.csv")) %>% 
+water <- read_csv(here("MLRG_Shinyapp/data/water_type.csv")) %>% 
   rename(id = lake_id)
 
 #ves data read in
-ves_data <- read_csv(here("data/ves_data.csv")) %>% 
+ves_data <- read_csv(here("MLRG_Shinyapp/data/ves_data.csv")) %>% 
   left_join(bd_data) %>% 
   left_join(water)
 
 # read in bd_plot data with month_year
-bd_plot <- read_csv(here("data/bd_plot.csv"))
+bd_plot <- read_csv(here("MLRG_Shinyapp/data/bd_plot.csv"))
 
 # all visit data for map
-all_visits <- read_csv(here( "data/all_visits.csv")) %>% 
+all_visits <- read_csv(here( "MLRG_Shinyapp/data/all_visits.csv")) %>% 
   left_join(water, by = c("site_id" = "id")) %>%
   anti_join(ves_data, by = c("site_id" = "id"))
 
@@ -67,7 +67,7 @@ all_visits <- read_csv(here( "data/all_visits.csv")) %>%
  ######### Database Connection and Data Download ############## 
 
 # DB conection
-source(here("db_creds.R"))
+source(here("MLRG_Shinyapp/db_creds.R"), local = T)
 
 connection <- dbConnect(dbDriver("Postgres"),
                         dbname = sn_dbname,
@@ -152,8 +152,25 @@ full_ves <- raw_ves %>%
          site_utmn = utmn)%>%
   mutate(year = year(visit_date))
 
+# relocate table
+relocate_table <- dbGetQuery(connection, "select * from relocate")
+relocate_table <- dplyr::select(relocate_table, !c(id)) %>% 
+  mutate(year = year(collect_date))
 
+# frog relocate table
+relocate_frog_table <- dbGetQuery(connection, "select * from relocate_frog")
+relocate_frog_table <- dplyr::select(relocate_frog_table, !c(id, relocate_id, surveyor_id))
 
+# full CMR table
+raw_cmr <- dbGetQuery(connection, "select r.*, rf.*
+                                   from relocate r 
+                                   join relocate_frog rf on r.id = rf.relocate_id;")
+
+full_cmr <- raw_cmr %>% 
+  dplyr::select(!c(id, id..10, surveyor_id, relocate_id)) %>% 
+  rename(relocate_comment = comment,
+         frog_comment = comment..20) %>% 
+  mutate(year = year(collect_date))
 
 
 inactivity <- "function idleTimer() {

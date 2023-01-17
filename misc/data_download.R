@@ -75,11 +75,11 @@ ves <- des_bind %>%
   group_by(id, date, species, visual_life_stage, visual_animal_state, wilderness, lat, long) %>% 
   summarise(count = median(count)) %>% 
   mutate(species = case_when(species == "Hyre" ~ "Pacific treefrog - Hyliola regilla",
-                             species == "Thel" ~ "Western garter snake - Thamnophis elegans",
+                             species == "Thel" ~ "Western terrestrial gartersnake - Thamnophis elegans",
                              species == "Ramu" ~ "Mountain yellow-legged frog - Rana muscosa",
                              species == "Buca" ~ "Yosemite toad - Anaxyrus canorus",
                              species == "Bubo" ~ "Western toad - Anaxyrus boreas",
-                             species == "Thco" ~ "Sierra garter snake - Thamnophis couchii",
+                             species == "Thco" ~ "Western aquatic gartersnake - Thamnophis couchii",
                              species == "Tato" ~ "California newt - Taricha torosa",
                              species == "Raca" ~ "Bullfrog - Rana catesbiana",
                              species == "Clma" ~ "Western pond turtle - Actinemys marmorata",
@@ -87,7 +87,7 @@ ves <- des_bind %>%
   filter(!str_detect(species, "NA"))
 
 
-write_csv(ves, here("data", "ves_data.csv"))
+write_csv(ves, here("MLRG_Shinyapp", "data", "ves_data.csv"))
 
 ######## END VES ###########
 
@@ -143,7 +143,7 @@ bd <- des_bind %>%
   summarise(bd = median(bd_load)) %>% 
   ungroup()
 
-write_csv(bd, here("data", "bd_data.csv"))
+write_csv(bd, here("MLRG_Shinyapp", "data", "bd_data.csv"))
 
 bd_plot <- des_bind %>% 
   mutate(long = st_coordinates(.)[,1],
@@ -160,7 +160,7 @@ bd_plot <- des_bind %>%
             Prevalence = (sum(infect)/sum(n())),
             sample_size = n()) 
 
-write_csv(bd_plot, here("data", "bd_plot.csv"))
+write_csv(bd_plot, here("MLRG_Shinyapp", "data", "bd_plot.csv"))
 
 ###### END BD #########
             

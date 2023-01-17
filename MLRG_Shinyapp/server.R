@@ -964,5 +964,22 @@ server <- function(input, output, session){
                  })
 
 ################# END VES data download ###################    
+    
+    
+################# Relocate data #########################
+    
+    reloc_data <- reactive({
+      
+      full_cmr %>% 
+        filter(year %in% c(input$data_year_cmr), collect_siteid %in% c(input$id_cmr),
+               type %in% c(input$retran_cmr)) %>% 
+        dplyr::select(input$relocate_cmr, input$relocate_frog_cmr, collect_date, collect_siteid, type)
+      
+    })
+    
+    output$cmr_table <- DT::renderDataTable(reloc_data(), rownames = FALSE, extensions= 'Buttons',
+                                            options = list(scrollX = T, TRUEom = 'Bfrtip',
+                                                           buttons = c('copy', 'csv', 'excel', 'pdf', 'print')))
+    
 }
     

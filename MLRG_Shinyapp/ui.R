@@ -19,7 +19,7 @@ ui <-  secure_app(head_auth = tags$script(inactivity),
       }"))),
 
     
-    includeCSS(here("theme.css")),
+    includeCSS(here("MLRG_Shinyapp/theme.css")),
     
     #theme = theme,
     
@@ -116,10 +116,9 @@ ui <-  secure_app(head_auth = tags$script(inactivity),
                                                             choices = c("Bd")))))),
                           
                           mainPanel(h5("Map of water bodies and associated site ids, and (depending on selection) detection/non-detection of species/life stages. Detection information is provided by site/year and not based on specific survey dates. Detection and Bd load is quantified based on locations that were surveyed and organisms encountered at sites. A distance tool is provided in the lower-left of the map to allow measure of distances of interest."),
-                                    withSpinner(leafletOutput(outputId = "site_map", width = 1100, height = 500)),
+                                    withSpinner(leafletOutput(outputId = "site_map", width = 1000, height = 500)),
                                     withSpinner(DT::dataTableOutput("test_id")),
-                                    headerPanel(""))),
-                        hr(style = "border-top: 1px solid #000000;")),
+                                    headerPanel("")))),
                
                
                tabPanel(title = "VES", icon = icon("frog"),
@@ -161,8 +160,7 @@ ui <-  secure_app(head_auth = tags$script(inactivity),
                                   headerPanel(""),
                                   actionButton('ves_agg_download',"Download data",
                                                icon("download"),
-                                               style="color: #fff; background-color: #337ab7; border-color: #2e6da4"))),
-                        hr(style = "border-top: 1px solid #000000;")),
+                                               style="color: #fff; background-color: #337ab7; border-color: #2e6da4")))),
                
                tabPanel(title = "Bd Load", icon = icon("bacterium"),
                         
@@ -207,8 +205,7 @@ ui <-  secure_app(head_auth = tags$script(inactivity),
                         headerPanel(""),
                         actionButton('bd_agg_download',"Download data",
                                      icon("download"),
-                                     style="color: #fff; background-color: #337ab7; border-color: #2e6da4"))),
-                        hr(style = "border-top: 1px solid #000000;")),
+                                     style="color: #fff; background-color: #337ab7; border-color: #2e6da4")))),
                
                navbarMenu(title = "Data Download", icon = icon("download"),
 
@@ -360,65 +357,50 @@ ui <-  secure_app(head_auth = tags$script(inactivity),
                                  actionButton('ves_clear', "Clear Selection",
                                               icon("trash"),
                                               style="color: #fff; background-color: red; border-color: black")))),
-                    tabPanel("CMR Data",
+                    tabPanel("Relocate Data",
                              
                              sidebarLayout(
                                
                                sidebarPanel(
-                                 sliderInput(inputId = "data_year",
-                                             label = "Select Annual Range",
-                                             min = min(visit$year), max = max(visit$year),
-                                             value = c(max(visit$year) - 5, max(visit$year)),
-                                             sep = ""),
-                                 pickerInput(inputId = "data_jur",
-                                             label = "Select a Jurisdiction",
-                                             choices = unique(site$wilderness),
+                                 pickerInput(inputId = "data_year_cmr",
+                                             label = "Select Annual Collection Range",
+                                             choices = sort(unique(relocate_table$year)),
                                              options = list(
                                                `actions-box` = TRUE,
                                                size = 10,
                                                `selected-text-format` = "count > 3"
                                              ),
                                              multiple = TRUE),
+                                 pickerInput(inputId = "id_cmr",
+                                             label = "Select Release Site ID",
+                                             choices = sort(unique(relocate_table$collect_siteid)),
+                                             options = list(
+                                               `actions-box` = TRUE,
+                                               size = 10,
+                                               `selected-text-format` = "count > 3"
+                                             ),
+                                             multiple = TRUE),
+                                 prettyCheckboxGroup(inputId = "retran_cmr",
+                                                  label = "Select Type of Relocation",
+                                                  choices = unique(relocate_table$type),
+                                                  inline = T,
+                                                  icon = icon("check-square-o"), 
+                                                  status = "primary",
+                                                  outline = TRUE,
+                                                  animation = "jelly"),
                                  hr(style = "border-top: 1px solid #000000;"),
-                                 pickerInput(inputId = "data_site",
-                                             label = "Select Site Level Variables",
-                                             choices = colnames(site),
+                                 pickerInput(inputId = "relocate_cmr",
+                                             label = "Select Relocation Variables",
+                                             choices = colnames(relocate_table),
                                              options = list(
                                                `actions-box` = TRUE,
                                                size = 10,
                                                `selected-text-format` = "count > 3"
                                              ),
                                              multiple = TRUE),
-                                 pickerInput(inputId = "data_visit",
-                                             label = "Select Visit Level Variables",
-                                             choices = colnames(visit),
-                                             options = list(
-                                               `actions-box` = TRUE,
-                                               size = 10,
-                                               `selected-text-format` = "count > 3"
-                                             ),
-                                             multiple = TRUE),
-                                 pickerInput(inputId = "data_survey",
-                                             label = "Select Survey Level Variables",
-                                             choices = colnames(survey),
-                                             options = list(
-                                               `actions-box` = TRUE,
-                                               size = 10,
-                                               `selected-text-format` = "count > 3"
-                                             ),
-                                             multiple = TRUE),
-                                 pickerInput(inputId = "data_capture",
-                                             label = "Select Capture Level Variables",
-                                             choices = colnames(capture),
-                                             options = list(
-                                               `actions-box` = TRUE,
-                                               size = 10,
-                                               `selected-text-format` = "count > 3"
-                                             ),
-                                             multiple = TRUE),
-                                 pickerInput(inputId = "data_bd",
-                                             label = "Select Bd Load Variables",
-                                             choices = colnames(bd_load_table),
+                                 pickerInput(inputId = "relocate_frog_cmr",
+                                             label = "Select Relocated Frog Variables",
+                                             choices = colnames(relocate_frog_table),
                                              options = list(
                                                `actions-box` = TRUE,
                                                size = 10,
@@ -426,6 +408,7 @@ ui <-  secure_app(head_auth = tags$script(inactivity),
                                              ),
                                              multiple = TRUE)
                                  
+
                                  
                                ),
                                
