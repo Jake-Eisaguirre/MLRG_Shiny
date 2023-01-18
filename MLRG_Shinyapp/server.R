@@ -17,7 +17,7 @@ server <- function(input, output, session){
       
         ves_data %>%
             dplyr::filter(date <= input$site_year[2] & date >= input$site_year[1], wilderness == input$wilderness, 
-                          species == input$species, visual_life_stage == input$stage) %>% 
+                          species == input$species, visual_life_stage %in% c(input$stage)) %>% 
         group_by(id, species, visual_life_stage) %>% 
         mutate(sum_count = median(count),
                med = mean(bd),
@@ -59,7 +59,7 @@ server <- function(input, output, session){
       
       ves_data %>% 
         filter(date <= input$site_year[2] & date >= input$site_year[1],
-               species == input$species, visual_life_stage == input$stage,
+               species == input$species, visual_life_stage %in% c(input$stage),
                wilderness == input$wilderness) %>% 
         group_by(date, species, visual_life_stage, wilderness) %>% 
         group_by(id) %>% 
@@ -74,7 +74,7 @@ server <- function(input, output, session){
       
       ves_data %>% 
         filter(date <= input$site_year[2] & date >= input$site_year[1],
-               species == input$species, visual_life_stage == input$stage,
+               species == input$species, visual_life_stage %in% c(input$stage),
                wilderness == input$wilderness) %>% 
         group_by(date, species, visual_life_stage, wilderness) %>% 
         group_by(id) %>% 
@@ -82,6 +82,7 @@ server <- function(input, output, session){
         filter(int_bd_avg == 0)
       
     })
+    
 
     
     # leaflet map with date, species, and site as reactive 
@@ -146,46 +147,6 @@ server <- function(input, output, session){
       
     })
     
-
-   # click site to render data
-    observe({
-      leafletProxy("site_map")
-        
-        event <- input$site_map_marker_click
-        
-        x <- ves_data %>%
-          filter(id %in% event$id)
-
-        dat <- x %>%
-          filter(date <= input$site_year[2] & date >= input$site_year[1], wilderness == input$wilderness,
-                 species == input$species, visual_life_stage == input$stage) %>% 
-          group_by(date, id, lat, long, wilderness, species, visual_life_stage) %>% 
-          mutate(id = id,
-                 date = date,
-                 lat = round(lat, 2),
-                 long = round(long, 2),
-                 wilderness = wilderness,
-                 species = species, 
-                 visual_life_stage = visual_life_stage,
-                 bd = round(bd, 2),
-                 count = count,
-                 lake_type = lake_type)
-        
-        message <- data.frame(Date = dat$date[dat$id == event$id],
-                              Site = as.character(dat$id[dat$id == event$id]),
-                              Lat = dat$lat[dat$id == event$id],
-                              Long = dat$long[dat$id == event$id],
-                              lake_type= dat$lake_type[dat$id == event$id],
-                              count = (dat$count[dat$id == event$id]),
-                              bd = (dat$bd[dat$id == event$id])) %>% 
-          rename("Median Count" = count,
-                 "Median Log10(Bd)" = bd,
-                 "Water Type" = lake_type) 
-      
-        
-        output$test_id <- DT::renderDataTable(message, rownames = F,  options = list(dom = 't'))
-
-    })
     
     
     # bd tab click to render data
@@ -199,7 +160,7 @@ server <- function(input, output, session){
       
       dat_bd <- b %>%
         filter(date <= input$site_year[2] & date >= input$site_year[1], wilderness == input$wilderness,
-               species == input$species, visual_life_stage == input$stage) %>% 
+               species == input$species, visual_life_stage %in% c(input$stage)) %>% 
         group_by(date, id, lat, long, wilderness, species, visual_life_stage) %>% 
         mutate(id = id,
                date = date,
@@ -217,14 +178,17 @@ server <- function(input, output, session){
                             Lat = dat_bd$lat[dat_bd$id == event_bd$id],
                             Long = dat_bd$long[dat_bd$id == event_bd$id],
                             lake_type= dat_bd$lake_type[dat_bd$id == event_bd$id],
+                            visual_life_stage = dat_bd$visual_life_stage[dat_bd$id == event_bd$id],
                             count = (dat_bd$count[dat_bd$id == event_bd$id]),
                             bd = (dat_bd$bd[dat_bd$id == event_bd$id])) %>% 
+        arrange(visual_life_stage) %>% 
         rename("Median Count" = count,
                "Median Log10(Bd)" = bd,
-               "Water Type" = lake_type) 
+               "Water Type" = lake_type,
+               "Visual Life Stage" = visual_life_stage) 
       
       
-      output$test_id <- DT::renderDataTable(message_bd, rownames = F,  options = list(dom = 't'))
+      output$test_id <- DT::renderDataTable(message_bd, rownames = F,  options = list(scrollY = T, searching = FALSE, dom = "rtip"))
       
     })
   
@@ -241,7 +205,7 @@ server <- function(input, output, session){
 
       p_dat <- p %>%
         dplyr::filter(date <= input$site_year[2] & date >= input$site_year[1], wilderness == input$wilderness,
-                      species == input$species, visual_life_stage == input$stage) %>%
+                      species == input$species, visual_life_stage %in% c(input$stage)) %>%
         group_by(species, visual_life_stage, wilderness, date) %>%
         summarise(sum_count = sum(count),
                   av_bd = round(mean(bd, na.rm = T), 2))
@@ -250,15 +214,61 @@ server <- function(input, output, session){
       p_message <- data.frame(
                             Jurisdiction = as.character(p_dat$wilderness[p_dat$wilderness == event_poly$id]),
                             Year = as.character(p_dat$date[p_dat$wilderness == event_poly$id]),
+                            visual_life_stage = (p_dat$visual_life_stage[p_dat$wilderness == event_poly$id]),
                             count = (p_dat$sum_count[p_dat$wilderness == event_poly$id]),
                             bd = (p_dat$av_bd[p_dat$wilderness == event_poly$id])) %>% 
+        arrange(visual_life_stage) %>% 
         rename("Jurisdiction Median Count" = count,
-               "Jurisdiction Bd Load" = bd) 
+               "Jurisdiction Bd Load" = bd,
+               "Visual Life Stage" = visual_life_stage) 
 
-      output$test_id <- DT::renderDataTable(p_message, rownames = F,  options = list(dom = 't', pageLength = 25))
+      output$test_id <- DT::renderDataTable(p_message, rownames = F,  options = list(scrollY = T, searching = FALSE, dom = "rtip"))
        
      })
-     
+    
+    # any/all life stage detection table render
+    observe({
+      leafletProxy("site_map")
+
+      event_any <- input$site_map_marker_click
+
+      x_any <- ves_data %>%
+        filter(id %in% event_any$id)
+
+      dat_any <- x_any %>%
+             filter(date <= input$site_year[2] & date >= input$site_year[1], wilderness == input$wilderness,
+                    species == input$species, visual_life_stage %in% c(input$stage)) %>%
+             group_by(date, id, lat, long, wilderness, species, visual_life_stage) %>%
+             mutate(id = id,
+                    date = date,
+                    lat = round(lat, 2),
+                    long = round(long, 2),
+                    wilderness = wilderness,
+                    species = species,
+                    visual_life_stage = visual_life_stage,
+                    bd = round(bd, 2),
+                    count = count,
+                    lake_type = lake_type)
+
+      message_any <- data.frame(Date = dat_any$date[dat_any$id == event_any$id],
+                            Site = as.character(dat_any$id[dat_any$id == event_any$id]),
+                            Lat = dat_any$lat[dat_any$id == event_any$id],
+                            Long = dat_any$long[dat_any$id == event_any$id],
+                            lake_type= dat_any$lake_type[dat_any$id == event_any$id],
+                            visual_life_stage = (dat_any$visual_life_stage[dat_any$id == event_any$id]),
+                            count = (dat_any$count[dat_any$id == event_any$id]),
+                            bd = (dat_any$bd[dat_any$id == event_any$id])) %>%
+        arrange(visual_life_stage) %>% 
+        rename("Median Count" = count,
+               "Median Log10(Bd)" = bd,
+               "Water Type" = lake_type,
+               "Visual Life Stage" = visual_life_stage) 
+
+
+      output$test_id <- DT::renderDataTable(message_any, rownames = F,  options = list(scrollY = T, searching = FALSE, dom = "rtip"))
+
+    })
+
     
 
     
@@ -270,6 +280,7 @@ server <- function(input, output, session){
     observeEvent(input$bd_presence, {
       updateCheckboxGroupButtons(session, "bd_presence", selected = "")
     })
+    
     
   
 ################ END MAP #######################

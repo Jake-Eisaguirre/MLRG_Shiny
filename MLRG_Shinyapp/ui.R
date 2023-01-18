@@ -98,27 +98,30 @@ ui <-  secure_app(head_auth = tags$script(inactivity),
                                                    selected = "Mountain yellow-legged frog - Rana muscosa")),
                                        column(12, pickerInput(inputId = "stage",
                                                    label = "Select a life stage",
-                                                   choices = unique(ves_data$visual_life_stage),
+                                                   choices = c("Adult", "Subadult", "Tadpole", "Eggmass"),
                                                    options = pickerOptions(title = " "),
-                                                   multiple = F,
-                                                   selected = "Adult")),
-                                       # checkboxGroupButtons(inputId = "search",
-                                       #                      label = "Search",
-                                       #                      choices = c("Data")),
+                                                  selected = "Adult",
+                                                  multiple = T)),
+  
+                                       fluidRow(column(12, hr(style = "border-top: 1px solid #000000;")),
                                        
-                                       column(12, hr(style = "border-top: 1px solid #000000;")),
-                                       
-                                       column(3, div(style="display:inline-block", 
+                                       fluidRow(column(3, div(style="display:inline-block", 
                                                      
                                                      checkboxGroupButtons(inputId = "visits",
-                                                            label = "All Sites Visited",
-                                                            choices = c("Sites")))),
+                                                            label = HTML("All Sites <br/> Visited"),
+                                                            choices = c("Sites"))), offset = 1),
                                         
-                                      column(8, div(style="display:inline-block", 
+                                      column(3, div(style="display:inline-block", 
                                                     
                                                     checkboxGroupButtons(inputId = "bd_presence",
                                                             label = HTML("Bd Detection <br/> Status"),
-                                                            choices = c("Bd")))))),
+                                                            choices = c("Bd")))))))),
+                                     
+                                     # column(5, div(style="display:inline-block", 
+                                     #               
+                                     #               checkboxGroupButtons(inputId = "any_all",
+                                     #                                    label = HTML("Any/All Lifestage <br/> Detection"),
+                                     #                                    choices = c("Lifestage")))),
                           
                           mainPanel(h5("Map of water bodies and associated site ids, and (depending on selection) detection/non-detection of species/life stages. Detection information is provided by site/year and not based on specific survey dates. Detection and Bd load is quantified based on locations that were surveyed and organisms encountered at sites. A distance tool is provided in the lower-left of the map to allow measure of distances of interest."),
                                     withSpinner(leafletOutput(outputId = "site_map", width = 1000, height = 500)),

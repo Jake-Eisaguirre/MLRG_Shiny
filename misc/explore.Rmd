@@ -289,11 +289,8 @@ t <- ves_data %>%
  a <- ves_data %>% 
         filter(date %in% c(2016:2021),
                wilderness == "Yosemite", 
-               species == "Mountain yellow-legged frog - Rana muscosa", 
-               visual_life_stage == "Adult") %>% 
-  group_by(id) %>% 
-        mutate(int_bd_avg = mean(bd, na.rm = T)) %>% 
-  filter(int_bd_avg == 0)
+               species == "Mountain yellow-legged frog - Rana muscosa") %>% 
+        group_by(id)
 
  b <- ves_data %>% 
         filter(date %in% c(2016:2021),
