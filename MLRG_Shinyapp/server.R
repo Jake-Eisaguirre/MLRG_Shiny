@@ -456,28 +456,28 @@ server <- function(input, output, session){
                      animation = "slide-from-top")
         })
 
-        observeEvent(input$ves_agg_download_btn,{
-          if(input$ves_agg_download_btn == T)
-            showModal(modalDialog(downloadButton("ves_agg_dwnld", "Download"), footer = NULL, easyClose = T, size = "s"))
-        })
-
-        output$ves_agg_dwnld <- downloadHandler(
-          filename = function(){"insert_name.csv"},
-
-          content = function(file) {
-            shiny::withProgress(
-              message = paste0("Downloading Aggregated VES Data"),
-              value = 0,
-              {
-                shiny::incProgress(3/10)
-                Sys.sleep(1)
-                shiny::incProgress(9/10)
-                write.csv(ves_agg_reac(), file, row.names = FALSE)
-              }
-            )
-          }
-        )
-    
+        # observeEvent(input$ves_agg_download_btn,{
+        #   if(input$ves_agg_download_btn == T)
+        #     showModal(modalDialog(downloadButton("ves_agg_dwnld", "Download"), footer = NULL, easyClose = T, size = "s"))
+        # })
+        # 
+        # output$ves_agg_dwnld <- downloadHandler(
+        #   filename = function(){"insert_name.csv"},
+        # 
+        #   content = function(file) {
+        #     shiny::withProgress(
+        #       message = paste0("Downloading Aggregated VES Data"),
+        #       value = 0,
+        #       {
+        #         shiny::incProgress(3/10)
+        #         Sys.sleep(1)
+        #         shiny::incProgress(9/10)
+        #         write.csv(ves_agg_reac(), file, row.names = FALSE)
+        #       }
+        #     )
+        #   }
+        # )
+        # 
     
     # observe events to update wilderness and years based on selection for leaflet map
     observeEvent(input$ves_date, ignoreNULL = T,{
@@ -765,28 +765,28 @@ server <- function(input, output, session){
                  animation = "slide-from-top")
     })
     
-    observeEvent(input$bd_agg_download_btn,{
-      if(input$bd_agg_download_btn == T)
-        showModal(modalDialog(downloadButton("bd_agg_dwnld", "Download"), footer = NULL, easyClose = T, size = "s"))
-    })
-    
-    output$bd_agg_dwnld <- downloadHandler(
-      filename = function(){"insert_name.csv"},
-      
-      content = function(file) {
-        shiny::withProgress(
-          message = paste0("Downloading Aggregated Bd Data"),
-          value = 0,
-          {
-            shiny::incProgress(3/10)
-            Sys.sleep(1)
-            shiny::incProgress(9/10)
-            write.csv(bd_agg_reac(), file, row.names = FALSE)
-          }
-        )
-      }
-    )
-    
+    # observeEvent(input$bd_agg_download_btn,{
+    #   if(input$bd_agg_download_btn == T)
+    #     showModal(modalDialog(downloadButton("bd_agg_dwnld", "Download"), footer = NULL, easyClose = T, size = "s"))
+    # })
+    # 
+    # output$bd_agg_dwnld <- downloadHandler(
+    #   filename = function(){"insert_name.csv"},
+    #   
+    #   content = function(file) {
+    #     shiny::withProgress(
+    #       message = paste0("Downloading Aggregated Bd Data"),
+    #       value = 0,
+    #       {
+    #         shiny::incProgress(3/10)
+    #         Sys.sleep(1)
+    #         shiny::incProgress(9/10)
+    #         write.csv(bd_agg_reac(), file, row.names = FALSE)
+    #       }
+    #     )
+    #   }
+    # )
+    # 
     
     # update input options
     observeEvent(input$bd_date, {

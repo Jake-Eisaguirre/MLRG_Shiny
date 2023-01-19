@@ -7,7 +7,6 @@ if (!require(librarian)){
 # librarian downloads, if not already downloaded, and reads in needed packages
 librarian::shelf(tidyverse, here, janitor, sf, lubridate, RPostgres, DBI)
 
-source(here("misc", "db_creds.R"))
 
 
 # DB conection
@@ -15,11 +14,11 @@ tryCatch({
   drv <- dbDriver("Postgres")
   print("Connecting to Database…")
   connection <- dbConnect(drv, 
-                          dbname = sn_dbname,
-                          host = sn_host, 
-                          port = sn_port,
-                          user = sn_user, 
-                          password = sn_password)
+                          dbname = Sys.getenv("sn_dbname"),
+                          host = Sys.getenv("sn_host"), 
+                          port = Sys.getenv("sn_port"),
+                          user = Sys.getenv("sn_user"), 
+                          password = Sys.getenv("sn_password"))
   print("Database Connected!")
 },
 error=function(cond) {
@@ -163,4 +162,115 @@ bd_plot <- des_bind %>%
 write_csv(bd_plot, here("MLRG_Shinyapp", "data", "bd_plot.csv"))
 
 ###### END BD #########
-            
+
+
+###### Raw data download ##########
+
+
+# Site table
+site <- dbGetQuery(connection, "select * from site")
+site <- site %>%
+  rename(site_name = name,
+         site_utme = utme,
+         site_utmn = utmn)
+write_csv(site, here("MLRG_Shinyapp", "data","site.csv"))
+
+# visit table
+visit <- dbGetQuery(connection, "select * from visit")
+visit <- dplyr::select(visit, !c(id, site_id)) %>%
+  mutate(year = year(visit_date)) %>%
+  rename(visit_comment = comment)
+write_csv(visit, here("MLRG_Shinyapp", "data","visit.csv"))
+
+# survey table
+survey <- dbGetQuery(connection, "select * from survey")
+survey <- dplyr::select(survey, !c(id, visit_id)) %>%
+  rename(survey_comment = comment)
+write_csv(survey, here("MLRG_Shinyapp", "data", "survey.csv"))
+
+# capture table
+capture <- dbGetQuery(connection, "select * from capture_survey")
+capture <- dplyr::select(capture, !c(id, survey_id, surveyor_id)) %>%
+  rename(capture_comment = comment,
+         capture_utme = utme,
+         capture_utmn = utmn)
+write_csv(capture, here("MLRG_Shinyapp", "data", "capture.csv"))
+
+# full capture data set
+raw_capture <- dbGetQuery(connection, "select s.*, v.*, s2.*, cs.*, s3.name, bd.*
+                                       from site s
+                                       join visit v on s.id = v.site_id
+                                       join survey s2 on v.id = s2.visit_id
+                                       join capture_survey cs on s2.id = cs.survey_id
+                                       join surveyor s3 on cs.surveyor_id = s3.id
+                                       join bd_load bd on cs.swab_id = bd.sample_id;")
+
+full_capture <- raw_capture %>%
+  dplyr::select(!c(id..13, site_id, id..18, id..34, surveyor_id, visit_id, survey_id, swab_id)) %>%
+  rename(site_name = name,
+         visit_comment = comment,
+         site_utme = utme,
+         site_utmn = utmn,
+         survey_comment = comment..32,
+         capture_comment = comment..50,
+         capture_utme = utme..44,
+         capture_utmn = utmn..45,
+         surveyor = name..51,
+         swab_id = sample_id) %>%
+  mutate(year = year(visit_date))
+write_csv(full_capture, here("MLRG_Shinyapp", "data", "full_capture.csv"))
+
+# bd load table
+bd_load_table <- dbGetQuery(connection, "select * from bd_load")
+bd_load_table <- bd_load_table %>% rename(swab_id = sample_id)
+write_csv(bd_load_table, here("MLRG_Shinyapp", "data", "bd_load_table.csv"))
+
+# VES table
+ves_table <- dbGetQuery(connection, "select * from visual_survey")
+ves_table <- dplyr::select(ves_table, !c(id, survey_id)) %>%
+  rename(ves_comment = comment)
+write_csv(ves_table, here("MLRG_Shinyapp", "data", "ves_table.csv"))
+
+# full Ves data
+raw_ves <- dbGetQuery(connection, "select s.*, v.*, s2.*, cs.*
+                                   from site s
+                                   join visit v on s.id = v.site_id
+                                   join survey s2 on v.id = s2.visit_id
+                                   join visual_survey cs on s2.id = cs.survey_id;")
+
+full_ves <- raw_ves %>%
+  dplyr::select(!c(id..13, site_id, id..18, id..34, visit_id, survey_id)) %>%
+  rename(site_name = name,
+         visit_comment = comment,
+         survey_comment = comment..32,
+         ves_comment = comment..41,
+         site_utme = utme,
+         site_utmn = utmn)%>%
+  mutate(year = year(visit_date))
+write_csv(full_ves, here("MLRG_Shinyapp", "data", "full_ves.csv"))
+
+# relocate table
+relocate_table <- dbGetQuery(connection, "select * from relocate")
+relocate_table <- dplyr::select(relocate_table, !c(id)) %>% 
+  mutate(year = year(collect_date)) %>% 
+  rename(relocate_comment = comment)
+write_csv(relocate_table, here("MLRG_Shinyapp", "data", "relocate_table.csv"))
+
+# frog relocate table
+relocate_frog_table <- dbGetQuery(connection, "select * from relocate_frog")
+relocate_frog_table <- dplyr::select(relocate_frog_table, !c(id, relocate_id, surveyor_id)) %>% 
+  rename(frog_comment = comment)
+write_csv(relocate_frog_table, here("MLRG_Shinyapp", "data", "relocate_frog_table.csv"))
+
+# full CMR table
+raw_cmr <- dbGetQuery(connection, "select r.*, rf.*
+                                   from relocate r 
+                                   join relocate_frog rf on r.id = rf.relocate_id;")
+
+full_cmr <- raw_cmr %>% 
+  dplyr::select(!c(id, id..10, surveyor_id, relocate_id)) %>% 
+  rename(relocate_comment = comment,
+         frog_comment = comment..20) %>% 
+  mutate(year = year(collect_date))
+write_csv(full_cmr, here("MLRG_Shinyapp", "data", "full_cmr.csv"))
+
