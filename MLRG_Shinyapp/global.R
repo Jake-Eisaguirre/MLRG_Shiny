@@ -32,9 +32,9 @@ library(rmapshaper)
 library(DT)
 library(terra)
 library(raster)
-library(DBI)
-library(RPostgres)
 library(shinyalert)
+library(ggh4x)
+
 
 shinyOptions(cache = cachem::cache_disk("./app_cache"))
 #shinyOptions(cache = cachem::cache_mem(max_size = 1000e6))
