@@ -1,4 +1,3 @@
-
 if (!require(librarian)){
   install.packages("librarian")
   library(librarian)
@@ -273,4 +272,3 @@ full_cmr <- raw_cmr %>%
          frog_comment = comment..20) %>% 
   mutate(year = year(collect_date))
 write_csv(full_cmr, here("MLRG_Shinyapp", "data", "full_cmr.csv"))
-

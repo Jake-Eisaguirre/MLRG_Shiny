@@ -63,7 +63,7 @@ all_visits <- read_csv(here( "data/all_visits.csv")) %>%
   anti_join(ves_data, by = c("site_id" = "id"))
 
 
- ######### Database Connection and Data Download ############## 
+######### Database Connection and Data Download ############## 
 
 
 # Site table
@@ -107,11 +107,9 @@ window.onmousedown = resetTimer; // catches mouse movements
 window.onclick = resetTimer;     // catches mouse clicks
 window.onscroll = resetTimer;    // catches scrolling
 window.onkeypress = resetTimer;  //catches keyboard actions
-
 function logout() {
 window.close();  //close the window
 }
-
 function resetTimer() {
 clearTimeout(t);
 t = setTimeout(logout, 120000);  // time is in milliseconds (1000 is 1 second)
@@ -127,8 +125,4 @@ integer_breaks <- function(n = 5, ...) {
   }
   return(fxn)
 }
-
-
-
-
 
