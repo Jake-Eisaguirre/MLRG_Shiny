@@ -34,6 +34,7 @@ library(terra)
 library(raster)
 library(shinyalert)
 library(ggh4x)
+library(forcats)
 
 
 shinyOptions(cache = cachem::cache_disk("./app_cache"))
@@ -56,6 +57,9 @@ ves_data <- read_csv(here("data/ves_data.csv")) %>%
 
 # read in bd_plot data with month_year
 bd_plot <- read_csv(here("data/bd_plot.csv"))
+
+# read in ves_plot data with year_month
+ves_plot <- read_csv(here("data/ves_plot.csv"))
 
 # all visit data for map
 all_visits <- read_csv(here( "data/all_visits.csv")) %>% 

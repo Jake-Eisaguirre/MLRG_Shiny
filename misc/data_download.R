@@ -87,6 +87,69 @@ ves <- des_bind %>%
 
 write_csv(ves, here("MLRG_Shinyapp", "data", "ves_data.csv"))
 
+
+# Ves Plot data
+ves_p <- dbGetQuery(connection, "select *
+                                   from site s 
+                                   join visit v on s.id = v.site_id 
+                                   join survey s2 on v.id = s2.visit_id 
+                                   join visual_survey vs on s2.id = vs.survey_id;")
+
+# select desired columns and pull out month and year as new columns
+clean_ves_p <- ves_p %>% 
+  dplyr::select(c(id, utme, utmn, wilderness, visit_date, species, visual_life_stage, 
+                  visual_animal_state, count)) %>% 
+  mutate(date = year(visit_date),
+         month = month(visit_date)) %>% 
+  filter(visual_animal_state == "alive") %>% 
+  mutate(y_m = paste(date, month, sep ="-"))
+
+# pull out only desolation wilderness due to zone 10 coords
+des_cords <- clean_ves_p %>% 
+  filter(wilderness == "desolation")
+
+des_sf <- st_as_sf(des_cords, coords = c('utme', 'utmn'), crs = "+proj=utm +zone=10")
+des_ves = st_transform(des_sf, crs = "+proj=longlat +ellps=WGS84 +datum=WGS84")
+
+# now do rest of wildernesses in zone 11 coords
+clean_ves_data_p <- clean_ves_p %>% 
+  filter(!wilderness %in% c("desolation", "none"))
+
+sf_ves <- st_as_sf(clean_ves_data_p, coords = c('utme', 'utmn'), crs = "+proj=utm +zone=11")
+leaf_ves = st_transform(sf_ves, crs = "+proj=longlat +ellps=WGS84 +datum=WGS84")
+
+# bind desolation back to all the main df
+des_bind <- rbind(leaf_ves, des_ves)
+
+
+
+# pull out geometries as standard lat long columns
+ves_plot <- des_bind %>% 
+  mutate(long = st_coordinates(.)[,1],
+         lat = st_coordinates(.)[,2]) %>% 
+  as.data.frame() %>% 
+  dplyr::select(!c(geometry, month, visual_animal_state)) %>% 
+  mutate(wilderness = gsub("_", " ", wilderness),
+         wilderness = str_to_title(wilderness),
+         visual_life_stage = str_to_title(visual_life_stage),
+         species = str_to_title(species)) %>% 
+  group_by(id, y_m, species, visual_life_stage, wilderness, lat, long) %>% 
+  mutate(count = median(count),
+         date = date) %>% 
+  mutate(species = case_when(species == "Hyre" ~ "Pacific treefrog - Hyliola regilla",
+                             species == "Thel" ~ "Western terrestrial gartersnake - Thamnophis elegans",
+                             species == "Ramu" ~ "Mountain yellow-legged frog - Rana muscosa",
+                             species == "Buca" ~ "Yosemite toad - Anaxyrus canorus",
+                             species == "Bubo" ~ "Western toad - Anaxyrus boreas",
+                             species == "Thco" ~ "Western aquatic gartersnake - Thamnophis couchii",
+                             species == "Tato" ~ "California newt - Taricha torosa",
+                             species == "Raca" ~ "Bullfrog - Rana catesbiana",
+                             species == "Clma" ~ "Western pond turtle - Actinemys marmorata",
+                             species == "Amma" ~ "Long-toed salamander - Ambystoma macrodactylum")) %>% 
+  filter(!str_detect(species, "NA"))
+
+write_csv(ves_plot, here("MLRG_Shinyapp", "data", "ves_plot.csv"))
+
 ######## END VES ###########
 
 ###### BD Data #########
