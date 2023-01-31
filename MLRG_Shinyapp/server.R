@@ -431,6 +431,8 @@ server <- function(input, output, session){
     ves_table() %>% 
       arrange(visual_life_stage) %>% 
       dplyr::select(y_m, visual_life_stage, Count) %>% 
+      group_by(y_m, visual_life_stage) %>% 
+      unique() %>% 
       rename("Median Count" = Count,
              "Year Month" = y_m,
              "Visual Life Stage" = visual_life_stage)
@@ -483,7 +485,7 @@ server <- function(input, output, session){
   #     )
   #   }
   # )
-  # 
+
   
   # observe events to update wilderness and years based on selection for leaflet map
   observeEvent(input$ves_date, ignoreNULL = T,{
