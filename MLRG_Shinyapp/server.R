@@ -366,10 +366,11 @@ server <- function(input, output, session){
       ylab("Median Count") +
       xlab("Year Month") +
       ggtitle(paste(input$ves_date[1], "-", input$ves_date[2], input$ves_species, "Annual Median Count")) +
-      theme(plot.title = element_text(hjust = 0.5, vjust = 1.5, size = 17),
+      theme(plot.title = element_text(hjust = 0.5, vjust = 1.3, size = 17),
             axis.line = element_line(size = 1.1),
             axis.ticks = element_line(size = 1.8),
-            axis.text = element_text(size = 14),
+            axis.text.y = element_text(size = 14),
+            axis.text.x = element_text(size = 14, angle = 45, vjust = 0.7),
             axis.title.x = element_text(size = 15),
             axis.title.y = element_text(size = 15),
             legend.key.height = unit(2, "cm"),
