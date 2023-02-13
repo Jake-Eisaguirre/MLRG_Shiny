@@ -33,8 +33,8 @@ library(DT)
 library(terra)
 library(raster)
 library(shinyalert)
-library(ggh4x)
-library(forcats)
+library(googledrive)
+library(shinylogs)
 
 
 shinyOptions(cache = cachem::cache_disk("./app_cache"))
@@ -95,13 +95,13 @@ ves_table <- read_csv(here("data/ves_table.csv"))
 full_ves <- read_csv(here("data/full_ves.csv"))
 
 # relocate table
-relocate_table <- read_csv(here("data/relocate_table.csv"))
+relocate_table <- read_csv(here("data/relocate_table.csv"), col_types = cols(collect_siteid = "c"))
 
 # frog relocate table
 relocate_frog_table <- read_csv(here("data/relocate_frog_table.csv"))
 
 # full CMR table
-full_cmr <- read_csv(here("data/full_cmr.csv"))
+full_cmr <- read_csv(here("data/full_cmr.csv"), col_types = cols(collect_siteid = "c"))
 
 
 inactivity <- "function idleTimer() {

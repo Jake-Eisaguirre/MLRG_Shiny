@@ -1,6 +1,17 @@
 source("global.R", local = T)
 source("creds.R", local = T)
 
+options(
+  # whenever there is one account token found, use the cached token
+  gargle_oauth_email = TRUE,
+  # specify auth tokens should be stored in a hidden directory ".secrets"
+  gargle_oauth_cache = here(".secrets")
+)
+
+
+drive_auth(path = here(".secrets"))
+
+
 server <- function(input, output, session){
   
   result_auth <- secure_server(check_credentials = check_credentials(credentials))
@@ -386,45 +397,7 @@ server <- function(input, output, session){
     
   })
   
-  
-  # # render plot for tadpole
-  # output$ves_tad = renderPlot({
-  #   
-  #   if(input$wilderness_1 < 0 && input$ves_species < 0 && input$id < 0) {
-  #     validate(" ")
-  #   }
-  #   
-  #   if(input$wilderness_1 > 0 && input$ves_species < 0 && input$id < 0){
-  #     validate(" ")
-  #   }
-  #   
-  #   if(input$wilderness_1 > 0 && input$ves_species > 0 && input$id < 0){
-  #     validate(" ")
-  #   }
-  #   
-  #   
-  #   ggplot(data = ves_tad(), aes(x = y_m, y = count, color = visual_life_stage)) +
-  #     geom_point(size = 2.5) +
-  #     geom_line(size = 1.2) +
-  #     theme_classic() +
-  #     ylab("Median Count") +
-  #     xlab("Year") +
-  #     theme(plot.title = element_text(hjust = 0.5, vjust = 1.5, size = 17),
-  #           axis.line = element_line(size = 1.1),
-  #           axis.ticks = element_line(size = 1.8),
-  #           axis.text = element_text(size = 14),
-  #           axis.title.x = element_text(size = 15),
-  #           axis.title.y = element_text(size = 15),
-  #           legend.key.height = unit(2, "cm"),
-  #           legend.title = element_text(size = 15),
-  #           legend.text = element_text(size = 15),
-  #           legend.key.size = unit(2, "cm")) +
-  #     scale_color_manual(values = c("Tadpole" = "#31688e"),
-  #                        name = "Visual Life Stage") +
-  #     scale_y_continuous(breaks = integer_breaks()) +
-  #     scale_x_discrete(ves_reac()$y_m)
-  #   
-  # })
+
   
   # agg table render
   output$ves_counts = renderTable({
@@ -458,34 +431,40 @@ server <- function(input, output, session){
   # Data download
   observeEvent(input$ves_agg_download, {
     
-    shinyalert(title = "Pump the breaks!",
-               text = "This Feature will be live following data sharing contract",
-               type = "warning", closeOnClickOutside = T, showCancelButton = T, inputId = "ves_agg_download_btn",
-               showConfirmButton = T, confirmButtonText = "Yes", cancelButtonText = "No",
-               animation = "slide-from-top")
+    shinyalert(title = "Enter Username", 
+               text = "Please keep in mind the data sharing agreement",
+               type = "input", closeOnClickOutside = T, showCancelButton = T, inputId = "ves_agg_download_btn",
+               showConfirmButton = T, confirmButtonText = "Confirm", cancelButtonText = "Cancel", 
+               animation = "slide-from-top", inputPlaceholder = "enter_username", confirmButtonCol = "#337ab7")
+
   })
   
-  # observeEvent(input$ves_agg_download_btn,{
-  #   if(input$ves_agg_download_btn == T)
-  #     showModal(modalDialog(downloadButton("ves_agg_dwnld", "Download"), footer = NULL, easyClose = T, size = "s"))
-  # })
-  # 
-  # output$ves_agg_dwnld <- downloadHandler(
-  #   filename = function(){"insert_name.csv"},
-  # 
-  #   content = function(file) {
-  #     shiny::withProgress(
-  #       message = paste0("Downloading Aggregated VES Data"),
-  #       value = 0,
-  #       {
-  #         shiny::incProgress(3/10)
-  #         Sys.sleep(1)
-  #         shiny::incProgress(9/10)
-  #         write.csv(ves_agg_reac(), file, row.names = FALSE)
-  #       }
-  #     )
-  #   }
-  # )
+  observeEvent(input$ves_agg_download_btn,{
+    if(input$ves_agg_download_btn %in% credentials$user)
+      showModal(modalDialog(downloadButton("ves_agg_dwnld", "Download"), footer = NULL, easyClose = T, size = "s"))
+    
+    if(!input$ves_agg_download_btn %in% credentials$user)
+      shinyalert(title = "Access Denied", type = "warning", confirmButtonCol = "#337ab7")
+    
+  })
+  
+
+  output$ves_agg_dwnld <- downloadHandler(
+    filename = function(){"insert_name.csv"},
+
+    content = function(file) {
+      shiny::withProgress(
+        message = paste0("Downloading Aggregated VES Data"),
+        value = 0,
+        {
+          shiny::incProgress(3/10)
+          Sys.sleep(1)
+          shiny::incProgress(9/10)
+          write.csv(ves_agg_reac(), file, row.names = FALSE)
+        }
+      )
+    }
+  )
 
   
   # observe events to update wilderness and years based on selection for leaflet map
@@ -568,42 +547,6 @@ server <- function(input, output, session){
     
   })
   
-  # # tadpole data
-  # bd_reac_tad <- reactive({
-  #   
-  #   
-  #   bd_plot %>% 
-  #     dplyr::filter((date <= input$bd_date[2] & date >= input$bd_date[1]), 
-  #                   wilderness == input$wilderness_2, 
-  #                   species == input$bd_species, 
-  #                   visual_life_stage == "Tadpole", 
-  #                   id == input$bd_id) %>% 
-  #     mutate("Year-Month" = month_year,
-  #            "Log(Bd) Load" = bd,
-  #            "Visual Life Stage" = visual_life_stage,
-  #            Prevalence = round(Prevalence, 2),
-  #            bd = round(bd, 2)) %>% 
-  #     ungroup()
-  #   
-  # })
-  # 
-  # #sub adult data
-  # bd_reac_subadult <- reactive({
-  #   
-  #   
-  #   bd_plot %>% 
-  #     dplyr::filter((date <= input$bd_date[2] & date >= input$bd_date[1]), 
-  #                   wilderness == input$wilderness_2, 
-  #                   species == input$bd_species, 
-  #                   visual_life_stage == "Subadult", 
-  #                   id == input$bd_id) %>% 
-  #     mutate("Year-Month" = month_year,
-  #            "Log(Bd) Load" = bd,
-  #            "Visual Life Stage" = visual_life_stage,
-  #            Prevalence = round(Prevalence, 2),
-  #            bd = round(bd, 2))
-  #   
-  # })
   
   # render bd plots
   output$bd_plots <- renderPlot({
@@ -654,100 +597,8 @@ server <- function(input, output, session){
       geom_hline(yintercept=5.8, linetype='dotted', col = 'red') 
     
   })
-  # 
-  # output$bd_plots_sub <- renderPlot({
-  #   
-  #   
-  #   if(input$wilderness_2 < 0 && input$bd_species < 0 && input$bd_id < 0) {
-  #     validate(" ")
-  #   }
-  # 
-  # 
-  #   if(input$wilderness_2 > 0 && input$bd_species < 0 && input$bd_id < 0) {
-  #     validate(" ")
-  #   }
-  # 
-  # 
-  #   if(input$wilderness_2 > 0 && input$bd_species > 0 && input$bd_id < 0) {
-  #     validate(" ")
-  #   }
-  # 
-  #   validate(
-  #     need(nrow(bd_reac_subadult() > 0), 'No data exists')
-  #   )
-  #   
-  #   ggplot(data = bd_reac_subadult(), aes(x = month_year, y = bd, fill = visual_life_stage, group = visual_life_stage)) +
-  #     geom_point(size = 2.5, color = "#fde725") +
-  #     geom_smooth(se = F, show.legend = F) +
-  #     ylab("Median log10(Bd)") +
-  #     xlab("Year-Month") +
-  #     labs(fill = "Visual Life Stage") + 
-  #     geom_text_repel(aes(label = paste(round(bd_reac_subadult()$sample_size, 3)))) +
-  #     theme_classic() +
-  #     theme(#plot.title = element_text(hjust = 0.5),
-  #       axis.text.x = element_text(angle = 45, vjust = 1, hjust = 0.9, size = 12),
-  #       plot.title = element_text(hjust = 0.5, vjust = 1.2, size = 17),
-  #       axis.line = element_line(size = 1.1),
-  #       axis.ticks = element_line(size = 1.8),
-  #       axis.text.y = element_text(size = 14),
-  #       axis.title.x = element_text(size = 14, vjust = 1),
-  #       axis.title.y = element_text(size = 15),
-  #       legend.key.height = unit(2, "cm"),
-  #       legend.title = element_text(size = 15),
-  #       legend.text = element_text(size = 15),
-  #       legend.key.size = unit(2, "cm")) +
-  #     scale_y_continuous(breaks = integer_breaks()) +
-  #     scale_fill_manual(values = c("Subadult" = "#fde725"),
-  #                        name = "Visual Life Stage") +
-  #     geom_hline(yintercept=5.8, linetype='dotted', col = 'red')
-  #   
-  # })
-  # 
-  # output$bd_plots_tad <- renderPlot({
-  #   
-  #   if(input$wilderness_2 < 0 && input$bd_species < 0 && input$bd_id < 0) {
-  #     validate(" ")
-  #   }
-  #   
-  #   
-  #   if(input$wilderness_2 > 0 && input$bd_species < 0 && input$bd_id < 0) {
-  #     validate(" ")
-  #   }
-  #   
-  #   
-  #   if(input$wilderness_2 > 0 && input$bd_species > 0 && input$bd_id < 0) {
-  #     validate(" ")
-  #   }
-  #   
-  #   
-  #   
-  #   ggplot(data = bd_reac_tad(), aes(x = month_year, y = bd, fill = visual_life_stage, group = visual_life_stage)) +
-  #     geom_point(color = "#31688e", size = 2.5) +
-  #     geom_smooth(se = F, show.legend = F) +
-  #     ylab("Median log10(Bd)") +
-  #     xlab("Year-Month") +
-  #     labs(fill = "Visual Life Stage") + 
-  #     geom_text_repel(aes(label = paste(round(bd_reac_tad()$sample_size, 3)))) +
-  #     theme_classic() +
-  #     theme(#plot.title = element_text(hjust = 0.5),
-  #       axis.text.x = element_text(angle = 45, vjust = 1, hjust = 0.9, size = 12),
-  #       plot.title = element_text(hjust = 0.5, vjust = 1.2, size = 17),
-  #       axis.line = element_line(size = 1.1),
-  #       axis.ticks = element_line(size = 1.8),
-  #       axis.text.y = element_text(size = 14),
-  #       axis.title.x = element_text(size = 14, vjust = 1),
-  #       axis.title.y = element_text(size = 15),
-  #       legend.key.height = unit(2, "cm"),
-  #       legend.title = element_text(size = 15),
-  #       legend.text = element_text(size = 15),
-  #       legend.key.size = unit(2, "cm")) +
-  #     scale_y_continuous(breaks = integer_breaks()) +
-  #     scale_fill_manual(values = c("Tadpole" = "#31688e"),
-  #                        name = "Visual Life Stage") +
-  #     geom_hline(yintercept=5.8, linetype='dotted', col = 'red')
-  #   
-  # })
-  # 
+ 
+  
   # render table
   output$bd_counts = renderTable({
     
@@ -770,35 +621,41 @@ server <- function(input, output, session){
   # Data download
   observeEvent(input$bd_agg_download, {
     
-    shinyalert(title = "Pump the breaks!",
-               text = "This Feature will be live following data sharing contract",
-               type = "warning", closeOnClickOutside = T, showCancelButton = T, inputId = "bd_agg_download_btn",
-               showConfirmButton = T, confirmButtonText = "Yes", cancelButtonText = "No",
-               animation = "slide-from-top")
+    shinyalert(title = "Enter Username", 
+               text = "Please keep in mind the data sharing agreement",
+               type = "input", closeOnClickOutside = T, showCancelButton = T, inputId = "bd_agg_download_btn",
+               showConfirmButton = T, confirmButtonText = "Confirm", cancelButtonText = "Cancel", 
+               animation = "slide-from-top", inputPlaceholder = "enter_username", confirmButtonCol = "#337ab7")
+    
   })
   
-  # observeEvent(input$bd_agg_download_btn,{
-  #   if(input$bd_agg_download_btn == T)
-  #     showModal(modalDialog(downloadButton("bd_agg_dwnld", "Download"), footer = NULL, easyClose = T, size = "s"))
-  # })
-  # 
-  # output$bd_agg_dwnld <- downloadHandler(
-  #   filename = function(){"insert_name.csv"},
-  # 
-  #   content = function(file) {
-  #     shiny::withProgress(
-  #       message = paste0("Downloading Aggregated Bd Data"),
-  #       value = 0,
-  #       {
-  #         shiny::incProgress(3/10)
-  #         Sys.sleep(1)
-  #         shiny::incProgress(9/10)
-  #         write.csv(bd_agg_reac(), file, row.names = FALSE)
-  #       }
-  #     )
-  #   }
-  # )
-  
+  observeEvent(input$bd_agg_download_btn,{
+    
+      if(input$bd_agg_download_btn %in% credentials$user)
+        showModal(modalDialog(downloadButton("bd_agg_dwnld", "Download"), footer = NULL, easyClose = T, size = "s"))
+      
+      if(!input$bd_agg_download_btn %in% credentials$user)
+        shinyalert(title = "Access Denied", type = "warning", confirmButtonCol = "#337ab7")
+
+  })
+
+  output$bd_agg_dwnld <- downloadHandler(
+    filename = function(){"insert_name.csv"},
+
+    content = function(file) {
+      shiny::withProgress(
+        message = paste0("Downloading Aggregated Bd Data"),
+        value = 0,
+        {
+          shiny::incProgress(3/10)
+          Sys.sleep(1)
+          shiny::incProgress(9/10)
+          write.csv(bd_agg_reac(), file, row.names = FALSE)
+        }
+      )
+    }
+  )
+
   
   # update input options
   observeEvent(input$bd_date, {
@@ -861,34 +718,40 @@ server <- function(input, output, session){
   # Data download
   observeEvent(input$cap_download, {
     
-    shinyalert(title = "Pump the breaks!",
-               text = "This Feature will be live following data sharing contract",
-               type = "warning", closeOnClickOutside = T, showCancelButton = T, inputId = "cap_download_btn",
-               showConfirmButton = T, confirmButtonText = "Yes", cancelButtonText = "No",
-               animation = "slide-from-top")
+    shinyalert(title = "Enter Username", 
+               text = "Please keep in mind the data sharing agreement",
+               type = "input", closeOnClickOutside = T, showCancelButton = T, inputId = "cap_download_btn",
+               showConfirmButton = T, confirmButtonText = "Confirm", cancelButtonText = "Cancel", 
+               animation = "slide-from-top", inputPlaceholder = "enter_username", confirmButtonCol = "#337ab7")
+    
   })
   
-  # observeEvent(input$cap_download_btn,{
-  #   if(input$cap_download_btn == T)
-  #     showModal(modalDialog(downloadButton("cap_dwnld", "Download"), footer = NULL, easyClose = T, size = "s"))
-  # })
-  #
-  # output$cap_dwnld <- downloadHandler(
-  #   filename = function(){"insert_name.csv"},
-  #
-  #   content = function(file) {
-  #     shiny::withProgress(
-  #       message = paste0("Downloading Capture Data"),
-  #       value = 0,
-  #       {
-  #         shiny::incProgress(3/10)
-  #         Sys.sleep(1)
-  #         shiny::incProgress(9/10)
-  #         write.csv(cap_data(), file, row.names = FALSE)
-  #       }
-  #     )
-  #   }
-  # )
+  observeEvent(input$cap_download_btn,{
+    
+    if(input$cap_download_btn %in% credentials$user)
+      showModal(modalDialog(downloadButton("cap_dwnld", "Download"), footer = NULL, easyClose = T, size = "s"))
+    
+    if(!input$cap_download_btn %in% credentials$user)
+      shinyalert(title = "Access Denied", type = "warning", confirmButtonCol = "#337ab7")
+    
+  })
+
+  output$cap_dwnld <- downloadHandler(
+    filename = function(){"insert_name.csv"},
+
+    content = function(file) {
+      shiny::withProgress(
+        message = paste0("Downloading Capture Data"),
+        value = 0,
+        {
+          shiny::incProgress(3/10)
+          Sys.sleep(1)
+          shiny::incProgress(9/10)
+          write.csv(cap_data(), file, row.names = FALSE)
+        }
+      )
+    }
+  )
   
   
   # update wilderness options based on year selection
@@ -897,8 +760,9 @@ server <- function(input, output, session){
       
       updatePickerInput(session, inputId = "data_jur",
                         choices = unique(full_capture$wilderness[full_capture$year <= input$data_year[2]
-                                                                 & full_capture$year>=input$data_year[1]]))
+                                                                 & full_capture$year >= input$data_year[1]]))
     })
+  
   
   # clear button
   observeEvent(input$cap_clear,
@@ -934,38 +798,44 @@ server <- function(input, output, session){
   # VES Data download
   observeEvent(input$ves_download, {
     
-    shinyalert(title = "Pump the breaks!",
-               text = "This Feature will be live following data sharing contract",
-               type = "warning", closeOnClickOutside = T, showCancelButton = T, inputId = "ves_download_btn",
-               showConfirmButton = T, confirmButtonText = "Yes", cancelButtonText = "No",
-               animation = "slide-from-top")
+    shinyalert(title = "Enter Username", 
+               text = "Please keep in mind the data sharing agreement",
+               type = "input", closeOnClickOutside = T, showCancelButton = T, inputId = "ves_download_btn",
+               showConfirmButton = T, confirmButtonText = "Confirm", cancelButtonText = "Cancel", 
+               animation = "slide-from-top", inputPlaceholder = "enter_username", confirmButtonCol = "#337ab7")
+    
   })
   
-  # observeEvent(input$ves_download_btn,{
-  #   if(input$ves_download_btn == T)
-  #     showModal(modalDialog(downloadButton("ves_dwnld", "Download"), footer = NULL, easyClose = T, size = "s"))
-  # })
-  #
-  # output$ves_dwnld <- downloadHandler(
-  #   filename = function(){"insert_name.csv"},
-  #
-  #   content = function(file) {
-  #     shiny::withProgress(
-  #       message = paste0("Downloading VES Data"),
-  #       value = 0,
-  #       {
-  #         shiny::incProgress(3/10)
-  #         Sys.sleep(1)
-  #         shiny::incProgress(9/10)
-  #         write.csv(v_data(), file, row.names = FALSE)
-  #       }
-  #     )
-  #   }
-  # )
-  #
+  observeEvent(input$ves_download_btn,{
+    
+    if(input$ves_download_btn %in% credentials$user)
+      showModal(modalDialog(downloadButton("ves_dwnld", "Download"), footer = NULL, easyClose = T, size = "s"))
+    
+    if(!input$ves_download_btn %in% credentials$user)
+      shinyalert(title = "Access Denied", type = "warning", confirmButtonCol = "#337ab7")
+    
+  })
+
+  output$ves_dwnld <- downloadHandler(
+    filename = function(){"insert_name.csv"},
+
+    content = function(file) {
+      shiny::withProgress(
+        message = paste0("Downloading VES Data"),
+        value = 0,
+        {
+          shiny::incProgress(3/10)
+          Sys.sleep(1)
+          shiny::incProgress(9/10)
+          write.csv(v_data(), file, row.names = FALSE)
+        }
+      )
+    }
+  )
+
   
   # update wilderness options based on year selection
-  observe(
+  observe( 
     {input$data_year_ves
       
       updatePickerInput(session, inputId = "data_jur_ves",
@@ -997,7 +867,7 @@ server <- function(input, output, session){
     full_cmr %>% 
       filter(year %in% c(input$data_year_cmr), collect_siteid %in% c(input$id_cmr),
              type %in% c(input$retran_cmr)) %>% 
-      dplyr::select(input$relocate_cmr, input$relocate_frog_cmr, collect_date, collect_siteid, type)
+      dplyr::select(collect_date, collect_siteid, type, input$relocate_cmr, input$relocate_frog_cmr)
     
   })
   
@@ -1010,34 +880,40 @@ server <- function(input, output, session){
   # VES Data download
   observeEvent(input$cmr_download, {
     
-    shinyalert(title = "Pump the breaks!",
-               text = "This Feature will be live following data sharing contract",
-               type = "warning", closeOnClickOutside = T, showCancelButton = T, inputId = "cmr_download_btn",
-               showConfirmButton = T, confirmButtonText = "Yes", cancelButtonText = "No",
-               animation = "slide-from-top")
+    shinyalert(title = "Enter Username", 
+               text = "Please keep in mind the data sharing agreement",
+               type = "input", closeOnClickOutside = T, showCancelButton = T, inputId = "cmr_download_btn",
+               showConfirmButton = T, confirmButtonText = "Confirm", cancelButtonText = "Cancel", 
+               animation = "slide-from-top", inputPlaceholder = "enter_username", confirmButtonCol = "#337ab7")
+
   })
   
-  # observeEvent(input$cmr_download_btn,{
-  #   if(input$cmr_download_btn == T)
-  #     showModal(modalDialog(downloadButton("cmr_dwnld", "Download"), footer = NULL, easyClose = T, size = "s"))
-  # })
-  # 
-  # output$cmr_dwnld <- downloadHandler(
-  #   filename = function(){"insert_name.csv"},
-  # 
-  #   content = function(file) {
-  #     shiny::withProgress(
-  #       message = paste0("Downloading Relocate Data"),
-  #       value = 0,
-  #       {
-  #         shiny::incProgress(3/10)
-  #         Sys.sleep(1)
-  #         shiny::incProgress(9/10)
-  #         write.csv(reloc_data(), file, row.names = FALSE)
-  #       }
-  #     )
-  #   }
-  # )
+  observeEvent(input$cmr_download_btn,{
+    
+    if(input$cmr_download_btn %in% credentials$user)
+      showModal(modalDialog(downloadButton("ves_dwnld", "Download"), footer = NULL, easyClose = T, size = "s"))
+    
+    if(!input$cmr_download_btn %in% credentials$user)
+      shinyalert(title = "Access Denied", type = "warning", confirmButtonCol = "#337ab7")
+    
+  })
+
+  output$cmr_dwnld <- downloadHandler(
+    filename = function(){"insert_name.csv"},
+
+    content = function(file) {
+      shiny::withProgress(
+        message = paste0("Downloading Relocate Data"),
+        value = 0,
+        {
+          shiny::incProgress(3/10)
+          Sys.sleep(1)
+          shiny::incProgress(9/10)
+          write.csv(reloc_data(), file, row.names = FALSE)
+        }
+      )
+    }
+  )
   
   
   # clear button
@@ -1057,8 +933,8 @@ server <- function(input, output, session){
     {input$data_year_cmr
       
       updatePickerInput(session, inputId = "id_cmr",
-                        choices = unique(full_cmr$collect_siteid[full_cmr$year == c(input$data_year_cmr)]))
+                        choices = unique(full_cmr$collect_siteid[full_cmr$year %in% input$data_year_cmr]))
     })
   
-  
+  track_usage(storage_mode = store_googledrive(path = "https://drive.google.com/drive/folders/1hUEOkqn5yqPbmI_CQyCr5gtdWNG31JEj"))
 }

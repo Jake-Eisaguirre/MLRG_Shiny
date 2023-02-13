@@ -25,7 +25,7 @@ ui <-  secure_app(head_auth = tags$script(inactivity),
       }'),
       
       
-      includeCSS(here("theme.css")),
+      #includeCSS(here("theme.css")),
       
       #theme = theme,
       
@@ -382,7 +382,7 @@ ui <-  secure_app(head_auth = tags$script(inactivity),
                                                      ),
                                                      multiple = TRUE),
                                          pickerInput(inputId = "id_cmr",
-                                                     label = "Select Release Site ID",
+                                                     label = "Select Collection Site ID",
                                                      choices = sort(unique(relocate_table$collect_siteid)),
                                                      options = list(
                                                        `actions-box` = TRUE,

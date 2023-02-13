@@ -5,7 +5,10 @@ account: ribbitr
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 8129900
-bundleId: 6791264
+bundleId: 6841761
 url: https://ribbitr.shinyapps.io/mlrg_shinyapp/
-when: 1675118222.1555
-lastSyncTime: 1675118222.15551
+when: 1676312998.54625
+lastSyncTime: 1676312998.54626
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: creds.example.R
