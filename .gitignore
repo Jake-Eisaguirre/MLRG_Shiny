@@ -45,4 +45,5 @@ creds.R
 old_shape_file_data/
 db_creds.R
 MLRG_Shinyapp/db_creds.R
+MLRG_Shinyapp/.secrets
 
