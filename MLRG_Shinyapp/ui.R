@@ -74,7 +74,7 @@ ui <-  secure_app(head_auth = tags$script(inactivity),
                                              width = 300))))
                           )),
                  
-                 tabPanel(title = "Amphibian Occupancy Map", icon = icon("globe"),
+                 tabPanel(title = "Amphibian Detection Map", icon = icon("globe"),
                           
                           sidebarLayout(
                             
