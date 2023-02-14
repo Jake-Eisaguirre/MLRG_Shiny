@@ -300,4 +300,12 @@ t <- ves_data %>%
  c <- anti_join(b, a, by = c("id"))
 
 ```
+```{r}
+
+
+a <- full_capture %>%
+      filter(year == 2022) %>%
+      dplyr::select(wilderness, input$data_site, input$data_visit, input$data_survey, input$data_capture, input$data_bd)
+
+```
 

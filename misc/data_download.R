@@ -259,16 +259,15 @@ capture <- dplyr::select(capture, !c(id, survey_id, surveyor_id)) %>%
 write_csv(capture, here("MLRG_Shinyapp", "data", "capture.csv"))
 
 # full capture data set
-raw_capture <- dbGetQuery(connection, "select s.*, v.*, s2.*, cs.*, s3.name, bd.*
+raw_capture <- dbGetQuery(connection, "select s.*, v.*, s2.*, cs.*, s3.name
                                        from site s
                                        join visit v on s.id = v.site_id
                                        join survey s2 on v.id = s2.visit_id
                                        join capture_survey cs on s2.id = cs.survey_id
-                                       join surveyor s3 on cs.surveyor_id = s3.id
-                                       join bd_load bd on cs.swab_id = bd.sample_id;")
+                                       join surveyor s3 on cs.surveyor_id = s3.id")
 
 full_capture <- raw_capture %>%
-  dplyr::select(!c(id..13, site_id, id..18, id..34, surveyor_id, visit_id, survey_id, swab_id)) %>%
+  dplyr::select(!c(id..13, site_id, id..18, id..34, surveyor_id, visit_id, survey_id)) %>%
   rename(site_name = name,
          visit_comment = comment,
          site_utme = utme,
@@ -277,8 +276,7 @@ full_capture <- raw_capture %>%
          capture_comment = comment..50,
          capture_utme = utme..44,
          capture_utmn = utmn..45,
-         surveyor = name..51,
-         swab_id = sample_id) %>%
+         surveyor = name..51) %>%
   mutate(year = year(visit_date))
 write_csv(full_capture, here("MLRG_Shinyapp", "data", "full_capture.csv"))
 

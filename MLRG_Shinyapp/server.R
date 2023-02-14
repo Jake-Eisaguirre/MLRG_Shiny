@@ -705,7 +705,8 @@ server <- function(input, output, session){
     
     full_capture %>%
       filter(year <= input$data_year[2] & year>= input$data_year[1],
-             jurisdiction %in% input$data_jur) %>%
+             wilderness %in% c(input$data_jur)) %>%
+      left_join(bd_load_table, by = c("swab_id")) %>% 
       dplyr::select(wilderness, input$data_site, input$data_visit, input$data_survey, input$data_capture, input$data_bd)
     
   })
@@ -755,8 +756,8 @@ server <- function(input, output, session){
   
   
   # update wilderness options based on year selection
-  observe(
-    {input$data_year
+  observeEvent(input$data_year,
+               {
       
       updatePickerInput(session, inputId = "data_jur",
                         choices = unique(full_capture$wilderness[full_capture$year <= input$data_year[2]
