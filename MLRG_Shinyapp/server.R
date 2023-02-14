@@ -787,7 +787,7 @@ server <- function(input, output, session){
     
     full_ves %>%
       filter(year <= input$data_year_ves[2] & year >= input$data_year_ves[1],
-             jurisdiction %in% input$data_jur_ves) %>%
+             wilderness %in% input$data_jur_ves) %>%
       dplyr::select(wilderness, input$data_site_ves, input$data_visit_ves, input$data_survey_ves, input$data_ves)
     
   })
