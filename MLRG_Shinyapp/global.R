@@ -35,6 +35,7 @@ library(raster)
 library(shinyalert)
 library(googledrive)
 library(shinylogs)
+library(ggh4x)
 
 
 shinyOptions(cache = cachem::cache_disk("./app_cache"))
