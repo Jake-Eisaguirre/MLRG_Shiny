@@ -5,7 +5,7 @@ account: ribbitr
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 8129900
-bundleId: 6850648
+bundleId: 6875771
 url: https://ribbitr.shinyapps.io/mlrg_shinyapp/
-when: 1676483030.36371
-lastSyncTime: 1676483030.36373
+when: 1677091833.05587
+lastSyncTime: 1677091833.05588
