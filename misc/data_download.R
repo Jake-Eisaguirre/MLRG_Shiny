@@ -333,3 +333,112 @@ full_cmr <- raw_cmr %>%
          frog_comment = comment..20) %>% 
   mutate(year = year(collect_date))
 write_csv(full_cmr, here("MLRG_Shinyapp", "data", "full_cmr.csv"))
+
+################ END RAW DATA DOWNLAOD ####################
+
+######### All Sites Visited #####################
+
+test.data.visit <- dbGetQuery(connection, "select v.id, v.site_id, v.visit_date
+                                            from visit v")
+
+test.data.survey <- dbGetQuery(connection, "select s.id, s.visit_id, s.survey_type, s.duration
+                                            from survey s")
+
+test.data.visual <- dbGetQuery(connection, "select su.id, su.survey_id, su.species, su.visual_life_stage,
+                                            su.visual_animal_state, su.location, su.count
+                                            from visual_survey su")
+
+wild <- dbGetQuery(connection, "select s.id, s.wilderness, s.utme, s.utmn
+                                from site s")
+
+# change UUID vector names for clarity  
+test.data.visit <- test.data.visit %>% 
+  mutate(visit_id=id) %>% 
+  dplyr::select(-id)
+
+test.data.survey <- test.data.survey %>% 
+  mutate(survey_id=id) %>% 
+  dplyr::select(-id)
+
+test.data.visual <- test.data.visual %>% 
+  rename(count_observed = count)
+
+# gets ALL RECORDS including surveys and visuals with related counts or non-counts
+all.records <-
+  test.data.visit %>% 
+  inner_join(filter(test.data.survey, survey_type=="visual"), by=c("visit_id")) %>% 
+  dplyr::select(visit_id, site_id, visit_date, survey_id, survey_type) %>% 
+  left_join(test.data.visual, by="survey_id")
+
+# Surveys with OBSERVED AMPHIBIANS
+# gets all surveys with non-zero counts
+amphibian.counts <- 
+  test.data.visit %>% 
+  inner_join(filter(test.data.survey, survey_type=="visual"), by=c("visit_id")) %>% 
+  dplyr::select(visit_id, site_id, visit_date, survey_id, survey_type) %>% 
+  inner_join(test.data.visual, by="survey_id")
+
+# Surveys with NO AMPHIBIANS
+# gets all surveys with no counts, streamlined because uses filtering join
+surveys.no.counts <-
+  test.data.visit %>% 
+  inner_join(filter(test.data.survey, survey_type=="visual"), by=c("visit_id")) %>% 
+  dplyr::select(visit_id, site_id, visit_date, survey_id, survey_type) %>% 
+  anti_join(test.data.visual, by="survey_id")
+
+# use`dplyr::complete` on test data; suggested by Max Joseph
+# using amphibian counts or all records, we can still generate records for visit-surveys where no amphibians (or, none of a certain lifestage) were observed.  
+amphibian.counts %>% 
+  dplyr::select(site_id, visit_date, visual_life_stage, count_observed) %>% # 
+  filter(visual_life_stage=="adult") %>% #
+  complete(site_id, visit_date, visual_life_stage, fill=list(count_observed=0)) # 
+# same result:
+all.records %>% 
+  dplyr::select(site_id, visit_date, visual_life_stage, count_observed) %>% # 
+  filter(visual_life_stage=="adult") %>% # optionals filter for one life_stage  
+  complete(site_id, visit_date, visual_life_stage, fill=list(count_observed=0)) # 
+# apply complete to all records, unfiltered 
+all.records %>% 
+  dplyr::select(site_id, visit_date, visual_life_stage, count_observed) %>% 
+  complete(site_id, visit_date, visual_life_stage, fill = list(count_observed = 0))
+  
+
+all_record <- all.records %>% 
+  dplyr::select(!c(visit_id,survey_id, survey_type, id, location))
+
+all_records <- all_record %>% 
+  left_join(wild, by = c("site_id" = "id")) %>% 
+  mutate(count_observed = na_if(count_observed, 0)) %>% 
+  filter(is.na(count_observed)) %>% 
+  mutate(count_observed = 0,
+         wilderness = str_replace_all(wilderness, "_", " "),
+         wilderness = str_to_title(wilderness),
+         year = year(visit_date))
+
+des_cords <- all_records %>% 
+  filter(wilderness == "desolation")
+
+des_sf <- st_as_sf(des_cords, coords = c('utme', 'utmn'), crs = "+proj=utm +zone=10")
+des_ves = st_transform(des_sf, crs = "+proj=longlat +ellps=WGS84 +datum=WGS84")
+
+# now do rest of wildernesses in zone 11 coords
+clean_all_records <- all_records %>% 
+  filter(!wilderness %in% c("desolation", "none"))
+
+sf_ves <- st_as_sf(clean_all_records, coords = c('utme', 'utmn'), crs = "+proj=utm +zone=11")
+leaf_ves = st_transform(sf_ves, crs = "+proj=longlat +ellps=WGS84 +datum=WGS84")
+
+# bind desolation back to all the main df
+des_bind <- rbind(leaf_ves, des_ves)
+  
+all_records <- des_bind %>% 
+  mutate(long = st_coordinates(.)[,1],
+         lat = st_coordinates(.)[,2]) %>% 
+  as.data.frame() %>% 
+  dplyr::select(!c(geometry))
+
+write_csv(all_records, here("MLRG_Shinyapp", "data", "all_visits.csv"))
+
+####### END ZERO Count Survey Downlaod #########################
+
+

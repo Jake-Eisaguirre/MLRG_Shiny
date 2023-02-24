@@ -64,8 +64,7 @@ ves_plot <- read_csv(here("data/ves_plot.csv"))
 
 # all visit data for map
 all_visits <- read_csv(here( "data/all_visits.csv")) %>% 
-  left_join(water, by = c("site_id" = "id")) %>%
-  anti_join(ves_data, by = c("site_id" = "id"))
+  left_join(water, by = c("site_id" = "id"))
 
 
 ######### Database Connection and Data Download ############## 

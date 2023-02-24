@@ -131,8 +131,8 @@ server <- function(input, output, session){
       clearControls()  %>% 
       addCircleMarkers(data = visit_reactive(), lng = ~long, lat = ~lat, color = "#440154", radius = 1, opacity = 1, 
                        fillOpacity = 1, weight = 5,
-                       label = paste("Site: ", all_visits$site_id, " | ",
-                                     "Water type: ", all_visits$lake_type)) %>% 
+                       label = paste("Site: ", visit_reactive()$site_id, " | ",
+                                     "Water type: ", visit_reactive()$lake_type)) %>% 
       addCircleMarkers(data = data_reactive(), lng = ~long, lat = ~lat,  color = "#35b779", radius = 1, opacity = 1, 
                        fillOpacity = 1, weight = 5, layerId = data_reactive()$id,
                        label = paste('Site:',data_reactive()$id)) %>% 

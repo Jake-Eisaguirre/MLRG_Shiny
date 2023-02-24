@@ -78,58 +78,58 @@ In summary, the data will look like"
     -  10102 should have no observations of any amphibians.  
 
 ```{r create-test-data}
-# Visits
-test.data.visit <- read_csv("id, site_id, visit_date
-                                 visit-001-uuid, 10100, 1900-01-01
-                                 visit-002-uuid, 10100, 1901-01-01
-                                 visit-003-uuid, 10100, 1902-01-01
-                                 visit-004-uuid, 10100, 1903-01-01
-                                 visit-005-uuid, 10101, 1900-01-01
-                                 visit-006-uuid, 10101, 1901-01-01
-                                 visit-007-uuid, 10101, 1902-01-01
-                                 visit-008-uuid, 10101, 1903-01-01
-                                 visit-009-uuid, 10102, 1900-01-01
-                                 visit-010-uuid, 10102, 1901-01-01
-                                 visit-011-uuid, 10102, 1902-01-01
-                                 visit-012-uuid, 10102, 1903-01-01") %>%
-  as_tibble()
-# three sites are visited once each in four years
-# Survey
-test.data.survey <- read_csv("id, visit_id, survey_type, duration
-                                 survy-001-uuid, visit-001-uuid, visual, 1
-                                 survy-002-uuid, visit-002-uuid, visual, 1
-                                 survy-003-uuid, visit-003-uuid, visual, 1
-                                 survy-004-uuid, visit-004-uuid, visual, 1
-                                 survy-005-uuid, visit-005-uuid, visual, 1
-                                 survy-006-uuid, visit-006-uuid, visual, 1
-                                 survy-007-uuid, visit-007-uuid, visual, 1
-                                 survy-008-uuid, visit-008-uuid, visual, 1
-                                 survy-009-uuid, visit-009-uuid, visual, 1
-                                 survy-010-uuid, visit-010-uuid, visual, 1
-                                 survy-011-uuid, visit-011-uuid, visual, 1
-                                 survy-012-uuid, visit-012-uuid, visual, 1") %>%
-  as_tibble()
-# Visual Survey (or, amphibian counts)
-test.data.visual <- read_csv("id, survey_id, species, visual_life_stage, visual_animal_state, location, count
-                                  visul-001-uuid, survy-001-uuid, ramu, adult, alive, lake, 1
-                                  visul-002-uuid, survy-001-uuid, ramu, tadpole, alive, lake, 2
-                                  visul-003-uuid, survy-001-uuid, ramu, subadult, alive, lake, 3
-                                  visul-004-uuid, survy-002-uuid, ramu, adult, alive, lake, 11
-                                  visul-005-uuid, survy-002-uuid, ramu, tadpole, alive, lake, 12
-                                  visul-006-uuid, survy-002-uuid, ramu, subadult, alive, lake, 13
-                                  visul-007-uuid, survy-003-uuid, ramu, adult, alive, lake, 21
-                                  visul-008-uuid, survy-004-uuid, ramu, adult, alive, lake, 31
-                                  visul-009-uuid, survy-005-uuid, ramu, adult, alive, lake, 41
-                                  visul-010-uuid, survy-006-uuid, ramu, adult, alive, lake, 51") %>%
-  rename(count_observed=count) %>% # avoid using `count` as vector name because it is also an R/tidyverse function
-  as_tibble()
+# # Visits
+# test.data.visit <- read_csv("id, site_id, visit_date
+#                                  visit-001-uuid, 10100, 1900-01-01
+#                                  visit-002-uuid, 10100, 1901-01-01
+#                                  visit-003-uuid, 10100, 1902-01-01
+#                                  visit-004-uuid, 10100, 1903-01-01
+#                                  visit-005-uuid, 10101, 1900-01-01
+#                                  visit-006-uuid, 10101, 1901-01-01
+#                                  visit-007-uuid, 10101, 1902-01-01
+#                                  visit-008-uuid, 10101, 1903-01-01
+#                                  visit-009-uuid, 10102, 1900-01-01
+#                                  visit-010-uuid, 10102, 1901-01-01
+#                                  visit-011-uuid, 10102, 1902-01-01
+#                                  visit-012-uuid, 10102, 1903-01-01") %>%
+#   as_tibble()
+# # three sites are visited once each in four years
+# # Survey
+# test.data.survey <- read_csv("id, visit_id, survey_type, duration
+#                                  survy-001-uuid, visit-001-uuid, visual, 1
+#                                  survy-002-uuid, visit-002-uuid, visual, 1
+#                                  survy-003-uuid, visit-003-uuid, visual, 1
+#                                  survy-004-uuid, visit-004-uuid, visual, 1
+#                                  survy-005-uuid, visit-005-uuid, visual, 1
+#                                  survy-006-uuid, visit-006-uuid, visual, 1
+#                                  survy-007-uuid, visit-007-uuid, visual, 1
+#                                  survy-008-uuid, visit-008-uuid, visual, 1
+#                                  survy-009-uuid, visit-009-uuid, visual, 1
+#                                  survy-010-uuid, visit-010-uuid, visual, 1
+#                                  survy-011-uuid, visit-011-uuid, visual, 1
+#                                  survy-012-uuid, visit-012-uuid, visual, 1") %>%
+#   as_tibble()
+# # Visual Survey (or, amphibian counts)
+# test.data.visual <- read_csv("id, survey_id, species, visual_life_stage, visual_animal_state, location, count
+#                                   visul-001-uuid, survy-001-uuid, ramu, adult, alive, lake, 1
+#                                   visul-002-uuid, survy-001-uuid, ramu, tadpole, alive, lake, 2
+#                                   visul-003-uuid, survy-001-uuid, ramu, subadult, alive, lake, 3
+#                                   visul-004-uuid, survy-002-uuid, ramu, adult, alive, lake, 11
+#                                   visul-005-uuid, survy-002-uuid, ramu, tadpole, alive, lake, 12
+#                                   visul-006-uuid, survy-002-uuid, ramu, subadult, alive, lake, 13
+#                                   visul-007-uuid, survy-003-uuid, ramu, adult, alive, lake, 21
+#                                   visul-008-uuid, survy-004-uuid, ramu, adult, alive, lake, 31
+#                                   visul-009-uuid, survy-005-uuid, ramu, adult, alive, lake, 41
+#                                   visul-010-uuid, survy-006-uuid, ramu, adult, alive, lake, 51") %>%
+#   rename(count_observed=count) %>% # avoid using `count` as vector name because it is also an R/tidyverse function
+#   as_tibble()
 ```
 
 
 ```{r print-tables}
-print(test.data.visit)
-print(test.data.survey)
-print(test.data.visual)
+# print(test.data.visit)
+# print(test.data.survey)
+# print(test.data.visual)
 ```
 
 # 2. Join data tables
@@ -138,11 +138,13 @@ print(test.data.visual)
 test.data.visit <- test.data.visit %>% 
   mutate(visit_id=id) %>% 
   select(-id)
+
 test.data.survey <- test.data.survey %>% 
   mutate(survey_id=id) %>% 
   select(-id)
-test.data.visual <- test.data.visual %>%
-  rename(count_observed=count)
+
+test.data.visual <- test.data.visual %>% 
+  rename(count_observed = count)
 # gets ALL RECORDS including surveys and visuals with related counts or non-counts
 all.records <-
   test.data.visit %>% 
@@ -183,7 +185,7 @@ all.records %>%
   select(site_id, visit_date, visual_life_stage, count_observed) %>% 
   complete(site_id, visit_date, visual_life_stage, fill = list(count_observed = 0))
 
-write_csv(all.records, here("data", "all_visits.csv"))
+write_csv(all.records, here("MLRG_Shinyapp", "data", "all_visits.csv"))
 ```
 
 # 4. Test result with visualization.  
