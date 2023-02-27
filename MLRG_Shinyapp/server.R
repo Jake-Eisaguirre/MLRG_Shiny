@@ -28,7 +28,7 @@ server <- function(input, output, session){
     
     ves_data %>%
       dplyr::filter(date <= input$site_year[2] & date >= input$site_year[1], wilderness == input$wilderness, 
-                    species == input$species, visual_life_stage %in% c(input$stage)) %>% 
+                    species %in% c(input$species), visual_life_stage %in% c(input$stage)) %>% 
       group_by(id, species, visual_life_stage) %>% 
       mutate(sum_count = median(count),
              med = mean(bd),
@@ -70,7 +70,7 @@ server <- function(input, output, session){
     
     ves_data %>% 
       filter(date <= input$site_year[2] & date >= input$site_year[1],
-             species == input$species, visual_life_stage %in% c(input$stage),
+             species %in% c(input$species), visual_life_stage %in% c(input$stage),
              wilderness == input$wilderness) %>% 
       group_by(date, species, visual_life_stage, wilderness) %>% 
       group_by(id) %>% 
@@ -85,7 +85,7 @@ server <- function(input, output, session){
     
     ves_data %>% 
       filter(date <= input$site_year[2] & date >= input$site_year[1],
-             species == input$species, visual_life_stage %in% c(input$stage),
+             species %in% c(input$species), visual_life_stage %in% c(input$stage),
              wilderness == input$wilderness) %>% 
       group_by(date, species, visual_life_stage, wilderness) %>% 
       group_by(id) %>% 
@@ -171,7 +171,7 @@ server <- function(input, output, session){
     
     dat_bd <- b %>%
       filter(date <= input$site_year[2] & date >= input$site_year[1], wilderness == input$wilderness,
-             species == input$species, visual_life_stage %in% c(input$stage)) %>% 
+             species %in% c(input$species), visual_life_stage %in% c(input$stage)) %>% 
       group_by(date, id, lat, long, wilderness, species, visual_life_stage) %>% 
       mutate(id = id,
              date = date,
@@ -189,6 +189,7 @@ server <- function(input, output, session){
                              Lat = dat_bd$lat[dat_bd$id == event_bd$id],
                              Long = dat_bd$long[dat_bd$id == event_bd$id],
                              lake_type= dat_bd$lake_type[dat_bd$id == event_bd$id],
+                             species = dat_bd$species[dat_bd$id == event_bd$id],
                              visual_life_stage = dat_bd$visual_life_stage[dat_bd$id == event_bd$id],
                              count = (dat_bd$count[dat_bd$id == event_bd$id]),
                              bd = (dat_bd$bd[dat_bd$id == event_bd$id])) %>% 
@@ -196,7 +197,8 @@ server <- function(input, output, session){
       rename("Median Count" = count,
              "Median Log10(Bd)" = bd,
              "Water Type" = lake_type,
-             "Visual Life Stage" = visual_life_stage) 
+             "Visual Life Stage" = visual_life_stage,
+             "Species" = species) 
     
     
     output$test_id <- DT::renderDataTable(message_bd, rownames = F,  options = list(scrollY = T, searching = FALSE, dom = "rtip"))
@@ -216,7 +218,7 @@ server <- function(input, output, session){
     
     p_dat <- p %>%
       dplyr::filter(date <= input$site_year[2] & date >= input$site_year[1], wilderness == input$wilderness,
-                    species == input$species, visual_life_stage %in% c(input$stage)) %>%
+                    species %in% c(input$species), visual_life_stage %in% c(input$stage)) %>%
       group_by(species, visual_life_stage, wilderness, date) %>%
       summarise(sum_count = sum(count),
                 av_bd = round(mean(bd, na.rm = T), 2))
@@ -225,13 +227,15 @@ server <- function(input, output, session){
     p_message <- data.frame(
       Jurisdiction = as.character(p_dat$wilderness[p_dat$wilderness == event_poly$id]),
       Year = as.character(p_dat$date[p_dat$wilderness == event_poly$id]),
+      species = (p_dat$species[p_dat$species == event_poly$id]),
       visual_life_stage = (p_dat$visual_life_stage[p_dat$wilderness == event_poly$id]),
       count = (p_dat$sum_count[p_dat$wilderness == event_poly$id]),
       bd = (p_dat$av_bd[p_dat$wilderness == event_poly$id])) %>% 
       arrange(visual_life_stage) %>% 
       rename("Jurisdiction Median Count" = count,
              "Jurisdiction Bd Load" = bd,
-             "Visual Life Stage" = visual_life_stage) 
+             "Visual Life Stage" = visual_life_stage,
+             "Species" = species) 
     
     output$test_id <- DT::renderDataTable(p_message, rownames = F,  options = list(scrollY = T, searching = FALSE, dom = "rtip"))
     
@@ -248,7 +252,7 @@ server <- function(input, output, session){
     
     dat_any <- x_any %>%
       filter(date <= input$site_year[2] & date >= input$site_year[1], wilderness == input$wilderness,
-             species == input$species, visual_life_stage %in% c(input$stage)) %>%
+             species %in% c(input$species), visual_life_stage %in% c(input$stage)) %>%
       group_by(date, id, lat, long, wilderness, species, visual_life_stage) %>%
       mutate(id = id,
              date = date,
@@ -266,6 +270,7 @@ server <- function(input, output, session){
                               Lat = dat_any$lat[dat_any$id == event_any$id],
                               Long = dat_any$long[dat_any$id == event_any$id],
                               lake_type= dat_any$lake_type[dat_any$id == event_any$id],
+                              species = dat_any$species[dat_any$id == event_any$id],
                               visual_life_stage = (dat_any$visual_life_stage[dat_any$id == event_any$id]),
                               count = (dat_any$count[dat_any$id == event_any$id]),
                               bd = (dat_any$bd[dat_any$id == event_any$id])) %>%
@@ -273,7 +278,8 @@ server <- function(input, output, session){
       rename("Median Count" = count,
              "Median Log10(Bd)" = bd,
              "Water Type" = lake_type,
-             "Visual Life Stage" = visual_life_stage) 
+             "Visual Life Stage" = visual_life_stage,
+             "Species" = species) 
     
     
     output$test_id <- DT::renderDataTable(message_any, rownames = F,  options = list(scrollY = T, searching = FALSE, dom = "rtip"))
