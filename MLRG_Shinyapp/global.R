@@ -103,7 +103,7 @@ relocate_frog_table <- read_csv(here("data/relocate_frog_table.csv"))
 # full CMR table
 full_cmr <- read_csv(here("data/full_cmr.csv"), col_types = cols(collect_siteid = "c"))
 
-
+ 
 inactivity <- "function idleTimer() {
 var t = setTimeout(logout, 120000);
 window.onmousemove = resetTimer; // catches mouse movements
