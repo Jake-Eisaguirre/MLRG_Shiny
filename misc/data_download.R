@@ -145,7 +145,8 @@ ves_plot <- des_bind %>%
                              species == "Tato" ~ "California newt - Taricha torosa",
                              species == "Raca" ~ "Bullfrog - Rana catesbiana",
                              species == "Clma" ~ "Western pond turtle - Actinemys marmorata",
-                             species == "Amma" ~ "Long-toed salamander - Ambystoma macrodactylum")) %>% 
+                             species == "Amma" ~ "Long-toed salamander - Ambystoma macrodactylum",
+                             species == "Thsi" ~ "Common gartersnake - Thamnophis sirtalis")) %>% 
   filter(!str_detect(species, "NA"))
 
 write_csv(ves_plot, here("MLRG_Shinyapp", "data", "ves_plot.csv"))
