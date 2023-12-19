@@ -1,0 +1,53 @@
+
+.navbar-default {
+    background-color: #050806 !important;
+}
+
+ .nav-link.active {background-color:  #506e57;
+ color: #506e57;
+}
+
+
+/* color change when tabPanel is selected in navbarMenu */
+ .navbar-default .navbar-nav>li>a:focus, .navbar-default .navbar-nav>li>a:hover {
+  background-color: #506e57;
+}
+
+/* IMAGE STYLING*/ 
+/* resize banner images dynamically */  
+.banner {
+  display:block;
+  max-width: 100%;
+  width: auto; 
+}
+
+/* FOOTER STYLING */
+.footer {
+  width: 100%;
+}
+
+/* resize logos in footer */
+.footer img {
+  display: inline-block;
+  width: auto;
+  max-height: 30px;
+}
+
+/* logo positioning and spacing */
+.footer span {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+/* paragraph elements in footer */
+.footer p {
+  text-align: center;
+}
+
+
+
+p {
+  color: black !important;
+}
