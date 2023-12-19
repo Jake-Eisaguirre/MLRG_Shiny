@@ -36,3 +36,4 @@ db_creds.R
 MLRG_Shinyapp/db_creds.R
 MLRG_Shinyapp/.secrets
 /Users/JaketheBoss/Documents/NPS_Shiny/.secrets
+.secrets/
